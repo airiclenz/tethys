@@ -4,11 +4,23 @@ from . import views
 
 urlpatterns = [
     path("actionType/", views.ActionTypeListCreate.as_view(), name="actionType-create-view"),
-    path("actionType/<int:pk>", views.ActionTypeRetrieveUpdateDestroy.as_view(), name="actionType-retrieve-update-detroy"),
+    path("actionType/<str:name>", views.ActionTypeRetrieveUpdateDestroy.as_view(), name="actionType-retrieve-update-detroy"),
+
+    path("channel/", views.ChannelListCreate.as_view(), name="channel-create-view"),
+    path("channel/<int:pk>", views.ChannelRetrieveUpdateDestroy.as_view(), name="channel-retrieve-update-detroy"),
 
     path("channelType/", views.ChannelTypeListCreate.as_view(), name="channelType-create-view"),
-    path("channelType/<int:pk>", views.ChannelTypeRetrieveUpdateDestroy.as_view(), name="channelType-retrieve-update-detroy"),
+    path("channelType/<str:name>", views.ChannelTypeRetrieveUpdateDestroy.as_view(), name="channelType-retrieve-update-detroy"),
+
+    path("sensorData/", views.SensorDataListCreate.as_view(), name="sensorData-create-view"),
+    path("sensorData/<int:pk>", views.SensorDataRetrieveUpdateDestroy.as_view(), name="sensorData-retrieve-update-detroy"),
+
+    path("scheduleType/", views.ScheduleTypeListCreate.as_view(), name="scheduleType-create-view"),
+    path("scheduleType/<str:name>", views.ScheduleTypeRetrieveUpdateDestroy.as_view(), name="scheduleType-retrieve-update-detroy"),
 
     path("transmissionPowerLevel/", views.TransmissionPowerLevelListCreate.as_view(), name="transmissionPowerLevel-create-view"),
-    path("transmissionPowerLevel/<int:pk>", views.TransmissionPowerLevelRetrieveUpdateDestroy.as_view(), name="transmissionPowerLevel-retrieve-update-detroy"),
+    path("transmissionPowerLevel/<str:name>", views.TransmissionPowerLevelRetrieveUpdateDestroy.as_view(), name="transmissionPowerLevel-retrieve-update-detroy"),
+    path("transmissionPowerLevel/<int:value>", views.TransmissionPowerLevelRetrieveUpdateDestroy.as_view(), name="transmissionPowerLevel-retrieve-update-detroy"),
+
+
 ]

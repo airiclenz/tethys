@@ -7,33 +7,33 @@ class ActionTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActionType
         fields = [
-            "id", 
-            "name"]
+            "name"
+        ]
 
 # /////////////////////////////////////////////////////////////////////////////
 class ChannelTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChannelType
         fields = [
-            "id", 
-            "name"]
+            "name"
+        ]
 
 # /////////////////////////////////////////////////////////////////////////////
 class TransmissionPowerLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransmissionPowerLevel
         fields = [
-            "id", 
-            "value", 
-            "name"]
+            "name",
+            "value"
+        ]
 
 # /////////////////////////////////////////////////////////////////////////////
 class ScheduleTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduleType
         fields = [
-            "id", 
-            "name"]
+            "name"
+        ]
 
 # /////////////////////////////////////////////////////////////////////////////
 class ChannelSerializer(serializers.ModelSerializer):
@@ -50,6 +50,7 @@ class ChannelSerializer(serializers.ModelSerializer):
             "sensorMeasureFrequencyMinutes",
             "sensorTriggerCalibration",
             "sensorTransmissionPowerLevel"]
+        channelType = ChannelTypeSerializer
         
 # /////////////////////////////////////////////////////////////////////////////
 class SensorDataSerializer(serializers.ModelSerializer):

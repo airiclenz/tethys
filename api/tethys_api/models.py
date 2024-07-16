@@ -15,7 +15,7 @@ WEEKDAYS = (
 # /////////////////////////////////////////////////////////////////////////////
 class ActionType(models.Model):
     '''The svsilsblr action types.'''
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=20, primary_key=True, unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -23,7 +23,7 @@ class ActionType(models.Model):
 # /////////////////////////////////////////////////////////////////////////////
 class ChannelType(models.Model):
     '''The available channel types'''
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=20, primary_key=True, unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -31,7 +31,7 @@ class ChannelType(models.Model):
 # /////////////////////////////////////////////////////////////////////////////
 class TransmissionPowerLevel(models.Model):
     '''The available transmission-power-levels'''
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=20, primary_key=True, unique=True)
     value = models.IntegerField(unique = True);
 
     def __str__(self) -> str:
@@ -40,7 +40,7 @@ class TransmissionPowerLevel(models.Model):
 # /////////////////////////////////////////////////////////////////////////////
 class ScheduleType(models.Model):
     '''The available schedule-types'''
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=20, primary_key=True, unique=True)
 
     def __str__(self) -> str:
         return self.name
@@ -59,7 +59,7 @@ class Channel(models.Model):
     sensorTransmissionPowerLevel = models.ForeignKey(TransmissionPowerLevel, on_delete=models.DO_NOTHING)
 
     def __str__(self) -> str:
-        return self.number + ' - ' + self.nickName
+        return str(self.number) + ' - ' + self.nickName
 
 # /////////////////////////////////////////////////////////////////////////////
 class SensorData(models.Model):
@@ -69,7 +69,7 @@ class SensorData(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return self.channel.number + ' - ' + self.timestamp
+        return str(self.channel.number) + ' - ' + self.timestamp
 
 # /////////////////////////////////////////////////////////////////////////////
 class ActionLog(models.Model):
@@ -79,7 +79,7 @@ class ActionLog(models.Model):
     endTime = models.DateTimeField(null=True)
 
     def __str__(self) -> str:
-        return self.channel.number + ' - ' + self.actionType.name
+        return str(self.channel.number) + ' - ' + self.actionType.name
 
 
 # /////////////////////////////////////////////////////////////////////////////
