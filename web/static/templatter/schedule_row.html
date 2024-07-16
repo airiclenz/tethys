@@ -1,0 +1,29 @@
+
+<div
+    onclick="tethys.schedule.toggleSettingsVisibility({{ schedule.id }})"
+    class="div-row {% cycle table-row-odd table-row-even %}"
+    id="idSchedule{{ schedule.id }}">
+
+    <div
+        class="div-column div-column-padding col-20"
+        style="font-weight: 400; font-size: 15px; background-color:#6b99ff; color:#000000;"
+        id="idSchedule{{ schedule.id }}_weekday">
+        {{ schedule.weekday }}
+    </div>
+    <div
+        class="div-column div-column-padding col-25"
+        id="idSchedule{{ schedule.id }}_startTime">
+        {{ schedule.startTime }}
+    </div>
+    <div
+        class="div-column div-column-padding col-20"
+        id="idSchedule{{ schedule.id }}_duration">
+        {{ schedule.durationMinutes }}
+    </div>
+    <div
+        class="div-column div-column-padding col-20"
+        id="idSchedule{{ schedule.id }}_type">
+        {{ schedule.scheduleType }}
+    </div>
+
+</div>

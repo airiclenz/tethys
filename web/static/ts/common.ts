@@ -1,0 +1,248 @@
+
+// ============================================================================
+// ============================================================================
+// ============================================================================
+namespace tethys {
+
+    const baseApi = ":5001/api/";
+    let silentPhaseStatus = null;
+    let coreTemperature = 0.0;
+    let coreServiceState = false;
+
+    //export let webSocket = null;
+    export let apiUrl = "";
+    export let nullString = "--";
+    export let nullColor = "#aaaaaa";
+
+
+    export const location = {
+        channel: "channels",
+        schedule: "schedules"
+    }
+
+    const menuIds = {
+        channels: "menu-sensor-channels",
+        schedules: "menu-schedules"
+    }
+
+
+
+    // ============================================================================
+    export function afterPageLoad() {
+
+        setBaseApiUrl();
+        tethys.websocket.setWebSocketUrl();
+        tethys.websocket.connect();
+        updateSilentPhaseStatus();
+        markActiveMenu();
+
+    }
+
+
+    // ============================================================================
+    function markActiveMenu() {
+
+        let location =
+            getSiteLocation();
+
+        for (const id in menuIds) {
+            const idValue = menuIds[id];
+
+            let elementMenu =
+                document.getElementById(idValue);
+
+            if (id === location) {
+                elementMenu.style.color = "#FFFFFF";
+                elementMenu.style.backgroundColor = "#003355";
+            }
+            else {
+                elementMenu.style.backgroundColor = "#000000";
+            }
+        }
+    }
+
+
+
+    // ============================================================================
+    export function setSilentPhaseStatus(newSilentPhaseStatus) {
+        silentPhaseStatus = newSilentPhaseStatus;
+        updateSilentPhaseStatus();
+    }
+
+    // ============================================================================
+    export function setCoreTemperature(newCoreTemperature) {
+        coreTemperature = newCoreTemperature;
+        updateCoreTemperature();
+    }
+
+    // ============================================================================
+    export function setCoreServiceState(newCoreServiceState) {
+        coreServiceState = newCoreServiceState;
+        updateCoreServiceState();
+    }
+
+
+    // ============================================================================
+    export function getSiteLocation() {
+
+        let url = new URL(window.location.href);
+
+        let location = url.pathname;
+        return tethys.tool.replaceAll(location, "/", "");
+    }
+
+
+    // ============================================================================
+    export function updateSilentPhaseStatus() {
+
+        if (silentPhaseStatus === null) {
+            return;
+        }
+
+        var elementIsSilentPhase = document.getElementById("idIsSilentPhase");
+
+        var elementsilentPhaseTooltip = document.getElementById(
+            "idSilentPhaseTooltip"
+        );
+
+        if (silentPhaseStatus.inPhase) {
+            elementIsSilentPhase.style.visibility = "visible";
+
+            var start = tethys.tool.formatDate(silentPhaseStatus.startTime);
+            var end = tethys.tool.formatDate(silentPhaseStatus.endTime);
+            var tooltip = "start: " + start + "<br>end:  " + end;
+
+            elementsilentPhaseTooltip.innerHTML = tooltip;
+        } else {
+            elementIsSilentPhase.style.visibility = "hidden";
+        }
+    }
+
+    // ============================================================================
+    export function updateCoreTemperature() {
+
+        if (coreTemperature === null) {
+            return;
+        }
+
+        var elementCoreTemperature = document.getElementById("idCoreTemperature");
+
+        elementCoreTemperature.innerHTML = "Pi-Core: " + coreTemperature.toFixed(1) + "°C";
+    }
+
+
+    // ============================================================================
+    export function updateCoreServiceState() {
+
+        var elementCoreServiceState = document.getElementById("idCoreServiceState");
+
+        if (coreServiceState) {
+            elementCoreServiceState.innerHTML = "Core-Service: Running";
+        }
+        else {
+            elementCoreServiceState.innerHTML = "Core-Service: OFF";
+        }
+
+    }
+
+
+    // ============================================================================
+    export function setBaseApiUrl() {
+
+        var url = new URL(window.location.href);
+
+        apiUrl =
+            url.protocol +
+            "//" +
+            url.hostname +
+            baseApi;
+
+        console.log("Base API URL:  " + apiUrl);
+
+    }
+
+
+    // ============================================================================
+    export async function postCall(url = "", body = {}) {
+        const response = await fetch(url, {
+            method: "POST",
+            // mode: no-cors, *cors, same-origin
+            // *default, no-cache, reload, force-cache, only-if-cached
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            // manual, *follow, error
+            //redirect: 'follow',
+            // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
+            // same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            //referrerPolicy: 'no-referrer',
+            body: JSON.stringify(body)
+        });
+
+        return response;
+    }
+
+
+    // ============================================================================
+    export async function putCall(url = "", body = {}) {
+        const response = await fetch(url, {
+            method: "PUT",
+            // mode: no-cors, *cors, same-origin
+            // *default, no-cache, reload, force-cache, only-if-cached
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            // manual, *follow, error
+            //redirect: 'follow',
+            // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
+            // same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            //referrerPolicy: 'no-referrer',
+            body: JSON.stringify(body)
+        });
+
+        return response;
+    }
+
+    // ============================================================================
+    export async function getCall(url = "") {
+        const response = await fetch(url, {
+            method: "GET",
+            // mode: 'no-cors', '*cors', 'same-origin',
+            // *default, no-cache, reload, force-cache, only-if-cached
+            cache: "no-cache"
+            //headers: { 'Content-Type': 'application/json' },
+            // manual, *follow, error
+            //redirect: 'follow',
+            // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
+            // same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            //referrerPolicy: 'no-referrer',
+            //body: JSON.stringify(body)
+        });
+
+        return response;
+    }
+
+
+    // ============================================================================
+    export async function deleteCall(url = "") {
+        const response = await fetch(url, {
+            method: "DELETE",
+            // mode: 'no-cors', '*cors', 'same-origin',
+            // *default, no-cache, reload, force-cache, only-if-cached
+            cache: "no-cache"
+            //headers: { 'Content-Type': 'application/json' },
+            // manual, *follow, error
+            //redirect: 'follow',
+            // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
+            // same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            //referrerPolicy: 'no-referrer',
+            //body: JSON.stringify(body)
+        });
+
+        return response;
+    }
+
+}
+

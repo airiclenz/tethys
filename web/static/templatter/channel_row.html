@@ -1,0 +1,51 @@
+<div
+    onclick="tethys.channel.toggleSettingsVisibility({{ channel.number }})"
+    class="div-row {% cycle table-row-odd table-row-even %}"
+    id="idChannel{{ channel.number }}">
+
+    <div
+        class="div-column div-column-padding col-15"
+        style="font-weight: 400; font-size: 15px; background-color:#6b99ff; color:#000000;"
+        id="idChannel{{ channel.number }}_number">
+        {{ channel.number }} / {{ channel.nickName }}
+    </div>
+    <div
+        class="div-column div-column-padding col-7"
+        id="idChannel{{ channel.number }}_type">
+        {{ channel.channelType }}
+    </div>
+    <div
+        class="div-column div-column-padding col-15"
+        id="idChannel{{ channel.number }}_status">
+        {{ channel.sensorData_lastMoisturePercent }}
+    </div>
+    <div
+        class="div-column div-column-padding col-7"
+        id="idChannel{{ channel.number }}_sensorVoltage">
+        {{ channel.sensorData_lastBatteryVoltage }}
+    </div>
+    <div
+        class="div-column div-column-padding col-10"
+        id="idChannel{{ channel.number }}_dataCount"
+        onmouseover="tethys.channel.onCountMouseEnter({{ channel.number }}, 'sensorData_count')"
+        onmouseleave="tethys.channel.onCountMouseLeave({{ channel.number }}, 'sensorData_count')">
+        {{ channel.sensorData_count }}
+    </div>
+    <div
+        class="div-column div-column-padding col-15"
+        id="idChannel{{ channel.number }}_lastSensorDataTimestamp">
+        {{ channel.sensorData_lastTimestamp }}
+    </div>
+    <div
+        class="div-column div-column-padding col-10"
+        id="idChannel{{ channel.number }}_actionCount"
+        onmouseover="tethys.channel.onCountMouseEnter({{ channel.number }}, 'action_count')"
+        onmouseleave="tethys.channel.onCountMouseLeave({{ channel.number }}, 'action_count')">
+        {{ channel.action_count }}
+    </div>
+    <div
+        id="idChannel{{ channel.number }}_lastActionStartTime"
+        class="div-column div-column-padding col-15">
+        {{ channel.action_lastActionType }} - {{ channel.action_lastStartTime }} Test
+    </div>
+</div>
