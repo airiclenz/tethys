@@ -24,8 +24,6 @@ sudo apt full-upgrade
 #   P Y T H O N - V E N V
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-PYTHON_PACKAGES = "django channels channels-redis channels_redis daphne requests gpiozero djangorestframework django-rest-swagger"
-
 if [ ! -d $VENV_NAME ]; then
     echo $VENV_NAME "does not exist -> creating it now..."
     python -m venv $VENV_NAME
@@ -34,6 +32,6 @@ fi
 source $VENV_NAME/bin/activate
 echo "the new virtual environment" $VENV_NAME "was activated."
 echo "installing needed packages now..."
-pip install django $PYTHON_PACKAGES
+pip install -r python-requirements.txt
 
 

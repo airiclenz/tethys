@@ -1,8 +1,11 @@
 from django.shortcuts import render
-#from rest_framework_swagger.views import get_swagger_view
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from tethys_api.models import *
 from tethys_api.serializers import *
+
 
 
 # /////////////////////////////////////////////////////////////////////////////
@@ -20,12 +23,20 @@ class ActionTypeRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 class ChannelListCreate(generics.ListCreateAPIView):
     queryset = Channel.objects.all()
     serializer_class = ChannelSerializer
+    ordering = ['number']
 
 class ChannelRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Channel.objects.all()
     serializer_class = ChannelSerializer
-    lookup_field = "pk" 
+    lookup_field = "number" 
+    ordering = ['number']
 
+class ChannelListView(generics.ListAPIView):
+    serializer_class = ChannelSerializer
+    queryset = Channel.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['number', 'nickName', 'channelType']
+    ordering = ['number']
 
 # /////////////////////////////////////////////////////////////////////////////
 class ChannelTypeListCreate(generics.ListCreateAPIView):
@@ -46,7 +57,6 @@ class SensorDataRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = SensorData.objects.all()
     serializer_class = SensorDataSerializer
     lookup_field = "pk"
-
 
 # /////////////////////////////////////////////////////////////////////////////
 class ScheduleTypeListCreate(generics.ListCreateAPIView):
@@ -69,3 +79,12 @@ class TransmissionPowerLevelRetrieveUpdateDestroy(generics.RetrieveUpdateDestroy
     serializer_class = TransmissionPowerLevelSerializer
     lookup_field = "pk"
 
+
+# /////////////////////////////////////////////////////////////////////////////
+# /////////////////////////////////////////////////////////////////////////////
+# /////////////////////////////////////////////////////////////////////////////
+class InitializeDatabaseView(APIView):
+    def get(self, request, format=None):
+
+        actionLog = ModelHelper.initializeDatabase();
+        return Response(actionLog)

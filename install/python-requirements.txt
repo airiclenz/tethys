@@ -1,0 +1,8 @@
+django
+channels
+channels-redis
+daphne
+requests
+gpiozero
+djangorestframework
+django-filter

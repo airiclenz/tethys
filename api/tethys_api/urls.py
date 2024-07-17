@@ -7,11 +7,12 @@ urlpatterns = [
     path("actionType/<str:name>", views.ActionTypeRetrieveUpdateDestroy.as_view(), name="actionType-retrieve-update-detroy"),
 
     path("channel/", views.ChannelListCreate.as_view(), name="channel-create-view"),
-    path("channel/<int:pk>", views.ChannelRetrieveUpdateDestroy.as_view(), name="channel-retrieve-update-detroy"),
+    path("channel/<int:number>", views.ChannelRetrieveUpdateDestroy.as_view(), name="channel-retrieve-update-detroy"),
+    path("channel/", views.ChannelListView.as_view(), name="channel-filtered-list-view"),
 
     path("channelType/", views.ChannelTypeListCreate.as_view(), name="channelType-create-view"),
     path("channelType/<str:name>", views.ChannelTypeRetrieveUpdateDestroy.as_view(), name="channelType-retrieve-update-detroy"),
-
+    
     path("sensorData/", views.SensorDataListCreate.as_view(), name="sensorData-create-view"),
     path("sensorData/<int:pk>", views.SensorDataRetrieveUpdateDestroy.as_view(), name="sensorData-retrieve-update-detroy"),
 
@@ -22,5 +23,5 @@ urlpatterns = [
     path("transmissionPowerLevel/<str:name>", views.TransmissionPowerLevelRetrieveUpdateDestroy.as_view(), name="transmissionPowerLevel-retrieve-update-detroy"),
     path("transmissionPowerLevel/<int:value>", views.TransmissionPowerLevelRetrieveUpdateDestroy.as_view(), name="transmissionPowerLevel-retrieve-update-detroy"),
 
-
+    path("initializeDatabase/", views.InitializeDatabaseView.as_view(), name="initialize-database-view"),
 ]
