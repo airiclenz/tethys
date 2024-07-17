@@ -5,7 +5,7 @@
 env_tethysWeb/
 env/
 node_modules/
-
+api/tethys_api/migrations/
 
 # Files
 .DS_Store
