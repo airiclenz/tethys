@@ -22,19 +22,19 @@ var tethys;
         }
         // ============================================================================
         function addNewChannel() {
-            debugger;
-            // TODO
-            // Go through all channels and fins the next free number between 1 and 5 
-            // (including 1 and 5)
+            let nextNumber = getNextFreeNumber();
+            if (nextNumber === -1) {
+                return;
+            }
             var body = {
-                number: 1,
+                number: nextNumber,
                 enabled: false,
                 channelType: "pump",
                 triggerLevel: 50,
                 pumpDurationSeconds: 10,
-                sensorMeasureFrequencyMinutes: 120,
+                sensorMeasureFrequencyMinutes: 60,
                 sensorTransmissionPowerLevel: "low",
-                sensorTriggerCalibration: false
+                //sensorTriggerCalibration: false
             };
             tethys.postCall(tethys.apiUrl + "channel/", body)
                 .then((response) => {
@@ -88,6 +88,19 @@ var tethys;
             updateSettings();
         }
         channel_1.toggleSettingsVisibility = toggleSettingsVisibility;
+        // ============================================================================
+        function getNextFreeNumber() {
+            let nextFreeNumber = 1;
+            channels.forEach(channel => {
+                if (channel.number == nextFreeNumber) {
+                    nextFreeNumber++;
+                }
+            });
+            if (nextFreeNumber > 5) {
+                return -1;
+            }
+            return nextFreeNumber;
+        }
         // ============================================================================
         function updateDataSet(channelSummary) {
             channels = channelSummary;

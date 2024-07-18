@@ -15,6 +15,18 @@
             ],
             "django": true,
             "justMyCode": true
+        },
+        {
+            "name": "Python: Run WEB",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/web/manage.py",
+            "args": [
+                "runserver",
+                "0.0.0.0:5000"
+            ],
+            "django": true,
+            "justMyCode": true
         }
     ]
 }

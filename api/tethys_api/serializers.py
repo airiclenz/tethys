@@ -49,8 +49,16 @@ class ChannelSerializer(serializers.ModelSerializer):
             "sensorMeasureFrequencyMinutes",
             "sensorTriggerCalibration",
             "sensorTransmissionPowerLevel"]
-        channelType = ChannelTypeSerializer
         
+        #channelType = ChannelTypeSerializer
+        #sensorTransmissionPowerLevel = TransmissionPowerLevelSerializer
+
+# /////////////////////////////////////////////////////////////////////////////
+class ChannelSummarySerializer(serializers.Serializer):
+    class Meta:
+        model = Channel
+
+
 # /////////////////////////////////////////////////////////////////////////////
 class SensorDataSerializer(serializers.ModelSerializer):
     class Meta:
@@ -85,6 +93,6 @@ class ScheduleSerializer(serializers.ModelSerializer):
             "enabled",
             "scheduleType",
             "startTime",
-            "duration"]
+            "durationMinutes"]
 
 

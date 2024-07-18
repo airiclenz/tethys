@@ -8,7 +8,7 @@ namespace tethys {
         let schedules = [];
         let selectedScheduleNumber = null;
         let selectedScheduleIndex = null;
-        let newlyCreatedSchedule = null;
+        //let newlyCreatedSchedule = null;
 
 
         // ============================================================================
@@ -29,13 +29,15 @@ namespace tethys {
 
             var body = {
                 enabled: false,
-                weekday: "monday",
-                startTime: "22:00",
+                weekday: "Monday",
+                startTime: "1900-01-01T22:00:00Z",
                 durationMinutes: "540",
                 scheduleType: "silent"
             };
 
-            postCall(apiUrl + "schedule/", body)
+            console.info(tethys.apiUrl);
+
+            postCall(tethys.apiUrl + "schedule/", body)
                 .then((response) => {
 
                     if (!response.ok) {
@@ -50,7 +52,7 @@ namespace tethys {
                             const resultBody = new TextDecoder().decode(readerResult.value);
                             selectedScheduleNumber = parseInt(resultBody, 10);
 
-                            tethys.websocket.requestScheduleSummary();
+                            tethys.websocket.requestSchedules();
                         });
                 });
 
@@ -69,7 +71,7 @@ namespace tethys {
                         selectedScheduleIndex = null;
                         toggleSettingsVisibility()
 
-                        tethys.websocket.requestScheduleSummary();
+                        tethys.websocket.requestSchedules();
                         tethys.tool.setVisibleState("button-delete", false);
 
                         console.log(
@@ -89,12 +91,12 @@ namespace tethys {
             forceEnable = false) {
 
             let elementSettings = document.getElementById("idSettings");
-            let elementChannel = null;
+            let elementSchedule = null;
             let index = null;
 
             if (clickedScheduleNumber !== null) {
 
-                elementChannel = document.getElementById("idSchedule" + clickedScheduleNumber);
+                elementSchedule = document.getElementById("idSchedule" + clickedScheduleNumber);
                 index = getIndexOfScheduleWithId(clickedScheduleNumber);
             }
 
@@ -117,7 +119,7 @@ namespace tethys {
                     " " +
                     tethys.tool.getTimeString(schedules[index].startTime);
                 elementSettings.style.display = "block";
-                elementChannel.classList.add("table-row-active");
+                elementSchedule.classList.add("table-row-active");
 
                 tethys.tool.setVisibleState("button-delete", true);
 
@@ -132,7 +134,10 @@ namespace tethys {
                 if (clickedScheduleNumber === selectedScheduleNumber) {
 
                     elementSettings.style.display = "none";
-                    elementChannel.classList.remove("table-row-active");
+
+                    if (elementSchedule !== null) {
+                        elementSchedule.classList.remove("table-row-active");
+                    }
 
                     tethys.tool.setVisibleState("button-delete", false);
 
@@ -140,7 +145,7 @@ namespace tethys {
                     selectedScheduleIndex = null;
                 }
 
-                    // select different schedule or forceEnabled = true
+                // select different schedule or forceEnabled = true
                 else {
                     var elementLastSchedule = document.getElementById(
                         "idSchedule" + selectedScheduleNumber
@@ -153,7 +158,7 @@ namespace tethys {
                         schedules[index].weekday +
                         " " +
                         tethys.tool.getTimeString(schedules[index].startTime);
-                    elementChannel.classList.add("table-row-active");
+                    elementSchedule.classList.add("table-row-active");
                     elementLastSchedule.classList.remove("table-row-active");
 
                     tethys.tool.setVisibleState("button-delete", true);
@@ -177,7 +182,6 @@ namespace tethys {
                 return;
             }
 
-
             // Enabled
             var elementOptionEnabled = <HTMLInputElement>(
                 (<unknown>document.getElementById("idOptionEnabled"))
@@ -191,14 +195,14 @@ namespace tethys {
                 (<unknown>document.getElementById("idSelectWeekday"))
             );
             elementOptionWeekday.value =
-                schedules[selectedScheduleIndex].weekday_value;
+                schedules[selectedScheduleIndex].weekday;
 
             // Type
             var elementOptionType = <HTMLSelectElement>(
                 (<unknown>document.getElementById("idSelectType"))
             );
             elementOptionType.value =
-                schedules[selectedScheduleIndex].scheduleType_value;
+                schedules[selectedScheduleIndex].scheduleType;
 
             // ----------------
             // Start time
@@ -233,19 +237,19 @@ namespace tethys {
                 putCall(apiUrl + "schedule/" + selectedScheduleNumber, body)
                     .then((result) => {
                         if (result.ok == true) {
-                        schedules[selectedScheduleIndex].enabled = value;
+                            schedules[selectedScheduleIndex].enabled = value;
 
-                        formatWeekday(schedules[index]);
+                            formatWeekday(schedules[index]);
 
-                        console.log(
-                            "Schedule " +
-                            selectedScheduleNumber +
-                            " - [enabled = " +
-                            value +
-                            "] was updated using the API."
-                        );
-                    }
-                });
+                            console.log(
+                                "Schedule " +
+                                selectedScheduleNumber +
+                                " - [enabled = " +
+                                value +
+                                "] was updated using the API."
+                            );
+                        }
+                    });
             }
         }
 
@@ -267,19 +271,19 @@ namespace tethys {
                 putCall(apiUrl + "schedule/" + selectedScheduleNumber, body)
                     .then((result) => {
                         if (result.ok == true) {
-                        schedules[index].weekday = value;
+                            schedules[index].weekday = value;
 
-                        formatWeekday(schedules[index]);
+                            formatWeekday(schedules[index]);
 
-                        console.log(
-                            "Schedule " +
-                            selectedScheduleNumber +
-                            " - [weekday = " +
-                            value +
-                            "] was updated using the API."
-                        );
-                    }
-                });
+                            console.log(
+                                "Schedule " +
+                                selectedScheduleNumber +
+                                " - [weekday = " +
+                                value +
+                                "] was updated using the API."
+                            );
+                        }
+                    });
             }
         }
 
@@ -300,19 +304,19 @@ namespace tethys {
                 putCall(apiUrl + "schedule/" + selectedScheduleNumber, body)
                     .then((result) => {
                         if (result.ok == true) {
-                        schedules[index].scheduleType = value;
+                            schedules[index].scheduleType = value;
 
-                        formatScheduleType(schedules[index]);
+                            formatScheduleType(schedules[index]);
 
-                        console.log(
-                            "Schedule " +
-                            selectedScheduleNumber +
-                            " - [scheduleType = " +
-                            value +
-                            "] was updated using the API."
-                        );
-                    }
-                });
+                            console.log(
+                                "Schedule " +
+                                selectedScheduleNumber +
+                                " - [scheduleType = " +
+                                value +
+                                "] was updated using the API."
+                            );
+                        }
+                    });
             }
         }
 
@@ -333,19 +337,19 @@ namespace tethys {
                 putCall(apiUrl + "schedule/" + selectedScheduleNumber, body)
                     .then((result) => {
                         if (result.ok == true) {
-                        schedules[index].startTime = value;
+                            schedules[index].startTime = value;
 
-                        formatStartTime(schedules[index]);
+                            formatStartTime(schedules[index]);
 
-                        console.log(
-                            "Schedule " +
-                            selectedScheduleNumber +
-                            " - [startTime = " +
-                            value +
-                            "] was updated using the API."
-                        );
-                    }
-                });
+                            console.log(
+                                "Schedule " +
+                                selectedScheduleNumber +
+                                " - [startTime = " +
+                                value +
+                                "] was updated using the API."
+                            );
+                        }
+                    });
             }
         }
 
@@ -364,28 +368,28 @@ namespace tethys {
                     .then((result) => {
                         if (result.ok == true) {
 
-                        schedules[index].durationMinutes = value;
+                            schedules[index].durationMinutes = value;
 
-                        formatDurationMinutes(schedules[index]);
+                            formatDurationMinutes(schedules[index]);
 
-                        console.log(
-                            "Schedule " +
-                            selectedScheduleNumber +
-                            " - [durationMinutes = " +
-                            value +
-                            "] was updated using the API."
-                        );
-                    }
-                });
+                            console.log(
+                                "Schedule " +
+                                selectedScheduleNumber +
+                                " - [durationMinutes = " +
+                                value +
+                                "] was updated using the API."
+                            );
+                        }
+                    });
             }
         }
 
 
         // ============================================================================
         export function updateDataSet(
-            scheduleSummary) {
+            scheduleData) {
 
-            schedules = scheduleSummary;
+            schedules = scheduleData;
             updateSchedules();
         }
 

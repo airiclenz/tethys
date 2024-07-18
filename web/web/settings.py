@@ -24,20 +24,23 @@ SECRET_KEY = "django-insecure-_h5c8##=*e6)fgs*mt1r0-n7&e4to7qd&a&-s8o$yn!%a6_)k9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["tethys2.local", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = [
+    "tethys2.local", 
+    "127.0.0.1", 
+    "localhost"]
 
 
 # Application definition
 
 INSTALLED_APPS = [
     "daphne",
-    "tethys_web",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "tethys_web",
 ]
 
 MIDDLEWARE = [
@@ -50,14 +53,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "djangoBase.urls"
+ROOT_URLCONF = "web.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         
-        "DIRS": ["./templates"],
-        #"DIRS": ["./code/templates"],
+        "DIRS": ["./web/templates"],
+        #"DIRS": ["./templates"],
         
         "APP_DIRS": True,
         "OPTIONS": {
@@ -75,9 +78,9 @@ TEMPLATES = [
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"),)
 
 
-WSGI_APPLICATION = "djangoBase.wsgi.application"
+WSGI_APPLICATION = "web.wsgi.application"
 
-ASGI_APPLICATION = "djangoBase.asgi.application"
+ASGI_APPLICATION = "web.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {

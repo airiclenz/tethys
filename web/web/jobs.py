@@ -7,7 +7,7 @@ from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
-from djangoBase import tools, settings
+from web import tools, settings
 import tethys_web.consumers as consumers
 
 
@@ -44,6 +44,8 @@ def checkForUpdate():
     # retrieve last Update
     try:
         responseLastUpdate = requests.get(settings.API_URL + "lastupdate/")
+        if responseLastUpdate.status_code != 200:
+            return
     except requests.exceptions.RequestException:
         return
 

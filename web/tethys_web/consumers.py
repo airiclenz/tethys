@@ -5,7 +5,7 @@ import requests
 from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from djangoBase import settings, tools, jobs
+from web import settings, tools, jobs
 
 
 lastUpdateLocal = None
@@ -47,8 +47,8 @@ class TethysConsumer(WebsocketConsumer):
         if command == "requestChannelSummary":
             messageData = tools.getResponseForSensorSummary()
 
-        if command == "requestScheduleSummary":
-            messageData = tools.getResponseForScheduleSummary()
+        if command == "requestSchedules":
+            messageData = tools.getResponseForSchedules()
 
         if command == "requestSystemStatus":
             messageData = tools.getReponseForSystemStatus()

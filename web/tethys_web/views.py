@@ -1,9 +1,10 @@
 # chat/views.py
 import requests
+import json
 
 from urllib.parse import urlparse
 from django.shortcuts import render
-from djangoBase import tools
+from web import tools
 
 
 # ::::::::::::::::::::::::::::::::::
@@ -14,8 +15,11 @@ def channels(request):
     tools.log("API-PATH: " + pathApi)
 
     try:
-        response = requests.get(pathApi + "channelsummary")
+        response = requests.get(pathApi + "channelSummary")
     except requests.exceptions.RequestException:
+        return render(request, "./error/error-api.html")
+
+    if response.status_code != 200:
         return render(request, "./error/error-api.html")
 
     channelSummaries = response.json()[1]["channelSummary"]
@@ -40,7 +44,9 @@ def schedules(request):
     except requests.exceptions.RequestException:
         return render(request, "./error/error-api.html")
 
-    schedules = response.json()["schedule"]
+    #schedules = response.json()["schedule"]
+    schedules = response.json()
+
     context = {"title": "Tethys", "schedules": schedules}
 
     return render(request, "index-schedules.html", context)

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Subquery
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -39,6 +40,14 @@ class ChannelListView(generics.ListAPIView):
     ordering = ['number']
 
 # /////////////////////////////////////////////////////////////////////////////
+class ChannelSummaryView(generics.ListAPIView):
+    serializer_class = ChannelSummarySerializer
+    lastSensorData = SensorData.objects.last
+    queryset = Channel.objects.all
+    ordering = ['number']
+
+
+# /////////////////////////////////////////////////////////////////////////////
 class ChannelTypeListCreate(generics.ListCreateAPIView):
     queryset = ChannelType.objects.all()
     serializer_class = ChannelTypeSerializer
@@ -56,6 +65,16 @@ class SensorDataListCreate(generics.ListCreateAPIView):
 class SensorDataRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = SensorData.objects.all()
     serializer_class = SensorDataSerializer
+    lookup_field = "pk"
+
+# /////////////////////////////////////////////////////////////////////////////
+class ScheduleListCreate(generics.ListCreateAPIView):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+
+class ScheduleRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
     lookup_field = "pk"
 
 # /////////////////////////////////////////////////////////////////////////////

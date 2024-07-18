@@ -89,7 +89,7 @@ class Schedule(models.Model):
     weekday = models.CharField(max_length=20, choices=WEEKDAYS)
     scheduleType = models.ForeignKey(ScheduleType, on_delete=models.DO_NOTHING)
     startTime = models.DateTimeField()
-    duration = models.SmallIntegerField()
+    durationMinutes = models.SmallIntegerField()
 
     def __str__(self) -> str:
         return self.weekday + ' - ' + self.scheduleType.name

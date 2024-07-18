@@ -17,7 +17,7 @@ var tethys;
         let schedules = [];
         let selectedScheduleNumber = null;
         let selectedScheduleIndex = null;
-        let newlyCreatedSchedule = null;
+        //let newlyCreatedSchedule = null;
         // ============================================================================
         function getIndexOfScheduleWithId(id) {
             for (let i = 0; i < schedules.length; i++) {
@@ -31,11 +31,12 @@ var tethys;
         function addNewSchedule() {
             var body = {
                 enabled: false,
-                weekday: "monday",
-                startTime: "22:00",
+                weekday: "Monday",
+                startTime: "1900-01-01T22:00:00Z",
                 durationMinutes: "540",
                 scheduleType: "silent"
             };
+            console.info(tethys.apiUrl);
             tethys.postCall(tethys.apiUrl + "schedule/", body)
                 .then((response) => {
                 if (!response.ok) {
@@ -46,7 +47,7 @@ var tethys;
                     .then((readerResult) => {
                     const resultBody = new TextDecoder().decode(readerResult.value);
                     selectedScheduleNumber = parseInt(resultBody, 10);
-                    tethys.websocket.requestScheduleSummary();
+                    tethys.websocket.requestSchedules();
                 });
             });
         }
@@ -60,7 +61,7 @@ var tethys;
                         selectedScheduleNumber = null;
                         selectedScheduleIndex = null;
                         toggleSettingsVisibility();
-                        tethys.websocket.requestScheduleSummary();
+                        tethys.websocket.requestSchedules();
                         tethys.tool.setVisibleState("button-delete", false);
                         console.log("Schedule " +
                             selectedScheduleNumber +
@@ -73,10 +74,10 @@ var tethys;
         // ============================================================================
         function toggleSettingsVisibility(clickedScheduleNumber = null, forceEnable = false) {
             let elementSettings = document.getElementById("idSettings");
-            let elementChannel = null;
+            let elementSchedule = null;
             let index = null;
             if (clickedScheduleNumber !== null) {
-                elementChannel = document.getElementById("idSchedule" + clickedScheduleNumber);
+                elementSchedule = document.getElementById("idSchedule" + clickedScheduleNumber);
                 index = getIndexOfScheduleWithId(clickedScheduleNumber);
             }
             if (forceEnable) {
@@ -94,7 +95,7 @@ var tethys;
                         " " +
                         tethys.tool.getTimeString(schedules[index].startTime);
                 elementSettings.style.display = "block";
-                elementChannel.classList.add("table-row-active");
+                elementSchedule.classList.add("table-row-active");
                 tethys.tool.setVisibleState("button-delete", true);
                 selectedScheduleNumber = clickedScheduleNumber;
                 selectedScheduleIndex = index;
@@ -103,7 +104,9 @@ var tethys;
                 // De-select schedule
                 if (clickedScheduleNumber === selectedScheduleNumber) {
                     elementSettings.style.display = "none";
-                    elementChannel.classList.remove("table-row-active");
+                    if (elementSchedule !== null) {
+                        elementSchedule.classList.remove("table-row-active");
+                    }
                     tethys.tool.setVisibleState("button-delete", false);
                     selectedScheduleNumber = null;
                     selectedScheduleIndex = null;
@@ -116,7 +119,7 @@ var tethys;
                         schedules[index].weekday +
                             " " +
                             tethys.tool.getTimeString(schedules[index].startTime);
-                    elementChannel.classList.add("table-row-active");
+                    elementSchedule.classList.add("table-row-active");
                     elementLastSchedule.classList.remove("table-row-active");
                     tethys.tool.setVisibleState("button-delete", true);
                     selectedScheduleNumber = clickedScheduleNumber;
@@ -140,11 +143,11 @@ var tethys;
             // Weekday
             var elementOptionWeekday = document.getElementById("idSelectWeekday");
             elementOptionWeekday.value =
-                schedules[selectedScheduleIndex].weekday_value;
+                schedules[selectedScheduleIndex].weekday;
             // Type
             var elementOptionType = document.getElementById("idSelectType");
             elementOptionType.value =
-                schedules[selectedScheduleIndex].scheduleType_value;
+                schedules[selectedScheduleIndex].scheduleType;
             // ----------------
             // Start time
             var elementOptionStartTime = document.getElementById("idOptionStartTime");
@@ -272,8 +275,8 @@ var tethys;
         }
         schedule_1.updateDurationMinutes = updateDurationMinutes;
         // ============================================================================
-        function updateDataSet(scheduleSummary) {
-            schedules = scheduleSummary;
+        function updateDataSet(scheduleData) {
+            schedules = scheduleData;
             updateSchedules();
         }
         schedule_1.updateDataSet = updateDataSet;

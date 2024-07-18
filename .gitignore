@@ -2,10 +2,10 @@
 # Edit at https://www.gitignore.io/?templates=c++,macos,platformio
 
 # Folders
-env_tethysWeb/
-env/
+env*/
 node_modules/
 api/tethys_api/migrations/
+web/tethys_web/migrations/
 
 # Files
 .DS_Store

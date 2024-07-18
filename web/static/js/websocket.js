@@ -29,17 +29,16 @@ var tethys;
         // ============================================================================
         function onOpen(evt) {
             var location = tethys.getSiteLocation();
-            var commandString = "";
             switch (location) {
                 case tethys.location.channel:
                     requestChannelSummary();
                     break;
                 case tethys.location.schedule:
-                    requestScheduleSummary();
+                    requestSchedules();
                     break;
             }
             requestSystemStatus();
-            // run every 10 seconds
+            // run every 30 seconds
             setInterval(requestSystemStatus, 30000);
             console.log("WebSocket CONNECTED to ./" + location + "/");
         }
@@ -51,12 +50,12 @@ var tethys;
         }
         websocket.requestChannelSummary = requestChannelSummary;
         // ============================================================================
-        function requestScheduleSummary() {
+        function requestSchedules() {
             webSocket.send(JSON.stringify({
-                command: "requestScheduleSummary"
+                command: "requestSchedules"
             }));
         }
-        websocket.requestScheduleSummary = requestScheduleSummary;
+        websocket.requestSchedules = requestSchedules;
         // ============================================================================
         function requestSystemStatus() {
             webSocket.send(JSON.stringify({
@@ -78,18 +77,17 @@ var tethys;
                 data = JSON.parse(message);
             }
             if (location === tethys.location.channel &&
-                data[0].responseType === "requestChannelSummary") {
+                data.responseType === "requestChannelSummary") {
                 tethys.channel.updateDataSet(data[2].channelSummary);
-                tethys.setSilentPhaseStatus(data[1].silentPhaseStatus);
             }
             if (location === tethys.location.schedule &&
-                data[0].responseType === "requestScheduleSummary") {
-                tethys.schedule.updateDataSet(data[2].scheduleSummary);
-                tethys.setSilentPhaseStatus(data[1].silentPhaseStatus);
+                data.responseType === "requestSchedules") {
+                tethys.schedule.updateDataSet(data.schedules);
             }
-            if (data[0].responseType === "requestSystemStatus") {
+            if (data.responseType === "requestSystemStatus") {
                 tethys.setCoreTemperature(data[1].coreTemperature);
                 tethys.setCoreServiceState(data[2].coreServiceState);
+                tethys.setSilentPhaseStatus(data[3].silentPhaseStatus);
             }
         }
         // ============================================================================

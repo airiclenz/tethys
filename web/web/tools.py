@@ -5,7 +5,7 @@ import datetime
 import requests
 
 from datetime import datetime, timedelta
-from djangoBase import settings
+from web import settings
 from urllib.parse import urlparse
 from gpiozero import CPUTemperature
 
@@ -38,7 +38,7 @@ def getCoreTemperature():
 # =============================================================================
 def getResponseForSensorSummary():
 
-    response = requests.get(settings.API_URL + "channelsummary")
+    response = requests.get(settings.API_URL + "channelSummary")
     value_list = response.json()
     new_list = [ json.loads('{"responseType": "requestChannelSummary"}') ]
     value_list = new_list + value_list
@@ -46,13 +46,14 @@ def getResponseForSensorSummary():
     return json.dumps(value_list)
 
 # =============================================================================
-def getResponseForScheduleSummary():
-    response = requests.get(settings.API_URL + "schedulesummary")
-    value_list = response.json()
-    new_list = [ json.loads('{"responseType": "requestScheduleSummary"}') ]
-    value_list = new_list + value_list
+def getResponseForSchedules():
+    response = requests.get(settings.API_URL + "schedule")
 
-    return json.dumps(value_list)
+    return json.dumps({
+        "responseType": "requestSchedules",
+        "schedules": response.json()
+    })
+
 
 # =============================================================================
 def getReponseForSystemStatus():

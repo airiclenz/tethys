@@ -145,8 +145,11 @@ var tethys;
             if (typeof dateTimeObject === "string") {
                 dateTimeObject = new Date(dateTimeObject);
             }
-            return (pad(dateTimeObject.getHours(), 2) + ":" +
-                pad(dateTimeObject.getMinutes(), 2));
+            let hours = dateTimeObject.getUTCHours();
+            let minutes = dateTimeObject.getUTCMinutes();
+            let result = (pad(hours, 2) + ":" +
+                pad(minutes, 2));
+            return result;
         }
         tool.getTimeString = getTimeString;
         // ============================================================================
@@ -165,6 +168,16 @@ var tethys;
             }
         }
         tool.setVisibleState = setVisibleState;
+        // ============================================================================
+        function getUTCDate(dateString) {
+            const [date, time] = dateString.split("T");
+            const [year, month, day] = date.split("-");
+            // Remove the trailing "Z"
+            const [hours, minutes, seconds] = time.slice(0, -1).split(":");
+            // Month is 0-indexed in Date operations, so subtract 1 when converting to a Date object
+            return new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hours), Number(minutes), Number(seconds)));
+        }
+        tool.getUTCDate = getUTCDate;
     })(tool = tethys.tool || (tethys.tool = {}));
 })(tethys || (tethys = {}));
 //# sourceMappingURL=tool.js.map
