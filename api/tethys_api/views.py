@@ -69,7 +69,11 @@ def actionLog(request):
         globals.setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view([
+    'GET', 
+    #'PUT', 
+    'DELETE'
+])
 def actionLog_single(request, id):
     
     try:
@@ -81,14 +85,14 @@ def actionLog_single(request, id):
         serializer = ActionLogSerializer(record)
         return Response(serializer.data)
 
-    elif request.method == 'PUT':
-        serializer = ActionLogSerializer(record, data=request.data)
-        if not serializer.is_valid():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer.save()
-        globals.setLastDataUpdateNow()
-        return Response(serializer.data)
+    #elif request.method == 'PUT':
+    #    serializer = ActionLogSerializer(record, data=request.data)
+    #    if not serializer.is_valid():
+    #        return Response(status=status.HTTP_400_BAD_REQUEST)
+    #    
+    #    serializer.save()
+    #    globals.setLastDataUpdateNow()
+    #    return Response(serializer.data)
 
     elif request.method == 'DELETE':
         record.delete()
@@ -127,7 +131,7 @@ def actionType_single(request, id):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = ActionTypeSerializer(record, data=request.data)
+        serializer = ActionTypeSerializer(record, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
@@ -172,7 +176,7 @@ def channel_single(request, id):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = ChannelSerializer(record, data=request.data)
+        serializer = ChannelSerializer(record, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
@@ -217,7 +221,7 @@ def channelType_single(request, id):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = ChannelTypeSerializer(record, data=request.data)
+        serializer = ChannelTypeSerializer(record, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
@@ -313,7 +317,7 @@ def schedule_single(request, id):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = ScheduleSerializer(record, data=request.data)
+        serializer = ScheduleSerializer(record, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
@@ -358,7 +362,7 @@ def scheduleType_single(request, id):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = ScheduleTypeSerializer(record, data=request.data)
+        serializer = ScheduleTypeSerializer(record, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
@@ -403,7 +407,7 @@ def transmissionPowerLevel_single(request, id):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        serializer = TransmissionPowerLevelSerializer(record, data=request.data)
+        serializer = TransmissionPowerLevelSerializer(record, data=request.data, partial=True)
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         

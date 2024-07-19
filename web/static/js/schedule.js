@@ -46,7 +46,7 @@ var tethys;
                 reader.read()
                     .then((readerResult) => {
                     const resultBody = new TextDecoder().decode(readerResult.value);
-                    selectedScheduleNumber = parseInt(resultBody, 10);
+                    selectedScheduleNumber = JSON.parse(resultBody).id;
                     tethys.websocket.requestSchedules();
                 });
             });
@@ -254,6 +254,7 @@ var tethys;
         schedule_1.updateStartTime = updateStartTime;
         // ============================================================================
         function updateDurationMinutes() {
+            debugger;
             let index = getIndexOfScheduleWithId(selectedScheduleNumber);
             var elementDurationMinutes = document.getElementById("idOptionDurationMinutes");
             var value = elementDurationMinutes.value;
@@ -356,7 +357,7 @@ var tethys;
                 return;
             }
             let durationString = tethys.tool.getDurationString(schedule.startTime, schedule.durationMinutes);
-            elementDurationMinutes.textContent = durationString;
+            elementDurationMinutes.innerHTML = durationString;
         }
         // ============================================================================
         function formatScheduleType(schedule) {

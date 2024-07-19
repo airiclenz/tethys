@@ -50,7 +50,7 @@ namespace tethys {
                         .then((readerResult) => {
 
                             const resultBody = new TextDecoder().decode(readerResult.value);
-                            selectedScheduleNumber = parseInt(resultBody, 10);
+                            selectedScheduleNumber = JSON.parse(resultBody).id;
 
                             tethys.websocket.requestSchedules();
                         });
@@ -355,6 +355,9 @@ namespace tethys {
 
         // ============================================================================
         export function updateDurationMinutes() {
+
+            debugger;
+
             let index = getIndexOfScheduleWithId(selectedScheduleNumber);
 
             var elementDurationMinutes = <HTMLInputElement>(
@@ -502,7 +505,7 @@ namespace tethys {
                     schedule.startTime,
                     schedule.durationMinutes);
 
-            elementDurationMinutes.textContent = durationString;
+            elementDurationMinutes.innerHTML = durationString;
         }
 
 

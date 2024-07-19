@@ -40,16 +40,9 @@ var tethys;
             let resultString = "";
             let hours = Math.floor(durationMinutes / 60);
             let minutes = durationMinutes - (hours * 60);
-            let minutesString = minutes.toFixed(1);
-            if (minutes !== 0) {
-                resultString =
-                    this.pad(hours, 2) + "h " +
-                        this.pad(minutes, 2) + "min";
-            }
-            else {
-                resultString =
-                    this.pad(hours, 2) + "h";
-            }
+            resultString =
+                this.pad(hours, 2) + "h " +
+                    this.pad(minutes, 2) + "min";
             let endTime = addMinutes(startTimeDate, durationMinutes);
             resultString +=
                 " → " +
