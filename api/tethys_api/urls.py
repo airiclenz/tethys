@@ -1,32 +1,38 @@
+from django.contrib import admin
 from django.urls import path
-from . import views
-
+from tethys_api import views
 
 urlpatterns = [
-    path("actionType/", views.ActionTypeListCreate.as_view(), name="actionType-create-view"),
-    path("actionType/<str:name>", views.ActionTypeRetrieveUpdateDestroy.as_view(), name="actionType-retrieve-update-detroy"),
+    path('admin/', admin.site.urls),
 
-    path("channel/", views.ChannelListCreate.as_view(), name="channel-create-view"),
-    path("channel/<int:number>", views.ChannelRetrieveUpdateDestroy.as_view(), name="channel-retrieve-update-detroy"),
-    #path("channel/", views.ChannelListView.as_view(), name="channel-filtered-list-view"),
+    path('api/lastUpdate/', views.lastUpdate),
 
-    path("channelSummary/", views.ChannelSummaryView.as_view(), name="channelSummary-view"),
+    path('api/silentPhaseStatus/', views.silentPhaseStatus),
+    path('api/silentPhaseStatus/force', views.silentPhaseStatusForce),
 
-    path("channelType/", views.ChannelTypeListCreate.as_view(), name="channelType-create-view"),
-    path("channelType/<str:name>", views.ChannelTypeRetrieveUpdateDestroy.as_view(), name="channelType-retrieve-update-detroy"),
-    
-    path("sensorData/", views.SensorDataListCreate.as_view(), name="sensorData-create-view"),
-    path("sensorData/<int:pk>", views.SensorDataRetrieveUpdateDestroy.as_view(), name="sensorData-retrieve-update-detroy"),
+    path('api/initializeDatabase/', views.initializeDatabase),
 
-    path("schedule/", views.ScheduleListCreate.as_view(), name="schedule-create-view"),
-    path("schedule/<int:pk>", views.ScheduleRetrieveUpdateDestroy.as_view(), name="schedule-retrieve-update-detroy"),
+    path('api/actionLog/', views.actionLog),
+    path('api/actionLog/<str:id>', views.actionLog_single),
 
-    path("scheduleType/", views.ScheduleTypeListCreate.as_view(), name="scheduleType-create-view"),
-    path("scheduleType/<str:name>", views.ScheduleTypeRetrieveUpdateDestroy.as_view(), name="scheduleType-retrieve-update-detroy"),
+    path('api/actionType/', views.actionType),
+    path('api/actionType/<str:id>', views.actionType_single),
 
-    path("transmissionPowerLevel/", views.TransmissionPowerLevelListCreate.as_view(), name="transmissionPowerLevel-create-view"),
-    path("transmissionPowerLevel/<str:name>", views.TransmissionPowerLevelRetrieveUpdateDestroy.as_view(), name="transmissionPowerLevel-retrieve-update-detroy"),
-    path("transmissionPowerLevel/<int:value>", views.TransmissionPowerLevelRetrieveUpdateDestroy.as_view(), name="transmissionPowerLevel-retrieve-update-detroy"),
+    path('api/channel/', views.channel),
+    path('api/channel/<str:id>', views.channel_single),
 
-    path("initializeDatabase/", views.InitializeDatabaseView.as_view(), name="initialize-database-view"),
+    path('api/channelType/', views.channelType),
+    path('api/channelType/<str:id>', views.channelType_single),
+
+    path('api/sensorData/', views.sensorData),
+    path('api/sensorData/<int:id>', views.sensorData_single),
+
+    path('api/schedule/', views.schedule),
+    path('api/schedule/<int:id>', views.schedule_single),
+
+    path('api/scheduleType/', views.scheduleType),
+    path('api/scheduleType/<str:id>', views.scheduleType_single),
+
+    path('api/transmissionPowerLevel/', views.transmissionPowerLevel),
+    path('api/transmissionPowerLevel/<str:id>', views.transmissionPowerLevel_single),
 ]

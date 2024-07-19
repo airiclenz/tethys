@@ -108,6 +108,10 @@ var tethys;
     // ============================================================================
     function updateCoreServiceState() {
         var elementCoreServiceState = document.getElementById("idCoreServiceState");
+        if (coreServiceState === null) {
+            elementCoreServiceState.innerHTML = "Core-Service: --";
+            return;
+        }
         if (coreServiceState) {
             elementCoreServiceState.innerHTML = "Core-Service: Running";
         }

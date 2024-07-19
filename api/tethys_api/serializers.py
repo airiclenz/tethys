@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from tethys_api.models import *
+from .models import *
 
 
 # /////////////////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@ class ActionTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActionType
         fields = [
-            "name"
+            'name'
         ]
 
 # /////////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@ class ChannelTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChannelType
         fields = [
-            "name"
+            'name'
         ]
 
 # /////////////////////////////////////////////////////////////////////////////
@@ -23,8 +23,8 @@ class TransmissionPowerLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = TransmissionPowerLevel
         fields = [
-            "name",
-            "value"
+            'name',
+            'value'
         ]
 
 # /////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ class ScheduleTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduleType
         fields = [
-            "name"
+            'name'
         ]
 
 # /////////////////////////////////////////////////////////////////////////////
@@ -40,18 +40,20 @@ class ChannelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Channel
         fields = [
-            "number", 
-            "enabled", 
-            "nickName", 
-            "channelType", 
-            "actionTriggerPercent",
-            "pumpDurationSeconds",
-            "sensorMeasureFrequencyMinutes",
-            "sensorTriggerCalibration",
-            "sensorTransmissionPowerLevel"]
+            'number', 
+            'enabled', 
+            'nickName', 
+            'channelType', 
+            'actionTriggerPercent',
+            'pumpDurationSeconds',
+            'sensorMeasureFrequencyMinutes',
+            'sensorTriggerCalibration',
+            'sensorTransmissionPowerLevel'
+        ]
         
         #channelType = ChannelTypeSerializer
         #sensorTransmissionPowerLevel = TransmissionPowerLevelSerializer
+
 
 # /////////////////////////////////////////////////////////////////////////////
 class ChannelSummarySerializer(serializers.Serializer):
@@ -64,11 +66,12 @@ class SensorDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = SensorData
         fields = [
-            "id", 
-            "channel",
-            "batteryVoltage",
-            "moisturePercent",
-            "timestamp"]
+            'id', 
+            'channel',
+            'batteryVoltage',
+            'moisturePercent',
+            'timestamp'
+        ]
 
 
 # /////////////////////////////////////////////////////////////////////////////
@@ -76,23 +79,28 @@ class ActionLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActionLog
         fields = [
-            "id", 
-            "channel",
-            "actionType",
-            "startTime",
-            "endTime"]
+            'id', 
+            'channel',
+            'actionType',
+            'startTime',
+            'endTime'
+        ]
 
 
 # /////////////////////////////////////////////////////////////////////////////
 class ScheduleSerializer(serializers.ModelSerializer):
+
+    # id = serializers.IntegerField()
+
     class Meta:
         model = Schedule
         fields = [
-            "id", 
-            "weekday",
-            "enabled",
-            "scheduleType",
-            "startTime",
-            "durationMinutes"]
+            'id', 
+            'weekday',
+            'enabled',
+            'scheduleType',
+            'startTime',
+            'durationMinutes'
+        ]
 
 

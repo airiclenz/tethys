@@ -30,6 +30,14 @@ class ChannelType(models.Model):
         return self.name
 
 # /////////////////////////////////////////////////////////////////////////////
+class ScheduleType(models.Model):
+    '''The available schedule-types'''
+    name = models.CharField(max_length=20, primary_key=True, unique=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+# /////////////////////////////////////////////////////////////////////////////
 class TransmissionPowerLevel(models.Model):
     '''The available transmission-power-levels'''
     name = models.CharField(max_length=20, primary_key=True, unique=True)
@@ -38,13 +46,7 @@ class TransmissionPowerLevel(models.Model):
     def __str__(self) -> str:
             return self.name
 
-# /////////////////////////////////////////////////////////////////////////////
-class ScheduleType(models.Model):
-    '''The available schedule-types'''
-    name = models.CharField(max_length=20, primary_key=True, unique=True)
 
-    def __str__(self) -> str:
-        return self.name
 
 # /////////////////////////////////////////////////////////////////////////////
 class Channel(models.Model):

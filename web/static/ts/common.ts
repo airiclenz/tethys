@@ -64,7 +64,9 @@ namespace tethys {
 
 
     // ============================================================================
-    export function setSilentPhaseStatus(newSilentPhaseStatus) {
+    export function setSilentPhaseStatus(
+        newSilentPhaseStatus) {
+
         silentPhaseStatus = newSilentPhaseStatus;
         updateSilentPhaseStatus();
     }
@@ -135,6 +137,11 @@ namespace tethys {
     export function updateCoreServiceState() {
 
         var elementCoreServiceState = document.getElementById("idCoreServiceState");
+
+        if (coreServiceState === null) {
+            elementCoreServiceState.innerHTML = "Core-Service: --";
+            return;
+        }
 
         if (coreServiceState) {
             elementCoreServiceState.innerHTML = "Core-Service: Running";

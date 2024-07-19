@@ -1,9 +1,9 @@
 django
+djangorestframework
+django-filter
+django-cors-headers 
 channels
 channels-redis
 daphne
 requests
 gpiozero
-djangorestframework
-django-filter
-django-cors-headers

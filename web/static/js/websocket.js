@@ -70,6 +70,7 @@ var tethys;
         }
         // ============================================================================
         function onMessage(evt) {
+            //debugger;
             var data = JSON.parse(evt.data);
             var message = data.message;
             var location = tethys.getSiteLocation();
@@ -85,9 +86,9 @@ var tethys;
                 tethys.schedule.updateDataSet(data.schedules);
             }
             if (data.responseType === "requestSystemStatus") {
-                tethys.setCoreTemperature(data[1].coreTemperature);
-                tethys.setCoreServiceState(data[2].coreServiceState);
-                tethys.setSilentPhaseStatus(data[3].silentPhaseStatus);
+                tethys.setCoreTemperature(data.coreTemperature);
+                tethys.setCoreServiceState(data.coreServiceState);
+                tethys.setSilentPhaseStatus(data.silentPhaseStatus);
             }
         }
         // ============================================================================

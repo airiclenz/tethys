@@ -3,6 +3,7 @@ import json
 import logging
 import datetime
 import requests
+import platform
 
 from datetime import datetime, timedelta
 from web import settings
@@ -31,19 +32,18 @@ def getApiPathFromRequest(request):
 
 
 # =============================================================================
-def getCoreTemperature():
-    return CPUTemperature()
+#def getCoreTemperature():
+#    return CPUTemperature()
 
 
 # =============================================================================
 def getResponseForSensorSummary():
-
     response = requests.get(settings.API_URL + "channelSummary")
-    value_list = response.json()
-    new_list = [ json.loads('{"responseType": "requestChannelSummary"}') ]
-    value_list = new_list + value_list
 
-    return json.dumps(value_list)
+    return json.dumps({
+        "responseType": "requestChannelSummary",
+        "channelSummary": response.json()
+    })
 
 # =============================================================================
 def getResponseForSchedules():
@@ -58,12 +58,30 @@ def getResponseForSchedules():
 # =============================================================================
 def getReponseForSystemStatus():
 
-    return \
-        '[' + \
-        '{"responseType": "requestSystemStatus"},' + \
-        '{"coreTemperature": ' + str(CPUTemperature().temperature) + '},' + \
-        '{"coreServiceState": "' + str(os.system("systemctl is-active --quiet tethys-core.service") == 0) + '"}' + \
-        ']'
+    plarformName = platform.system()
+
+    cpuTemperature = 0.0
+    coreServiceState = False
+
+    if plarformName == "Darwin":
+        cpuTemperature = None
+        coreServiceState = None
+
+    elif plarformName == "Linux":
+        cpuTemperature = CPUTemperature().temperature
+        coreServiceState = os.system("systemctl is-active --quiet tethys-core.service") == 0
+
+    return json.dumps({
+        "responseType": "requestSystemStatus",
+        "coreTemperature": cpuTemperature,
+        "coreServiceState": coreServiceState,
+        "silentPhaseStatus": {
+            "lastCalculationTime":"1900-01-01T00:00:00Z",
+            "startTime":"1900-01-01T00:00:00Z",
+            "endTime":"1900-01-01T00:00:00Z",
+            "inPhase":False
+        }
+    })
 
 
 # =============================================================================

@@ -77,7 +77,6 @@ TEMPLATES = [
 
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"),)
 
-
 WSGI_APPLICATION = "web.wsgi.application"
 
 ASGI_APPLICATION = "web.asgi.application"
@@ -86,7 +85,10 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [
+                ("127.0.0.1", 6379),
+                ("localhost", 6379),
+            ],
         },
     },
 }
@@ -127,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "CET"
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 

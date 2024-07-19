@@ -43,31 +43,39 @@ def checkForUpdate():
     # -----------------------------------------
     # retrieve last Update
     try:
-        responseLastUpdate = requests.get(settings.API_URL + "lastupdate/")
+        responseLastUpdate = requests.get(settings.API_URL + "lastUpdate/")
         if responseLastUpdate.status_code != 200:
             return
     except requests.exceptions.RequestException:
         return
 
-    lastUpdateString = responseLastUpdate.json()["lastupdate"]["timestamp"]
+    if responseLastUpdate.status_code != 200:
+        return
+
+    lastUpdateDict = responseLastUpdate.json()
+    timestampString = lastUpdateDict['timestamp']
 
     try:
         lastUpdate = datetime.strptime(
-            lastUpdateString, settings.DATETIME_FORMAT_NO_MILL
+            timestampString, settings.DATETIME_FORMAT_NO_MILL
         )
     except:
-        lastUpdate = datetime.strptime(lastUpdateString, settings.DATETIME_FORMAT)
+        lastUpdate = datetime.strptime(timestampString, settings.DATETIME_FORMAT)
 
     # -----------------------------------------
     # retrieve silent phase status
     try:
         responseSilentPhaseStatus = requests.get(
-            settings.API_URL + "silentphasestatus/"
+            settings.API_URL + "silentPhaseStatus/"
         )
     except requests.exceptions.RequestException:
         return
 
-    isSilentPhase = responseSilentPhaseStatus.json()["silentPhaseStatus"]["inPhase"]
+    if responseSilentPhaseStatus.status_code != 200:
+        return
+
+    silentPhaseStatusDict = responseSilentPhaseStatus.json()
+    isSilentPhase = silentPhaseStatusDict['inPhase']
 
     if lastUpdate != lastUpdateLocal or isSilentPhase != isSilentPhaseLocal:
         tools.log("Polling: Update found...")
@@ -78,14 +86,16 @@ def checkForUpdate():
         # Send to group (broadcast)
         try:
             channel_layer = get_channel_layer()
-            sensorMessage = tools.getResponseForSensorSummary()
-            scheduleMessage = tools.getResponseForScheduleSummary()
+            
+            # TODO
+            #sensorMessage = tools.getResponseForSensorSummary()
+            scheduleMessage = tools.getResponseForSchedules()
 
             # answer to client
-            async_to_sync(channel_layer.group_send)(
-                settings.CHANNEL_GROUP_NAME,
-                { "type": "channelSummary", "message": sensorMessage },
-            )
+            #async_to_sync(channel_layer.group_send)(
+            #    settings.CHANNEL_GROUP_NAME,
+            #    { "type": "channelSummary", "message": sensorMessage },
+            #)
 
             # answer to client
             async_to_sync(channel_layer.group_send)(
