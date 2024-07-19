@@ -234,18 +234,19 @@ var tethys;
         function updateStartTime() {
             const index = getIndexOfScheduleWithId(selectedScheduleNumber);
             var elementStartTime = document.getElementById("idOptionStartTime");
-            var value = elementStartTime.value;
-            var body = { startTime: value };
-            if (value != schedules[index].startTime) {
+            let timeValue = elementStartTime.value;
+            let timeString = "0001-01-01T" + timeValue + ":00Z";
+            let body = { startTime: timeString };
+            if (timeValue != schedules[index].startTime) {
                 tethys.putCall(tethys.apiUrl + "schedule/" + selectedScheduleNumber, body)
                     .then((result) => {
                     if (result.ok == true) {
-                        schedules[index].startTime = value;
+                        schedules[index].startTime = timeString;
                         formatStartTime(schedules[index]);
                         console.log("Schedule " +
                             selectedScheduleNumber +
                             " - [startTime = " +
-                            value +
+                            timeValue +
                             "] was updated using the API.");
                     }
                 });

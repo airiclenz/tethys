@@ -330,14 +330,15 @@ namespace tethys {
                 (<unknown>document.getElementById("idOptionStartTime"))
             );
 
-            var value = elementStartTime.value;
-            var body = { startTime: value };
+            let timeValue = elementStartTime.value;
+            let timeString = "0001-01-01T" + timeValue + ":00Z";
+            let body = { startTime: timeString };
 
-            if (value != schedules[index].startTime) {
+            if (timeValue != schedules[index].startTime) {
                 putCall(apiUrl + "schedule/" + selectedScheduleNumber, body)
                     .then((result) => {
                         if (result.ok == true) {
-                            schedules[index].startTime = value;
+                            schedules[index].startTime = timeString;
 
                             formatStartTime(schedules[index]);
 
@@ -345,7 +346,7 @@ namespace tethys {
                                 "Schedule " +
                                 selectedScheduleNumber +
                                 " - [startTime = " +
-                                value +
+                                timeValue +
                                 "] was updated using the API."
                             );
                         }
