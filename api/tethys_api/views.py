@@ -58,7 +58,7 @@ def actionLog(request):
     if request.method == 'GET':
         records = ActionLog.objects.all()
         serializer = ActionLogSerializer(records, many=True)
-        return Response({'actionLog': serializer.data})
+        return Response({'actionLogs': serializer.data})
     
     elif request.method == 'POST':
         serializer = ActionLogSerializer(data=request.data)
@@ -103,7 +103,7 @@ def actionType(request):
     if request.method == 'GET':
         records = ActionType.objects.all()
         serializer = ActionTypeSerializer(records, many=True)
-        return Response({'actionType': serializer.data})
+        return Response({'actionTypes': serializer.data})
     
     elif request.method == 'POST':
         serializer = ActionTypeSerializer(data=request.data)
@@ -148,7 +148,7 @@ def channel(request):
     if request.method == 'GET':
         records = Channel.objects.all()
         serializer = ChannelSerializer(records, many=True)
-        return Response({'channel': serializer.data})
+        return Response({'channels': serializer.data})
     
     elif request.method == 'POST':
         serializer = ChannelSerializer(data=request.data)
@@ -193,7 +193,7 @@ def channelType(request):
     if request.method == 'GET':
         records = ChannelType.objects.all()
         serializer = ChannelTypeSerializer(records, many=True)
-        return Response({'channelType': serializer.data})
+        return Response({'channelTypes': serializer.data})
     
     elif request.method == 'POST':
         serializer = ChannelTypeSerializer(data=request.data)
@@ -288,7 +288,7 @@ def schedule(request):
     if request.method == 'GET':
         records = Schedule.objects.all()
         serializer = ScheduleSerializer(records, many=True)
-        return Response({'schedule': serializer.data})
+        return Response({'schedules': serializer.data})
     
     elif request.method == 'POST':
         serializer = ScheduleSerializer(data=request.data)
@@ -334,7 +334,7 @@ def scheduleType(request):
     if request.method == 'GET':
         records = ScheduleType.objects.all()
         serializer = ScheduleTypeSerializer(records, many=True)
-        return Response({'scheduleType': serializer.data})
+        return Response({'scheduleTypes': serializer.data})
     
     elif request.method == 'POST':
         serializer = ScheduleTypeSerializer(data=request.data)
@@ -379,7 +379,7 @@ def transmissionPowerLevel(request):
     if request.method == 'GET':
         records = TransmissionPowerLevel.objects.all()
         serializer = TransmissionPowerLevelSerializer(records, many=True)
-        return Response({'transmissionPowerLevel': serializer.data})
+        return Response({'transmissionPowerLevels': serializer.data})
     
     elif request.method == 'POST':
         serializer = TransmissionPowerLevelSerializer(data=request.data)
