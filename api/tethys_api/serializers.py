@@ -50,15 +50,28 @@ class ChannelSerializer(serializers.ModelSerializer):
             'sensorTriggerCalibration',
             'sensorTransmissionPowerLevel'
         ]
-        
-        #channelType = ChannelTypeSerializer
-        #sensorTransmissionPowerLevel = TransmissionPowerLevelSerializer
 
 
 # /////////////////////////////////////////////////////////////////////////////
 class ChannelSummarySerializer(serializers.Serializer):
-    class Meta:
-        model = Channel
+
+    number = serializers.IntegerField()
+    enabled = serializers.BooleanField() 
+    nickName = serializers.CharField()
+    channelType = serializers.CharField() 
+    actionTriggerPercent = serializers.IntegerField()
+    pumpDurationSeconds = serializers.IntegerField()
+    sensorMeasureFrequencyMinutes = serializers.IntegerField()
+    sensorTriggerCalibration = serializers.BooleanField()
+    sensorTransmissionPowerLevel = serializers.CharField()
+
+    sensorData_batteryVoltage = serializers.FloatField()
+    sensorData_moisturePercent = serializers.IntegerField()
+    sensorData_timestamp = serializers.DateTimeField()
+
+    actionLog_actionType = serializers.CharField()
+    actionLog_startTime = serializers.DateTimeField()
+    actionLog_endTime = serializers.DateTimeField()
 
 
 # /////////////////////////////////////////////////////////////////////////////

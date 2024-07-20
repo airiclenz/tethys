@@ -1,3 +1,5 @@
+from django.db.models import OuterRef, Subquery, F
+from django.core import serializers as dSerializers
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -188,6 +190,33 @@ def channel_single(request, id):
         record.delete()
         globals.setLastDataUpdateNow()
         return Response(status=status.HTTP_202_ACCEPTED)
+
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@api_view(['GET'])
+def channelSummary(request):
+    
+    if request.method == 'GET':
+        channels = Channel.objects.all()
+        sensorData = SensorData.objects.filter(channel=OuterRef('pk')).order_by('-timestamp')
+        actionLog = ActionLog.objects.filter(channel=OuterRef('pk')).order_by('-startTime')
+
+        channels = channels.annotate(
+            sensorData_batteryVoltage = Subquery(sensorData.values('batteryVoltage')[:1]),
+            sensorData_moisturePercent = Subquery(sensorData.values('moisturePercent')[:1]),
+            sensorData_timestamp = Subquery(sensorData.values('timestamp')[:1]),
+
+            actionLog_actionType = Subquery(actionLog.values('actionType')[:1]),
+            actionLog_startTime = Subquery(actionLog.values('startTime')[:1]),
+            actionLog_endTime = Subquery(actionLog.values('endTime')[:1]),
+        )
+
+        #for channel in channels:
+        #    print(channel.number, channel.sensorData_batteryVoltage, channel.actionLog_actionType)
+
+        serializer = ChannelSummarySerializer(channels, many=True)
+        
+        return Response({'channels': serializer.data})
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

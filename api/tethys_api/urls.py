@@ -21,6 +21,8 @@ urlpatterns = [
     path('api/channel/', views.channel),
     path('api/channel/<str:id>', views.channel_single),
 
+    path('api/channelSummary/', views.channelSummary),
+
     path('api/channelType/', views.channelType),
     path('api/channelType/<str:id>', views.channelType_single),
 
