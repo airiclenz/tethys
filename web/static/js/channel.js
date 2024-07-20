@@ -232,7 +232,7 @@ var tethys;
                 elementActionCount.style.color = tethys.nullColor;
             }
             else {
-                elementActionCount.innerHTML = channel.action_count;
+                elementActionCount.innerHTML = channel.actionLog_count;
             }
         }
         // ============================================================================
@@ -242,7 +242,7 @@ var tethys;
                 elementActionTime === undefined) {
                 return;
             }
-            var lastStartTime = new Date(channel.action_lastStartTime);
+            var lastStartTime = new Date(channel.actionLog_lastStartTime);
             if (tethys.tool.isValidDate(lastStartTime)) {
                 elementActionTime.textContent =
                     tethys.tool.getTimePassedSinceString(lastStartTime);

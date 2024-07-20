@@ -22,7 +22,7 @@ def channels(request):
     if response.status_code != 200:
         return render(request, "./error/error-api.html")
     
-    channelSummaries = response.json()['channels']
+    channelSummaries = response.json()['channelSummaries']
 
     context = {
         "title": "Tethys", 

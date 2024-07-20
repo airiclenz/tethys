@@ -65,13 +65,15 @@ class ChannelSummarySerializer(serializers.Serializer):
     sensorTriggerCalibration = serializers.BooleanField()
     sensorTransmissionPowerLevel = serializers.CharField()
 
-    sensorData_batteryVoltage = serializers.FloatField()
-    sensorData_moisturePercent = serializers.IntegerField()
-    sensorData_timestamp = serializers.DateTimeField()
+    sensorData_lastBatteryVoltage = serializers.FloatField()
+    sensorData_lastMoisturePercent = serializers.IntegerField()
+    sensorData_lastTimestamp = serializers.DateTimeField()
+    sensorData_count = serializers.IntegerField()
 
-    actionLog_actionType = serializers.CharField()
-    actionLog_startTime = serializers.DateTimeField()
-    actionLog_endTime = serializers.DateTimeField()
+    actionLog_lastActionType = serializers.CharField()
+    actionLog_lastStartTime = serializers.DateTimeField()
+    actionLog_lastEndTime = serializers.DateTimeField()
+    actionLog_count = serializers.IntegerField()
 
 
 # /////////////////////////////////////////////////////////////////////////////

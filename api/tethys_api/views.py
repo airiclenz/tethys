@@ -1,4 +1,4 @@
-from django.db.models import OuterRef, Subquery, F
+from django.db.models import OuterRef, Subquery, F, Count
 from django.core import serializers as dSerializers
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -198,25 +198,32 @@ def channelSummary(request):
     
     if request.method == 'GET':
         channels = Channel.objects.all()
-        sensorData = SensorData.objects.filter(channel=OuterRef('pk')).order_by('-timestamp')
-        actionLog = ActionLog.objects.filter(channel=OuterRef('pk')).order_by('-startTime')
-
+        sensorData_subQuery = SensorData.objects.filter(channel=OuterRef('pk')).order_by('-timestamp')
+        actionLog_subQuery = ActionLog.objects.filter(channel=OuterRef('pk')).order_by('-startTime')
+        #sensorDataCount = sensorData.aggregate(total)
+        
         channels = channels.annotate(
-            sensorData_batteryVoltage = Subquery(sensorData.values('batteryVoltage')[:1]),
-            sensorData_moisturePercent = Subquery(sensorData.values('moisturePercent')[:1]),
-            sensorData_timestamp = Subquery(sensorData.values('timestamp')[:1]),
+            sensorData_lastBatteryVoltage = Subquery(sensorData_subQuery.values('batteryVoltage')[:1]),
+            sensorData_lastMoisturePercent = Subquery(sensorData_subQuery.values('moisturePercent')[:1]),
+            sensorData_lastTimestamp = Subquery(sensorData_subQuery.values('timestamp')[:1]),
+            #sensorData_count = Subquery(sensorData_subQuery.values('id').annotate(count = Count('id')).values('count')),
 
-            actionLog_actionType = Subquery(actionLog.values('actionType')[:1]),
-            actionLog_startTime = Subquery(actionLog.values('startTime')[:1]),
-            actionLog_endTime = Subquery(actionLog.values('endTime')[:1]),
+            actionLog_lastActionType = Subquery(actionLog_subQuery.values('actionType')[:1]),
+            actionLog_lastStartTime = Subquery(actionLog_subQuery.values('startTime')[:1]),
+            actionLog_lastEndTime = Subquery(actionLog_subQuery.values('endTime')[:1]),
+            actionLog_count = Subquery(actionLog_subQuery.values('id').annotate(count = Count('id')).values('count')),
         )
 
-        #for channel in channels:
-        #    print(channel.number, channel.sensorData_batteryVoltage, channel.actionLog_actionType)
+        for channel in channels:
+            sensorDataSub = SensorData.objects.filter(channel = channel.number)
+            channel.sensorData_count = sensorDataSub.count()
 
-        serializer = ChannelSummarySerializer(channels, many=True)
-        
-        return Response({'channels': serializer.data})
+            actionLogSub = ActionLog.objects.filter(channel = channel.number)
+            channel.actionLog_count = actionLogSub.count()
+
+
+        serializer = ChannelSummarySerializer(channels, many=True)        
+        return Response({'channelSummaries': serializer.data})
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

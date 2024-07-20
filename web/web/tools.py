@@ -40,10 +40,12 @@ def getApiPathFromRequest(request):
 def getResponseForSensorSummary():
     response = requests.get(settings.API_URL + "channelSummary/")
 
-    return json.dumps({
+    responseLoad = json.dumps({
         "responseType": "requestChannelSummary",
-        "channelSummary": response.json()
-    })
+        "channelSummaries": response.json()["channelSummaries"]
+    }) 
+
+    return responseLoad
 
 # =============================================================================
 def getResponseForSchedules():

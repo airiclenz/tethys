@@ -88,14 +88,14 @@ def checkForUpdate():
             channel_layer = get_channel_layer()
             
             # TODO
-            #sensorMessage = tools.getResponseForSensorSummary()
+            sensorMessage = tools.getResponseForSensorSummary()
             scheduleMessage = tools.getResponseForSchedules()
 
             # answer to client
-            #async_to_sync(channel_layer.group_send)(
-            #    settings.CHANNEL_GROUP_NAME,
-            #    { "type": "channelSummary", "message": sensorMessage },
-            #)
+            async_to_sync(channel_layer.group_send)(
+                settings.CHANNEL_GROUP_NAME,
+                { "type": "channelSummary", "message": sensorMessage },
+            )
 
             # answer to client
             async_to_sync(channel_layer.group_send)(

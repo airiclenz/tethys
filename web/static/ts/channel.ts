@@ -305,7 +305,7 @@ namespace tethys {
                 elementActionCount.style.color = nullColor;
             }
             else {
-                elementActionCount.innerHTML = channel.action_count;
+                elementActionCount.innerHTML = channel.actionLog_count;
             }
 
 
@@ -324,7 +324,7 @@ namespace tethys {
                 return;
             }
 
-            var lastStartTime = new Date(channel.action_lastStartTime);
+            var lastStartTime = new Date(channel.actionLog_lastStartTime);
 
             if (tethys.tool.isValidDate(lastStartTime)) {
 

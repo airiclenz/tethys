@@ -109,7 +109,7 @@ namespace tethys {
             if (location === tethys.location.channel &&
                 data.responseType === "requestChannelSummary") {
 
-                tethys.channel.updateDataSet(data[2].channelSummary);
+                tethys.channel.updateDataSet(data.channelSummaries);
             }
 
             if (location === tethys.location.schedule &&
