@@ -38,6 +38,18 @@ var tethys;
     }
     tethys.afterPageLoad = afterPageLoad;
     // ============================================================================
+    function deselectAll() {
+        let location = getSiteLocation();
+        console.info(location);
+        if (location === 'channels') {
+            tethys.channel.deselectAll();
+        }
+        else if (location === 'schedules') {
+            tethys.schedule.deselectAll();
+        }
+    }
+    tethys.deselectAll = deselectAll;
+    // ============================================================================
     function markActiveMenu() {
         let location = getSiteLocation();
         for (const id in menuIds) {

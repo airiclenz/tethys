@@ -1,7 +1,6 @@
 import os
 import json
 import logging
-import datetime
 import requests
 import platform
 
@@ -16,6 +15,7 @@ logging.basicConfig(encoding="utf-8", level=logging.INFO)
 # =============================================================================
 def log(message):
     now = datetime.now()
+
     dateString = now.strftime("%Y-%m-%d %H:%M:%S.%f")
     logging.info(
         settings.LOGGING_INDENT_INNER

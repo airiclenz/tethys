@@ -7,3 +7,4 @@ channels-redis
 daphne
 requests
 gpiozero
+tzlocal

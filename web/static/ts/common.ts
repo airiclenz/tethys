@@ -40,6 +40,21 @@ namespace tethys {
 
 
     // ============================================================================
+    export function deselectAll() {
+
+        let location = getSiteLocation();
+        console.info(location);
+
+        if (location === 'channels') {
+            tethys.channel.deselectAll();
+        }
+
+        else if (location === 'schedules') {
+            tethys.schedule.deselectAll();
+        }
+    }
+
+    // ============================================================================
     function markActiveMenu() {
 
         let location =

@@ -16,6 +16,13 @@ namespace tethys {
         }
 
         // ============================================================================
+        export function deselectAll() {
+            selectedChannelNumber = null;
+
+            tethys.tool.setVisibleState("button-delete", false);
+        }
+
+        // ============================================================================
         export function addNewChannel() {
 
             let nextNumber = getNextFreeNumber();

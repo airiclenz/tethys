@@ -29,10 +29,10 @@ def lastUpdate(request):
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @api_view(['GET'])
-def silentPhaseStatus(request):
+def silentPhaseStatus(request, timeZoneIdentifier):
 
     if request.method == 'GET':
-        refreshSilentPhaseStatus()
+        refreshSilentPhaseStatus(timeZoneIdentifier)
         return Response({
                 'lastCalculationTime': str(SILENT_PHASE.lastCalculationTime),
                 'startTime': str(SILENT_PHASE.startTime),
@@ -41,10 +41,10 @@ def silentPhaseStatus(request):
             })
 
 @api_view(['GET'])
-def silentPhaseStatusForce(request):
+def silentPhaseStatusForce(request, timeZoneIdentifier):
 
     if request.method == 'GET':
-        refreshSilentPhaseStatus(True)
+        refreshSilentPhaseStatus(timeZoneIdentifier, True)
         return Response({
                 'lastCalculationTime': str(SILENT_PHASE.lastCalculationTime),
                 'startTime': str(SILENT_PHASE.startTime),
@@ -64,9 +64,13 @@ def actionLog(request):
     
     elif request.method == 'POST':
         serializer = ActionLogSerializer(data=request.data)
+        
         if not serializer.is_valid():
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
+        #if serializer.data.timestamp == None:
+        serializer.timestamp = datetime.now()
+
         serializer.save()
         globals.setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

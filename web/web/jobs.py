@@ -1,6 +1,6 @@
-import json
-import threading
 import requests
+import time
+import tzlocal as timeZoneLocal
 
 from threading import Timer
 from datetime import datetime
@@ -64,9 +64,13 @@ def checkForUpdate():
 
     # -----------------------------------------
     # retrieve silent phase status
+
+    localTimeZone = timeZoneLocal.get_localzone()
+    localIanaString = str(localTimeZone).replace('/', '-')
+
     try:
         responseSilentPhaseStatus = requests.get(
-            settings.API_URL + "silentPhaseStatus/"
+            settings.API_URL + "silentPhaseStatus/" + localIanaString
         )
     except requests.exceptions.RequestException:
         return

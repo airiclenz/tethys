@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Run API",
-            "type": "python",
+            "type": "python3",
             "request": "launch",
             "program": "${workspaceFolder}/api/manage.py",
             "args": [
@@ -18,7 +18,7 @@
         },
         {
             "name": "Python: Run WEB",
-            "type": "python",
+            "type": "python3",
             "request": "launch",
             "program": "${workspaceFolder}/web/manage.py",
             "args": [

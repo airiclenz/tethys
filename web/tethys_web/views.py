@@ -9,13 +9,13 @@ from web import tools
 
 # ::::::::::::::::::::::::::::::::::
 def channels(request):
-    
+    '''
     pathApi = tools.getApiPathFromRequest(request)
 
     tools.log("API-PATH: " + pathApi)
 
     try:
-        response = requests.get(pathApi + "channelSummary")
+        response = requests.get(pathApi + "channelSummary/")
     except requests.exceptions.RequestException:
         return render(request, "./error/error-api.html")
 
@@ -23,10 +23,11 @@ def channels(request):
         return render(request, "./error/error-api.html")
     
     channelSummaries = response.json()['channelSummaries']
+    '''
 
     context = {
         "title": "Tethys", 
-        "channels": channelSummaries
+        "channels": None #channelSummaries
     }
 
     return render(request, "index-channels.html", context)
@@ -34,7 +35,7 @@ def channels(request):
 
 # ::::::::::::::::::::::::::::::::::
 def schedules(request):
-
+    '''
     pathApi = tools.getApiPathFromRequest(request)
 
     tools.log("API-PATH: " + pathApi)
@@ -44,9 +45,12 @@ def schedules(request):
     except requests.exceptions.RequestException:
         return render(request, "./error/error-api.html")
 
-    #schedules = response.json()["schedule"]
     schedules = response.json()
+    '''
 
-    context = {"title": "Tethys", "schedules": schedules}
+    context = {
+        "title": "Tethys", 
+        "schedules": None #schedules
+    }
 
     return render(request, "index-schedules.html", context)

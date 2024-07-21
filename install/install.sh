@@ -4,7 +4,7 @@
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPT_PATH=$(dirname "$SCRIPT")
-VENV_NAME="env"
+VENV_NAME="env_tethys"
 
 cd $SCRIPT_PATH
 cd ..
@@ -26,11 +26,13 @@ sudo apt full-upgrade
 
 if [ ! -d $VENV_NAME ]; then
     echo $VENV_NAME "does not exist -> creating it now..."
-    python -m venv $VENV_NAME
+    python3 -m venv $VENV_NAME
 fi
 
 source $VENV_NAME/bin/activate
 echo "the new virtual environment" $VENV_NAME "was activated."
+echo "updating the pip installer."
+pip install --upgrade pip
 echo "installing needed packages now..."
 pip install -r python-requirements.txt
 

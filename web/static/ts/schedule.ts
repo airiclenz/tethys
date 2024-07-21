@@ -23,6 +23,14 @@ namespace tethys {
             return -1;
         }
 
+        // ============================================================================
+        export function deselectAll() {
+            selectedScheduleNumber = null;
+            selectedScheduleIndex = null;
+
+            tethys.tool.setVisibleState("button-delete", false);
+        }
+
 
         // ============================================================================
         export function addNewSchedule() {

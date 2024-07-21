@@ -1,7 +1,9 @@
 import json
 import requests
 
+from zoneinfo import ZoneInfo
 from datetime import datetime, date, timedelta, timezone
+
 from tethys_api.models import Schedule, ScheduleType
 from .globals import (
     LAST_DATA_UPDATE,
@@ -12,8 +14,37 @@ from .globals import (
     BG_COLORS
 )
 
+
+'''
 # =============================================================================
-def refreshSilentPhaseStatus(forceRecaclulation=False):
+def getNaiveDatetimeNow(timeZoneCode):
+    
+    timeZoneInfo = pytz.timezone(timeZoneCode)
+    localTime = datetime.now(timeZoneInfo)
+        
+    return datetime(
+        localTime.year,
+        localTime.month,
+        localTime.day,
+        localTime.hour,
+        localTime.minute,
+        localTime.second
+    )
+'''
+
+# =============================================================================
+def getTimeAsLocalDateTime(timestamp, zoneInfo):
+
+    if timestamp == datetime.min:
+        return timestamp
+
+    zoneInfo
+    return timestamp.astimezone(zoneInfo)
+
+
+
+# =============================================================================
+def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
 
     """
     This re-evaluates if we have a silent-schedule that is active right now.
@@ -21,6 +52,9 @@ def refreshSilentPhaseStatus(forceRecaclulation=False):
 
     # datetime.replace(tzinfo=timezone.utc)
     # datetime.now(timezone.utc)
+
+    timeZoneInfo = ZoneInfo(timeZoneIdentifier.replace('-', '/'))
+    print(datetime.now().astimezone().tzname())
 
     isDataUpdate = False
     isEnteringSilentPhase = False
@@ -87,10 +121,11 @@ def refreshSilentPhaseStatus(forceRecaclulation=False):
             ".............................................",
             BG_COLORS.ENDC,
         )
+
         print(
             BG_COLORS.OKCYAN,
             "last calculation: ",
-            SILENT_PHASE.lastCalculationTime,
+            getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo),
             BG_COLORS.ENDC,
         )
         print(
@@ -171,7 +206,7 @@ def refreshSilentPhaseStatus(forceRecaclulation=False):
                         print(
                             BG_COLORS.OKGREEN,
                             "new last calc:    ",
-                            SILENT_PHASE.lastCalculationTime,
+                            getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo),
                             BG_COLORS.ENDC,
                         )
                         print(

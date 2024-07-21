@@ -21,6 +21,12 @@ var tethys;
             return channelNumber - 1;
         }
         // ============================================================================
+        function deselectAll() {
+            selectedChannelNumber = null;
+            tethys.tool.setVisibleState("button-delete", false);
+        }
+        channel_1.deselectAll = deselectAll;
+        // ============================================================================
         function addNewChannel() {
             let nextNumber = getNextFreeNumber();
             if (nextNumber === -1) {

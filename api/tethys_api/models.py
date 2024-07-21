@@ -69,7 +69,7 @@ class SensorData(models.Model):
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
     batteryVoltage = models.FloatField()
     moisturePercent = models.SmallIntegerField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(null=True)
 
     def __str__(self) -> str:
         return str(self.channel.number) + ' - ' + self.timestamp
@@ -78,7 +78,7 @@ class SensorData(models.Model):
 class ActionLog(models.Model):
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
     actionType = models.ForeignKey(ActionType, on_delete=models.DO_NOTHING)
-    startTime = models.DateTimeField(auto_now_add=True)
+    startTime = models.DateTimeField(null=True)
     endTime = models.DateTimeField(null=True)
 
     def __str__(self) -> str:

@@ -28,6 +28,13 @@ var tethys;
             return -1;
         }
         // ============================================================================
+        function deselectAll() {
+            selectedScheduleNumber = null;
+            selectedScheduleIndex = null;
+            tethys.tool.setVisibleState("button-delete", false);
+        }
+        schedule_1.deselectAll = deselectAll;
+        // ============================================================================
         function addNewSchedule() {
             var body = {
                 enabled: false,
