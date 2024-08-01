@@ -5,7 +5,7 @@ import requests
 from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
-from web import settings, tools, jobs
+from . import settings, tools, jobs
 
 
 lastUpdateLocal = None

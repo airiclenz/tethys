@@ -4,7 +4,7 @@ import json
 
 from urllib.parse import urlparse
 from django.shortcuts import render
-from web import tools
+from . import tools
 
 
 # ::::::::::::::::::::::::::::::::::

@@ -8,14 +8,15 @@ VENV_NAME="env_tethys"
 
 cd $SCRIPT_PATH
 cd ..
+echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 echo "Current Directory: $(pwd)"
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #   S Y S T E M   U P D A T E
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-sudo apt update
-sudo apt full-upgrade
+sudo apt update -y
+sudo apt full-upgrade -y
 
 # sudo apt install libssl-dev libncurses5-dev libsqlite3-dev libreadline-dev libtk8.6 libgdm-dev libdb4o-cil-dev libpcap-dev -y
 # sudo apt-get install openssl
@@ -25,15 +26,21 @@ sudo apt full-upgrade
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 if [ ! -d $VENV_NAME ]; then
+    echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     echo $VENV_NAME "does not exist -> creating it now..."
     python3 -m venv $VENV_NAME
 fi
 
 source $VENV_NAME/bin/activate
+echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 echo "the new virtual environment" $VENV_NAME "was activated."
+
+echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 echo "updating the pip installer."
-pip install --upgrade pip
+python3 -m pip install --upgrade pip
+
+echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 echo "installing needed packages now..."
-pip install -r python-requirements.txt
+pip install -r ./install/python-requirements.txt
 
 

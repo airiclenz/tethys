@@ -5,9 +5,11 @@ import requests
 import platform
 
 from datetime import datetime, timedelta
-from web import settings
 from urllib.parse import urlparse
 from gpiozero import CPUTemperature
+
+from . import settings
+
 
 logging.basicConfig(encoding="utf-8", level=logging.INFO)
 

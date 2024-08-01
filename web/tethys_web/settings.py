@@ -53,14 +53,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "web.urls"
+ROOT_URLCONF = "tethys_web.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         
-        "DIRS": ["./web/templates"],
-        #"DIRS": ["./templates"],
+        #"DIRS": ["./tethys_web/templates"],
+        "DIRS": ["./templates"],
         
         "APP_DIRS": True,
         "OPTIONS": {
@@ -77,9 +77,9 @@ TEMPLATES = [
 
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, "templates"),)
 
-WSGI_APPLICATION = "web.wsgi.application"
+WSGI_APPLICATION = "tethys_web.wsgi.application"
 
-ASGI_APPLICATION = "web.asgi.application"
+ASGI_APPLICATION = "tethys_web.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {
