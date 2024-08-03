@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-_h5c8##=*e6)fgs*mt1r0-n7&e4to7qd&a&-s8o$yn!%a6_)k9
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "tethys2.local", 
+    ".local", 
     "127.0.0.1", 
     "localhost"]
 
