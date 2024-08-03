@@ -11,6 +11,8 @@ cd ..
 echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 echo "Current Directory: $(pwd)"
 
+
+
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #   S Y S T E M   U P D A T E
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -22,6 +24,7 @@ sudo apt full-upgrade -y
 sudo apt install libopenblas-dev -y
 # needed for the nRF24 module
 sudo apt install pigpio python-pigpio python3-pigpio
+
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -47,3 +50,20 @@ echo "installing needed packages now..."
 pip install -r ./install/python-requirements.txt
 
 
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+#   M I G R A T I O N S
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+echo "handling django migrations now..."
+
+cd api
+python manage.py makemigrations tethys_api
+python manage.py migrate
+cd ..
+
+cd web
+python manage.py makemigrations tethys_web
+python manage.py migrate
+cd ..
