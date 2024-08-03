@@ -61,8 +61,10 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         
-        #"DIRS": ["./tethys_web/templates"],
-        "DIRS": ["./templates"],
+        "DIRS": [
+            './templates',
+            './web/templates',
+        ],
         
         "APP_DIRS": True,
         "OPTIONS": {
@@ -83,15 +85,25 @@ WSGI_APPLICATION = "tethys_web.wsgi.application"
 
 ASGI_APPLICATION = "tethys_web.asgi.application"
 
+'''
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
+        
         "CONFIG": {
             "hosts": [
-                ("127.0.0.1", 6379),
-                ("localhost", 6379),
+                ('localhost', 6379),
+                ('127.0.0.1', 6379),
+                #('redis', 6379),
             ],
         },
+    },
+}
+'''
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
 

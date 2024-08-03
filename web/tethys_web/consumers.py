@@ -1,8 +1,5 @@
-import os
 import json
-import requests
 
-from datetime import datetime
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from . import settings, tools, jobs
@@ -15,6 +12,7 @@ isSilentPhaseLocal = None
 class TethysConsumer(WebsocketConsumer):
     # ::::::::::::::::::::::::::::::::::::::::::
     def connect(self):
+        
         async_to_sync(self.channel_layer.group_add)(
             settings.CHANNEL_GROUP_NAME, self.channel_name
         )
