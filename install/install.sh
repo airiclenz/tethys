@@ -18,8 +18,11 @@ echo "Current Directory: $(pwd)"
 sudo apt update -y
 sudo apt full-upgrade -y
 
-# sudo apt install libssl-dev libncurses5-dev libsqlite3-dev libreadline-dev libtk8.6 libgdm-dev libdb4o-cil-dev libpcap-dev -y
-# sudo apt-get install openssl
+# needed for numpy on the Raspberry Pi
+sudo apt install libopenblas-dev -y
+# needed for the nRF24 module
+sudo apt install pigpio python-pigpio python3-pigpio
+
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #   P Y T H O N - V E N V

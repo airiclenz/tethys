@@ -1,0 +1,14 @@
+[Unit]
+Description=Tethys Core
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 -u /home/pi/Repos/tethys/Software/Pi/src/tethys_core.py
+WorkingDirectory=/home/pi/Repos/tethys/Software/Pi/src
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

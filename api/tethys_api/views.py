@@ -4,11 +4,11 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
 from .models import *
 from .serializers import *
-from tethys_api import globals
 from .common import *
-
+from .globals import *
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @api_view(['GET'])
@@ -24,7 +24,7 @@ def initializeDatabase(request):
 def lastUpdate(request):
 
     if request.method == 'GET':
-        return Response({'timestamp': globals.LAST_DATA_UPDATE})
+        return Response({'timestamp': LAST_DATA_UPDATE})
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -72,7 +72,7 @@ def actionLog(request):
         serializer.timestamp = datetime.now()
 
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view([
@@ -97,12 +97,12 @@ def actionLog_single(request, id):
     #        return Response(status=status.HTTP_400_BAD_REQUEST)
     #    
     #    serializer.save()
-    #    globals.setLastDataUpdateNow()
+    #    setLastDataUpdateNow()
     #    return Response(serializer.data)
 
     elif request.method == 'DELETE':
         record.delete()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -121,7 +121,7 @@ def actionType(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -142,12 +142,12 @@ def actionType_single(request, id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
         record.delete()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
 
@@ -166,7 +166,7 @@ def channel(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -187,12 +187,12 @@ def channel_single(request, id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data)
 
     if request.method == 'DELETE':
         record.delete()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
@@ -210,7 +210,7 @@ def channelSummary(request):
             sensorData_lastBatteryVoltage = Subquery(sensorData_subQuery.values('batteryVoltage')[:1]),
             sensorData_lastMoisturePercent = Subquery(sensorData_subQuery.values('moisturePercent')[:1]),
             sensorData_lastTimestamp = Subquery(sensorData_subQuery.values('timestamp')[:1]),
-            #sensorData_count = Subquery(sensorData_subQuery.values('id').annotate(count = Count('id')).values('count')),
+            sensorData_count = Subquery(sensorData_subQuery.values('id').annotate(count = Count('id')).values('count')),
 
             actionLog_lastActionType = Subquery(actionLog_subQuery.values('actionType')[:1]),
             actionLog_lastStartTime = Subquery(actionLog_subQuery.values('startTime')[:1]),
@@ -226,8 +226,47 @@ def channelSummary(request):
             channel.actionLog_count = actionLogSub.count()
 
 
-        serializer = ChannelSummarySerializer(channels, many=True)        
+        serializer = ChannelSummarySerializer(channels, many=True)
         return Response({'channelSummaries': serializer.data})
+
+
+@api_view(['GET'])
+def channelSummary_single(request, number):
+    
+    try:
+        record = Channel.objects.get(pk = number)
+    except Channel.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+       
+        channels = Channel.objects.all()
+        sensorData_subQuery = SensorData.objects.filter(channel=OuterRef('pk')).order_by('-timestamp')
+        actionLog_subQuery = ActionLog.objects.filter(channel=OuterRef('pk')).order_by('-startTime')
+        #sensorDataCount = sensorData.aggregate(total)
+        
+        channels = channels.annotate(
+            sensorData_lastBatteryVoltage = Subquery(sensorData_subQuery.values('batteryVoltage')[:1]),
+            sensorData_lastMoisturePercent = Subquery(sensorData_subQuery.values('moisturePercent')[:1]),
+            sensorData_lastTimestamp = Subquery(sensorData_subQuery.values('timestamp')[:1]),
+            sensorData_count = Subquery(sensorData_subQuery.values('id').annotate(count = Count('id')).values('count')),
+
+            actionLog_lastActionType = Subquery(actionLog_subQuery.values('actionType')[:1]),
+            actionLog_lastStartTime = Subquery(actionLog_subQuery.values('startTime')[:1]),
+            actionLog_lastEndTime = Subquery(actionLog_subQuery.values('endTime')[:1]),
+            actionLog_count = Subquery(actionLog_subQuery.values('id').annotate(count = Count('id')).values('count')),
+        )
+
+        for channel in channels:
+            sensorDataSub = SensorData.objects.filter(channel = channel.number)
+            channel.sensorData_count = sensorDataSub.count()
+
+            actionLogSub = ActionLog.objects.filter(channel = channel.number)
+            channel.actionLog_count = actionLogSub.count()
+
+        record = channels.filter(pk = number)[0]
+        serializer = ChannelSummarySerializer(record)
+        return Response(serializer.data)
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -245,7 +284,7 @@ def channelType(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -266,12 +305,12 @@ def channelType_single(request, id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data)
 
     if request.method == 'DELETE':
         record.delete()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
@@ -290,7 +329,7 @@ def sensorData(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -316,12 +355,12 @@ def sensorData_single(request, id):
     #        return Response(status=status.HTTP_400_BAD_REQUEST)
     #    
     #    serializer.save()
-    #    globals.setLastDataUpdateNow()
+    #    setLastDataUpdateNow()
     #    return Response(serializer.data)
 
     elif request.method == 'DELETE':
         record.delete()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -340,7 +379,7 @@ def schedule(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -362,12 +401,12 @@ def schedule_single(request, id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data)
 
     elif request.method == 'DELETE':
         record.delete()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -386,7 +425,7 @@ def scheduleType(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -407,12 +446,12 @@ def scheduleType_single(request, id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data)
 
     if request.method == 'DELETE':
         record.delete()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(status=status.HTTP_202_ACCEPTED)
 
 
@@ -431,7 +470,7 @@ def transmissionPowerLevel(request):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -452,12 +491,12 @@ def transmissionPowerLevel_single(request, id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         
         serializer.save()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(serializer.data)
 
     if request.method == 'DELETE':
         record.delete()
-        globals.setLastDataUpdateNow()
+        setLastDataUpdateNow()
         return Response(status=status.HTTP_202_ACCEPTED)
 
 

@@ -358,8 +358,12 @@ var tethys;
                 channels[index].sensorTriggerCalibration;
             // Transmission Power
             var elementSelectTransmissionPower = document.getElementById("idSelectTransmissionPower");
-            elementSelectTransmissionPower.value =
-                channels[index].sensorTransmissionPowerLevelValue;
+            for (var i = 0; i < elementSelectTransmissionPower.options.length; i++) {
+                if (elementSelectTransmissionPower.options[i].text === channels[index].sensorTransmissionPowerLevel) {
+                    elementSelectTransmissionPower.selectedIndex = i;
+                    break;
+                }
+            }
         }
         channel_1.updateSettings = updateSettings;
         // ============================================================================

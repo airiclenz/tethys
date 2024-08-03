@@ -111,12 +111,13 @@ class ModelHelper():
         actionLog = []
         logger.debug( "Log test")
 
+
         # :::::::::::::::::::::
         try:
             channelTypePump = ChannelType.objects.get(pk = "pump")
             actionLog.append("Existing channel-type 'pump' was found.")
         except:
-            channelTypePump = channelTypePump(name = "pump")
+            channelTypePump = ChannelType(name = "pump")
             channelTypePump.save()
             actionLog.append("New channel-type 'pump' was created.")
 
@@ -124,7 +125,7 @@ class ModelHelper():
             channelTypeValve = ChannelType.objects.get(pk = "valve")
             actionLog.append("Existing channel-type 'valve' was found.")
         except:
-            channelTypeValve = channelTypePump(name = "valve")
+            channelTypeValve = ChannelType(name = "valve")
             channelTypeValve.save()
             actionLog.append("New channel-type 'valve' was created.")
 

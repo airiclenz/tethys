@@ -1,3 +1,5 @@
+RPi.GPIO
+pyrf24
 django
 djangorestframework
 django-filter
@@ -8,3 +10,4 @@ daphne
 requests
 gpiozero
 tzlocal
+numpy

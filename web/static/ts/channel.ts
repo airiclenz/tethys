@@ -502,9 +502,13 @@ namespace tethys {
             var elementSelectTransmissionPower = <HTMLSelectElement>(
                 (<unknown>document.getElementById("idSelectTransmissionPower"))
             );
-            elementSelectTransmissionPower.value =
-                channels[index].sensorTransmissionPowerLevelValue;
 
+            for (var i = 0; i < elementSelectTransmissionPower.options.length; i++) {
+                if (elementSelectTransmissionPower.options[i].text === channels[index].sensorTransmissionPowerLevel) {
+                    elementSelectTransmissionPower.selectedIndex = i;
+                    break;
+                }
+            }
         }
 
 

@@ -1,18 +1,9 @@
-import json
-import requests
 
 from zoneinfo import ZoneInfo
-from datetime import datetime, date, timedelta, timezone
+from datetime import datetime, date, timedelta
 
-from tethys_api.models import Schedule, ScheduleType
-from .globals import (
-    LAST_DATA_UPDATE,
-    SILENT_PHASE,
-    BASE_API_URL,
-    DATETIME_FORMAT,
-    DATETIME_FORMAT_NO_MILL,
-    BG_COLORS
-)
+from .models import Schedule
+from .globals import *
 
 
 '''
@@ -54,8 +45,6 @@ def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
     # datetime.now(timezone.utc)
 
     timeZoneInfo = ZoneInfo(timeZoneIdentifier.replace('-', '/'))
-    print(datetime.now().astimezone().tzname())
-
     isDataUpdate = False
     isEnteringSilentPhase = False
     isLeavingSilentPhase = False

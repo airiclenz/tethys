@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Run API",
-            "type": "python3",
+            "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/api/manage.py",
             "args": [
@@ -17,13 +17,21 @@
             "justMyCode": true
         },
         {
+            "name": "Python: Run CORE",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/core/tethys_core.py",
+            "args": [],
+            "justMyCode": true
+        },
+        {
             "name": "Python: Run WEB",
-            "type": "python3",
+            "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/web/manage.py",
             "args": [
                 "runserver",
-                "0.0.0.0:5000"
+                "0.0.0.0:8000"
             ],
             "django": true,
             "justMyCode": true
