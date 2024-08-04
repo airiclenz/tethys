@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "/Users/airic/Dropbox/KiCAD/Projects/WaterPlant/Software/WirelessPlantWatering (PlatformIO)"
+		},
+		{
+			"path": "/Users/airic/Dropbox/KiCAD/Projects/ESk8 Remote/Arduino/Funke"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"functional": "cpp",
+			"array": "cpp",
+			"iterator": "cpp",
+			"string": "cpp",
+			"string_view": "cpp",
+			"vector": "cpp"
+		}
+	}
+}
