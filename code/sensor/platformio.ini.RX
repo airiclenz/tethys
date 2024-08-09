@@ -5,11 +5,12 @@
 
 
 [platformio]
-description = Tethys Wireless Sensor
+description = WaterPlant Wireless
+
 
 
 ;///////////////////////////////
-[env:TX]
+[env:RX]
 ;///////////////////////////////
 
 platform = atmelavr
@@ -20,19 +21,24 @@ upload_protocol = avrispmkII
 ;upload_flags =
 ;	-D
 
-board = attiny84
+board = leonardo
 board_build.f_cpu = 8000000L
-board_fuses.efuse = 0xFF
-board_fuses.hfuse = 0xDF
-board_fuses.lfuse = 0xE2
+board_fuses.efuse = 0xFB
+board_fuses.hfuse = 0x99
+board_fuses.lfuse = 0xD2
 
 lib_deps =
 	https://github.com/nRF24/RF24.git
 	; eeprom
+	https://github.com/olikraus/U8g2_Arduino.git ; U8g2
+	
+extra_scripts =
+	pre:pre-build.py
 
 ; upload:
-; pio run -t program -e TX
+; pio run -t program -e RX
 
 ; set fuses:
-; pio run -t fuses -e TX
+; pio run -t fuses -e RX
+
 

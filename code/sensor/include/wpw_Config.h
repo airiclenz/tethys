@@ -5,7 +5,7 @@
     #define wpw_Config
 
 	#include <Arduino.h>
-	#include <avr/io.h>
+	//#include <avr/io.h>
     #include <RF24.h>
 	#include <wpw_Version.h>
 
@@ -20,7 +20,7 @@
 	//													//
 	//#define RX  	    								//
 	#define TX  										//
-    #define SENSOR_NUMBER       3 // 1-5    			//
+    #define SENSOR_NUMBER       2 // 1-5    			//
                                                         //
 	////////////////////////////////////                //
                                                         //
