@@ -5,11 +5,21 @@ from hardware import Pins
 import apiInterface as api
 import channel as hardwareChannel
 from globals import *
+from colorama import Fore
+from logger import Logger
+
+radioWrapper = None
+
+
+_logger = Logger(Fore.YELLOW)
 
 
 # =============================================================================
-def handleActions():
+def handleActions(radioWrapperIn):
     
+    global radioWrapper
+    radioWrapper = radioWrapperIn
+
     if api.isInSilentPhase():
         return
 
@@ -30,8 +40,8 @@ def handleChannelAction(channelNumber):
     channelSummary = api.loadChannelSummary(channelNumber)
 
     if channelSummary == None:
-        print("---------------------------")
-        print(
+        _logger.log("---------------------------")
+        _logger.log(
             "Could not retrieve data for checking if actions are due on channel",
             channelNumber,
         )
@@ -44,17 +54,19 @@ def handleChannelAction(channelNumber):
 
         # do we need to pump and are we allowed to?
         if moistureLevel < triggerLevel:
-            print("---------------------------")
-            print("Pumping for channel", channelNumber, "initiated")
+            _logger.log(f'Pumping for channel {channelNumber} initiated ({pumpDuration} sec)')
+            _logger.increaseIndent()
 
             startTime = datetime.now()
 
             hardwareChannel.activateChannel(channelNumber)
-            sleep(pumpDuration)
+            radioWrapper.handleRadioEvents(pumpDuration)
             hardwareChannel.deactivateChannel(channelNumber)
 
             endTime = datetime.now()
 
-            print("Pumping for", pumpDuration, "sec finsished.")
+            _logger.log(f'Pumping for {pumpDuration} sec finsished.')
 
             api.createPumpActionInDB(channelNumber, startTime, endTime)
+
+            _logger.decreaseIndent()

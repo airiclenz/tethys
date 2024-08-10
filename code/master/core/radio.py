@@ -1,21 +1,19 @@
 import RPi.GPIO as GPIO
-from struct import pack, unpack
-from datetime import datetime
+from gpiod.line import Edge
+
+import struct
+from datetime import datetime, timedelta
 import numpy as np
 
-# from RF24 import *
-
 from pyrf24 import *
-
-#import pigpio
-#from nrf24 import *
 
 import requests
 from requests.exceptions import ConnectionError
 from hardware import Pins
 
 from globals import *
-
+from colorama import Fore
+from logger import Logger
 
 
 DATATYPE_SENSORDATA = 0
@@ -29,10 +27,13 @@ DATATYPE_CMD_GETCONFIG = 6
 DATATYPE_CONFIG = 7
 
 
+
+
 # =============================================================================
 # =============================================================================
 # =============================================================================
 class Radio:
+
     _pipeAddresses = [
         0x5232443230,
         0x5232443231,
@@ -42,43 +43,29 @@ class Radio:
         0x5232443235,
     ]
 
+    _logger = Logger(Fore.GREEN)
+
     # =============================================================================
     def __init__(self):
         
-        CSN_PIN = 0  # aka CE0 on SPI bus 0: /dev/spidev0.0
-        if RF24_DRIVER == "MRAA":
-            CE_PIN = 15  # for GPIO22
-        elif RF24_DRIVER == "wiringPi":
-            CE_PIN = 3  # for GPIO22
-        else:
-            CE_PIN = 22
-        self.radio = RF24(CE_PIN, CSN_PIN)
+        self.radio = RF24(Pins.CE, Pins.CSN)
 
-        # self.radio = RF24(Pins.CE, Pins.CSN)
-        # self.logger = Logger()
 
     # =============================================================================
     def initializeRadio(self):
         
         self.radio.begin()
-
+        
         self.radio.setAddressWidth(5)
-        self.radio.setRetries(10, 10)
-        self.radio.setAutoAck(1)
+        self.radio.setAutoAck(True)
         self.radio.setCRCLength(RF24_CRC_8)
         self.radio.setPALevel(RF24_PA_LOW)
-
+        self.radio.setDataRate(RF24_250KBPS)
         
 
-        print("///////////////////////////////////////////////////")
         self.radio.printDetails()
-        print("///////////////////////////////////////////////////")
+        print("===================================================")
 
-        # set up callback for irq pin
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(Pins.IRQ, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-        GPIO.add_event_detect(Pins.IRQ, GPIO.FALLING, callback=self.checkRadioInbox)
 
         # setting up the reading- and writing pites
         self.radio.openWritingPipe(self._pipeAddresses[0])
@@ -91,17 +78,71 @@ class Radio:
 
         self.radio.startListening()
 
-    # =============================================================================
-    def checkRadioInbox(self, irqPin):
-        if self.radio.available() == True:
-            print("---------------------------")
 
+    # =============================================================================
+    def setupInterrupt(self):
+
+        pass
+
+        '''
+        # interrupt alternative with gpiod:
+
+        try:  # try RPi5 gpio chip first
+            chip_path = "/dev/gpiochip4"
+            chip = gpiod.Chip(chip_path)
+        except FileNotFoundError:  # fall back to gpio chip for RPi4 or older
+            chip_path = "/dev/gpiochip0"
+            chip = gpiod.Chip(chip_path)
+        finally:
+            print(__file__)  # print example name
+            # print gpio chip info
+            info = chip.get_info()
+            print(f"Using {info.name} [{info.label}]")
+        
+        self.IRQ_Line = gpiod.request_lines(
+            path=chip_path,
+            consumer="checkRadioInbox",  # optional
+            config={Pins.IRQ: gpiod.LineSettings(edge_detection=Edge.FALLING)},
+        )
+        '''
+
+
+        '''
+        # interrupt alternative with RPi.GPIO
+
+        # set up callback for irq pin
+        GPIO.setmode(GPIO.BCM)
+        #GPIO.setup(Pins.IRQ, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(Pins.IRQ, GPIO.IN)
+        GPIO.add_event_detect(Pins.IRQ, GPIO.FALLING, callback=self.checkRadioInbox)
+        '''
+
+
+    # =============================================================================
+    def handleRadioEvents(self, timeOutInSec: int):
+
+        endtime = datetime.now() + timedelta(seconds=timeOutInSec)
+        
+        while True:
+            self.checkRadioInbox()
+
+            if datetime.now() > endtime:
+                return
+
+
+    # =============================================================================
+    def checkRadioInbox(self):
+
+        if self.radio.available() == True:
+            
             pipeNo = self.radio.available_pipe()[1]
 
-            print("Incoming from Pipe:", pipeNo)
+            self._logger.log(f'Incoming from Pipe: {pipeNo}')
+            self._logger.increaseIndent()
 
             if pipeNo < 1 or pipeNo > 5:
-                print("Invalid pipe number!")
+                self._logger.log("Invalid pipe number!")
+                self._logger.decreaseIndent()
                 return
 
             while self.radio.available():
@@ -111,6 +152,7 @@ class Radio:
 
             # handle what we received
             self.handlePayload(pipeNo, payload)
+            self._logger.decreaseIndent()
 
 
     # =============================================================================
@@ -122,26 +164,28 @@ class Radio:
 
         # the sensor requested the configuration
         if command == DATATYPE_CMD_GETCONFIG:
-            print("Config was requested.")
+            self._logger.log("Config was requested.")
             self.sendConfig(channelNo)
 
         elif command == DATATYPE_SENSORDATA:
-            print("Sensordata received.")
+            self._logger.log("Sensordata received.")
 
             package = Radio.PackageSensorData(payload)
+            
+            batteryVoltageformatted = '{0:.2f}'.format(package.batteryVoltage)
 
-            # formatting the voltage
-            voltageFormatted = "%.2f" % package.batteryVoltage
-
-            print("Moisture:          ", package.moistureLevel, "%")
-            print("Battery Voltage:   ", voltageFormatted, "V")
+            self._logger.increaseIndent()
+            self._logger.log(f'Moisture:        {package.moistureLevel} %')
+            self._logger.log(f'Battery Voltage: {batteryVoltageformatted} V')
+            self._logger.decreaseIndent()
 
             dataset_json = {
+                "channel": channelNo,
                 "batteryVoltage": package.batteryVoltage,
                 "moisturePercent": package.moistureLevel,
             }
 
-            url = BASE_API_URL + "sensordata/" + str(channelNo)
+            url = BASE_API_URL + "sensorData/"
 
             try:
                 response = requests.post(url, json=dataset_json)
@@ -150,18 +194,19 @@ class Radio:
                 responseCode = response.status_code - (response.status_code % 100)
 
                 if responseCode == 200:
-                    print("Data was succesfully saved to the API.")
+                    self._logger.log("Data was succesfully saved to the API.")
 
                     FlagHandler().channelFlags[channelNo - 1] = True
 
                 else:
-                    print("There was an error saving the data: ", response.reason)
+                    self._logger.log("There was an error saving the data: ", response.reason)
 
             except ConnectionError:
-                print("ERROR: The API is not reachable!", url)
+                self._logger.log("ERROR: The API is not reachable!", url)
 
         # Now, resume listening so we catch the next packets.
         self.radio.startListening()
+
 
     # =============================================================================
     def sendConfig(self, channelNo):
@@ -174,8 +219,8 @@ class Radio:
             responseCode = response.status_code - (response.status_code % 100)
 
             if responseCode != 200:
-                print("No channel with the number", str(channelNo), "found!")
-                print("Calibration could not be sent!")
+                self._logger.log("No channel with the number", str(channelNo), "found!")
+                self._logger.log("Calibration could not be sent!")
                 return
 
             
@@ -187,25 +232,17 @@ class Radio:
                 channel["sensorTriggerCalibration"],
             )
 
-            print(
-                "Measure Frequency: ",
-                channel["sensorMeasureFrequencyMinutes"],
-                "min",
-            )
-
-            print(
-                "Transmission Power:",
-                channel["sensorTransmissionPowerLevelValue"],
-                "(" + str(channel["sensorTransmissionPowerLevel"]) + ")",
-            )
-
-            print("Trigger Calibrat.: ", channel["sensorTriggerCalibration"])
+            self._logger.increaseIndent()
+            self._logger.log(f'Measure Frequency:  {channel["sensorMeasureFrequencyMinutes"]} min')
+            self._logger.log(f'Transmission Power: {channel["sensorTransmissionPowerLevelValue"]} ( {str(channel["sensorTransmissionPowerLevel"])} )')
+            self._logger.log(f'Trigger Calibrat.:  {channel["sensorTriggerCalibration"]}')
+            self._logger.decreaseIndent()
 
             byteArray = configPackage.toByteArray()
 
             self.radio.write(byteArray)
 
-            print("Config was sent.")
+            self._logger.log("Config was sent.")
 
             # remove the "trigger calibration" flag
             if channel["sensorTriggerCalibration"] == True:
@@ -216,21 +253,15 @@ class Radio:
                     response = requests.put(url, json=dataset_json)
 
                     if response.ok == True:
-                        print(
-                            "Channel was updated (SensorTriggerCalibration = False)."
-                        )
+                        self._logger.log('Channel was updated (SensorTriggerCalibration = False).')
                     else:
-                        print(
-                            "There was an error updating the channel!",
-                            response.reason,
-                            response.status_code,
-                        )
+                        self._logger.log(f'There was an error updating the channel! {response.reason} {response.status_code}')
 
                 except ConnectionError:
-                    print("ERROR: The API is not reachable!", url)
+                    self._logger.log(f'ERROR: The API is not reachable! {url}')
 
         except ConnectionError:
-            print("ERROR: The API is not reachable!", url)
+            self._logger.log(f'ERROR: The API is not reachable! {url}')
 
     # =============================================================================
     # =============================================================================
@@ -252,7 +283,7 @@ class Radio:
 
         # =============================================================================
         def toByteArray(self):
-            return pack(
+            return struct.pack(
                 "<BHB?",
                 self.packageType,
                 self.measureFrequency,
@@ -264,17 +295,19 @@ class Radio:
     # =============================================================================
     # =============================================================================
     class PackageSensorData:
+
         packageType: np.uint8
         moistureLevel: np.uint8
         batteryVoltage: float
 
         # =============================================================================
         def __init__(self, data: bytearray):
-            # big endian for bytes
-            packetBig = unpack(">BBf", data)
+            
+            unpackedUInts = struct.unpack('BB', data[:2])
+            self.packageType = unpackedUInts[0]
+            self.moistureLevel = unpackedUInts[1]
 
-            # little endian for the float
-            packetLittle = unpack("<BBf", data)
+            self.batteryVoltage = struct.unpack('f', data[2:6])[0]
 
-            self.packageType, self.moistureLevel, temp1 = packetBig
-            temp2, temp3, self.batteryVoltage = packetLittle
+
+

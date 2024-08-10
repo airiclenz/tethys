@@ -1,4 +1,4 @@
-RPi.GPIO
+rpi-lgpio
 pyrf24
 django
 djangorestframework
@@ -11,3 +11,4 @@ requests
 gpiozero
 tzlocal
 numpy
+colorama
