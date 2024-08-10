@@ -1,31 +1,59 @@
+import os
 import subprocess
 from datetime import datetime
-
+from colorama import Fore, Style
 
 # =============================================================================
 # =============================================================================
 # =============================================================================
 class Logger:
-    __separator = " > "
+    _separator = '|   '
+    _indentDepth = 0
+    _indentString = ''
+    _color = Fore.WHITE
 
     # =============================================================================
-    def __init__(self, clearScreen=True):
+    def __init__(self, color=Fore.WHITE, clearScreen=True):
         if clearScreen == True:
             # clear the screen
             subprocess.call("clear", shell=True)
+            os.system('color')
+            self._color = color
 
     # =============================================================================
-    def log(self, message1="", message2="", message3=""):
+    def increaseIndent(self):
+        self._indentDepth = self._indentDepth + 1
+        self.generateIndentString()
+
+    # =============================================================================
+    def decreaseIndent(self):
+        if (self._indentDepth > 0):
+            self._indentDepth = self._indentDepth - 1
+            self.generateIndentString()
+
+    # =============================================================================
+    def generateIndentString(self):
+
+        self._indentString = ''
+
+        for i in range(0, self._indentDepth):
+            self._indentString = self._indentString + self._separator
+
+
+    # =============================================================================
+    def log(self, message=None):
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        if message1 != "" and message2 != "" and message3 != "":
-            print(timestamp, self.__separator, message1, message2, message3)
+        style = None
 
-        elif message1 != "" and message2 != "":
-            print(timestamp, self.__separator, message1, message2)
+        if self._indentDepth == 0:
+            style = Style.NORMAL
+        else:
+            style = Style.BRIGHT
 
-        elif message1 != "" and message2 == "":
-            print(timestamp, self.__separator, message1)
+        if message != None:
+            print(f'{Fore.WHITE}{Style.RESET_ALL}{timestamp}  {self._color}{Style.DIM}{self._indentString}{style}{message}')
 
         else:
-            print(timestamp)
+            print(f'{Fore.WHITE}{timestamp}')
+

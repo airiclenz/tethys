@@ -6,13 +6,15 @@ import sys
 import os
 
 from time import sleep
-from datetime import datetime
+from datetime import datetime, timedelta
 
+from hardware import Pins
 from radio import Radio
 import actionEngine
 
+
+
 sys.path.append(os.path.abspath('../globals'))
-from logger import Logger
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -28,22 +30,23 @@ from logger import Logger
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-logger = Logger()
-radio = Radio()
+radioWrapper = Radio()
+
 
 print("Tethys Core started...")
-millis = lambda: datetime.now().microsecond
+#millis = lambda: datetime.now().microsecond
 
 
-radio.initializeRadio()
+radioWrapper.initializeRadio()
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # keep on swimming, keep on swimming, keep on swimming swimming swimming...
 while 1:
-    # the IRQ pin takes care of everything so we can just sleep...
-    # sleep for some time
-    sleep(30)
+
+    radioWrapper.handleRadioEvents(30)
 
     # see if there is anything to do.
-    actionEngine.handleActions()
+    actionEngine.handleActions(radioWrapper)
+
+

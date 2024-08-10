@@ -1,6 +1,13 @@
 import requests
 import json
 from globals import *
+from colorama import Fore
+from logger import Logger
+
+
+
+_logger = Logger(Fore.BLUE)
+_logger.increaseIndent()
 
 
 # =============================================================================
@@ -13,9 +20,7 @@ def loadChannel(channelNumber):
     responseCode = response.status_code - (response.status_code % 100)
 
     if responseCode == 200:
-        dataDict = json.loads(response.text)
-        channel = dataDict["channel"]
-
+        channel = json.loads(response.text)
         return channel
 
     else:
@@ -32,9 +37,7 @@ def loadChannelSummary(channelNumber):
     responseCode = response.status_code - (response.status_code % 100)
 
     if responseCode == 200:
-        dataDict = json.loads(response.text)
-        summary = dataDict["channelSummary"]
-
+        summary = json.loads(response.text)
         return summary
 
     else:
@@ -68,7 +71,7 @@ def isInSilentPhase():
     try:
         response = requests.get(url)
     except:
-        print("The Tethys API is not reachable.")
+        _logger.log("The Tethys API is not reachable.")
         return None
 
     # check if the response code is in the 200 range: 2xx
@@ -85,13 +88,15 @@ def isInSilentPhase():
 
 # =============================================================================
 def createPumpActionInDB(channelNumber, startTime, endTime):
-    callUrl = BASE_API_URL + "action/" + str(channelNumber)
+    
+    callUrl = BASE_API_URL + "actionLog/"
 
     formattedStartTime = startTime.strftime("%Y-%m-%d %H:%M:%S")
     formattedEndTime = endTime.strftime("%Y-%m-%d %H:%M:%S")
 
     jsonBody = {
-        "actionType": "pumping",
+        "channel": channelNumber,
+        "actionType": "pump",
         "startTime": formattedStartTime,
         "endTime": formattedEndTime,
     }
@@ -102,7 +107,7 @@ def createPumpActionInDB(channelNumber, startTime, endTime):
     responseCode = response.status_code - (response.status_code % 100)
 
     if responseCode == 200:
-        print("The action was successfully logged in the database.")
+        _logger.log("The action was successfully logged in the database.")
 
     else:
-        print("ERROR: The action could not be logged in the database!")
+        _logger.log("ERROR: The action could not be logged in the database!")
