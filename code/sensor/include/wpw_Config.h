@@ -20,7 +20,7 @@
 	//													//
 	//#define RX  	    								//
 	#define TX  										//
-    #define SENSOR_NUMBER       2 // 1-5    			//
+    #define SENSOR_NUMBER       5 // 1-5    			//
                                                         //
 	////////////////////////////////////                //
                                                         //
