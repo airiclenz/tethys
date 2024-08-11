@@ -1,7 +1,4 @@
-from time import sleep
-from datetime import datetime, date, timedelta
-
-from hardware import Pins
+from datetime import datetime
 import apiInterface as api
 import channel as hardwareChannel
 from globals import *
@@ -58,7 +55,7 @@ def handleChannelAction(channelNumber):
         startTime = datetime.now()
 
         hardwareChannel.activateChannel(channelNumber)
-        radioWrapper.handleRadioEvents(pumpDuration)
+        radioWrapper.handleRadioEvents(timeOutInSec = pumpDuration)
         hardwareChannel.deactivateChannel(channelNumber)
 
         endTime = datetime.now()
