@@ -1,6 +1,3 @@
-import RPi.GPIO as GPIO
-from gpiod.line import Edge
-
 import struct
 from datetime import datetime, timedelta
 import numpy as np
@@ -202,7 +199,7 @@ class Radio:
                     self._logger.log("There was an error saving the data: ", response.reason)
 
             except ConnectionError:
-                self._logger.log("ERROR: The API is not reachable!", url)
+                self._logger.log(f'ERROR: The API is not reachable! {url}')
 
         # Now, resume listening so we catch the next packets.
         self.radio.startListening()

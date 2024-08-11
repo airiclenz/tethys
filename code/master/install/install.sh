@@ -20,10 +20,14 @@ echo "Current Directory: $(pwd)"
 sudo apt update -y
 sudo apt full-upgrade -y
 
+# needed for virtual environments (if not yet installed)
+sudo apt install python3-venv -y
 # this is needed for the later installation of the python lib RPi.GPIO
 sudo apt install python3-dev -y
 # needed for numpy on the Raspberry Pi
 sudo apt install libopenblas-dev -y
+# webserver for hosting out django apps
+sudo apt install nginx -y
 
 # needed for the nRF24 module
 # sudo apt install pigpio python-pigpio python3-pigpio -y

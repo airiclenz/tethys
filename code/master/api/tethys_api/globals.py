@@ -18,12 +18,12 @@ class BG_COLORS:
     UNDERLINE = '\033[4m'
 
 
-
-
+'''
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 def setLastDataUpdateNow():
     global LAST_DATA_UPDATE 
     LAST_DATA_UPDATE = datetime.now()
+'''
 
 # =============================================================================
 # used for tracking which sensor sent data recently - for action handling
@@ -32,7 +32,6 @@ class SilentPhase:
     startTime = datetime.min
     endTime = datetime.min
     inPhase = False
-
 
 
 LAST_DATA_UPDATE = datetime.min

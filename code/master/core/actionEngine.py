@@ -36,37 +36,35 @@ def handleActions(radioWrapperIn):
 
 # =============================================================================
 def handleChannelAction(channelNumber):
+    
     # Load the channel summaries to see if we need to perform an action
     channelSummary = api.loadChannelSummary(channelNumber)
 
     if channelSummary == None:
-        _logger.log("---------------------------")
-        _logger.log(
-            "Could not retrieve data for checking if actions are due on channel",
-            channelNumber,
-        )
+        _logger.log(f'Could not retrieve data for checking if actions are due on channel {channelNumber}')
         return
 
-    if channelSummary["enabled"] == True:
-        moistureLevel = channelSummary["sensorData_lastMoisturePercent"]
-        triggerLevel = channelSummary["actionTriggerPercent"]
-        pumpDuration = channelSummary["pumpDurationSeconds"]
+    channelEnabled = channelSummary["enabled"]
+    moistureLevel = channelSummary["sensorData_lastMoisturePercent"]
+    triggerLevel = channelSummary["actionTriggerPercent"]
+    pumpDuration = channelSummary["pumpDurationSeconds"]
 
-        # do we need to pump and are we allowed to?
-        if moistureLevel < triggerLevel:
-            _logger.log(f'Pumping for channel {channelNumber} initiated ({pumpDuration} sec)')
-            _logger.increaseIndent()
+    # do we need to pump?
+    if moistureLevel <= triggerLevel and channelEnabled:
 
-            startTime = datetime.now()
+        _logger.log(f'Pumping for channel {channelNumber} initiated ({pumpDuration} sec)')
+        _logger.increaseIndent()
 
-            hardwareChannel.activateChannel(channelNumber)
-            radioWrapper.handleRadioEvents(pumpDuration)
-            hardwareChannel.deactivateChannel(channelNumber)
+        startTime = datetime.now()
 
-            endTime = datetime.now()
+        hardwareChannel.activateChannel(channelNumber)
+        radioWrapper.handleRadioEvents(pumpDuration)
+        hardwareChannel.deactivateChannel(channelNumber)
 
-            _logger.log(f'Pumping for {pumpDuration} sec finsished.')
+        endTime = datetime.now()
 
-            api.createPumpActionInDB(channelNumber, startTime, endTime)
+        _logger.log(f'Pumping for {pumpDuration} sec finsished.')
 
-            _logger.decreaseIndent()
+        api.createPumpActionInDB(channelNumber, startTime, endTime)
+
+        _logger.decreaseIndent()

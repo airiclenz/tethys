@@ -78,8 +78,8 @@ class SensorData(models.Model):
 class ActionLog(models.Model):
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
     actionType = models.ForeignKey(ActionType, on_delete=models.DO_NOTHING)
-    startTime = models.DateTimeField(null=True)
-    endTime = models.DateTimeField(auto_now_add=True)
+    startTime = models.DateTimeField(auto_now_add=True)
+    endTime = models.DateTimeField()
 
     def __str__(self) -> str:
         return str(self.channel.number) + ' - ' + self.actionType.name

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Absolute path to this script, e.g. /home/user/bin/foo.sh
+# Absolute path to this script, e.g. /home/user/username/repos/tethys/code/master/install/install.sh
 SCRIPT=$(readlink -f "$0")
-# Absolute path this script is in, thus /home/user/bin
+# Absolute path this script is in, thus /home/user/username/repos/tethys/code/master/install
 SCRIPTPATH=$(dirname "$SCRIPT")
 LENGTH=${#SCRIPTPATH}
 ENDPOS=`expr $LENGTH - 8`

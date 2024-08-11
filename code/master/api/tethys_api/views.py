@@ -6,7 +6,14 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from .common import *
-from .globals import *
+from .globals import LAST_DATA_UPDATE as lastUpdateTimestamp
+
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+def setLastDataUpdateNow():
+    global lastUpdateTimestamp
+    lastUpdateTimestamp = datetime.now()
+
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @api_view(['GET'])
@@ -22,7 +29,9 @@ def initializeDatabase(request):
 def lastUpdate(request):
 
     if request.method == 'GET':
-        return Response({'timestamp': LAST_DATA_UPDATE})
+
+        global lastUpdateTimestamp
+        return Response({'timestamp': lastUpdateTimestamp})
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -73,33 +82,20 @@ def actionLog(request):
         setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@api_view([
-    'GET', 
-    #'PUT', 
-    'DELETE'
-])
-def actionLog_single(request, id):
+@api_view(['GET', 'DELETE'])
+def actionLog_single(request, number):
     
     try:
-        record = ActionLog.objects.get(pk = id)
+        records = ActionLog.objects.all().filter(channel = number)
     except ActionLog.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = ActionLogSerializer(record)
-        return Response(serializer.data)
-
-    #elif request.method == 'PUT':
-    #    serializer = ActionLogSerializer(record, data=request.data)
-    #    if not serializer.is_valid():
-    #        return Response(status=status.HTTP_400_BAD_REQUEST)
-    #    
-    #    serializer.save()
-    #    setLastDataUpdateNow()
-    #    return Response(serializer.data)
+        serializer = ActionLogSerializer(records, many=True)
+        return Response({'actionLogs': serializer.data})
 
     elif request.method == 'DELETE':
-        record.delete()
+        records.delete()
         setLastDataUpdateNow()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -168,10 +164,10 @@ def channel(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def channel_single(request, id):
+def channel_single(request, number):
 
     try:
-        record = Channel.objects.get(pk = id)
+        record = Channel.objects.get(pk = number)
     except Channel.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -338,33 +334,20 @@ def sensorData(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view([
-    'GET', 
-    #'PUT', 
-    'DELETE'
-])
-def sensorData_single(request, id):
+@api_view(['GET', 'DELETE'])
+def sensorData_single(request, number):
 
     try:
-        record = SensorData.objects.get(pk = id)
+        records = SensorData.objects.all().filter(channel=number)
     except SensorData.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = SensorDataSerializer(record)
-        return Response(serializer.data)
-
-    #elif request.method == 'PUT':
-    #    serializer = SensorDataSerializer(record, data=request.data)
-    #    if not serializer.is_valid():
-    #        return Response(status=status.HTTP_400_BAD_REQUEST)
-    #    
-    #    serializer.save()
-    #    setLastDataUpdateNow()
-    #    return Response(serializer.data)
+        serializer = SensorDataSerializer(records, many=True)
+        return Response({'sensorData': serializer.data})
 
     elif request.method == 'DELETE':
-        record.delete()
+        records.delete()
         setLastDataUpdateNow()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

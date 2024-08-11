@@ -91,14 +91,11 @@ def createPumpActionInDB(channelNumber, startTime, endTime):
     
     callUrl = BASE_API_URL + "actionLog/"
 
-    formattedStartTime = startTime.strftime("%Y-%m-%d %H:%M:%S")
-    formattedEndTime = endTime.strftime("%Y-%m-%d %H:%M:%S")
-
     jsonBody = {
         "channel": channelNumber,
         "actionType": "pump",
-        "startTime": formattedStartTime,
-        "endTime": formattedEndTime,
+        "startTime": startTime.strftime(DATETIME_FORMAT),
+        "endTime": endTime.strftime(DATETIME_FORMAT),
     }
 
     response = requests.post(url=callUrl, json=jsonBody)
