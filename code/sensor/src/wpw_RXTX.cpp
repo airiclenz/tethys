@@ -42,36 +42,18 @@ Package _package;
 // =============================================================================
 void InitializeRadio()
 {
+    radio.begin();
 
-	radio.begin();
-
-	// setting the address width to 5 bytes
-	radio.setAddressWidth(5);
-
-	// Set the PA Level low to prevent power supply related issues since this is a
-	// getting_started sketch, and the likelihood of close proximity of the devices.
-	// RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX
 	_powerLevel = RF24_PA_LOW;
-	radio.setPALevel(_powerLevel);
 
-	// Make sure autoACK is enabled. This feature is enabled
-	// by default but we'll just add it to make sure we know
-	// the preocise settings of the RF module
-	radio.setAutoAck(1);
+    radio.setAddressWidth(5);
+    radio.setAutoAck(true);
+    radio.setCRCLength(RF24_CRC_8);
+    radio.setPALevel(_powerLevel);
+    radio.setDataRate(RF24_250KBPS);
 
-	// Allow optional ack payloads
-	//radio.enableAckPayload();
-
-	// Enable dynamically-sized payloads
-	// This way you don't always have to send large packets
-	// just to send them once in a while. This enables dynamic payloads on ALL pipes.
-	radio.enableDynamicPayloads();
-
-	// Optionally, increase the delay between retries & # of retries
-	radio.setRetries(10,10); // 2, 15
-
-	// Use 8-bit CRC for performance
-	radio.setCRCLength(RF24_CRC_8);
+    //radio.enableAckPayload();
+	//radio.enableDynamicPayloads();
 
 }
 
@@ -141,17 +123,17 @@ void SetTransmissionPower()
 				_package.PackageType == DATATYPE_SENSORDATA_BATTERYALERT)
 			{
 
-				(*sensorsPtr).MoistureLevelPercent = 
+				(*sensorsPtr).MoistureLevelPercent =
 					_package.MoistureLevel;
-					
-				(*sensorsPtr).MoistureLevel = 
+
+				(*sensorsPtr).MoistureLevel =
 					GetMoistureLevelFromPercent(_package.MoistureLevel);
-						
-				(*sensorsPtr).BatteryVoltage = 
+
+				(*sensorsPtr).BatteryVoltage =
 					_package.BatteryVoltage;
-				
-				
-				
+
+
+
 				(*sensorsPtr).Timestamp = millis();
 				(*sensorsPtr).PackageCount++;
 
@@ -264,7 +246,6 @@ void SetTransmissionPower()
     // =============================================================================
     void SetupRadioForTx()
     {
-
         radio.openWritingPipe(pipes[SENSOR_NUMBER]);
         radio.openReadingPipe(1, pipes[0]);
 
@@ -290,6 +271,10 @@ void SetTransmissionPower()
 	// =============================================================================
 	bool RequestConfiguration()
 	{
+        RadioPowerUp();
+        delay(5);
+        SetupRadioForTx();
+
 		Package package =
         {
             DATATYPE_CMD_GETCONFIG,
@@ -300,25 +285,29 @@ void SetTransmissionPower()
 		// stop listening so we can talk
 		radio.stopListening();
 
-		if (radio.write(
-				&package,
-				sizeof(Package)))
+        //radio.write(&package, sizeof(Package));
+
+		if (radio.write(&package, sizeof(Package)))
 		{
 
 			radio.startListening();
 
-			uint32_t sendTime = micros();
-			
+			uint32_t sendTime = millis();
+
 			while (!radio.available())
 			{
-				// TIMEOUT --> Leave...
-				if (millis() > sendTime + 250)
+				// TIMEOUT --> Leave... 200ms
+				if (millis() > sendTime + 200)
 				{
 					radio.stopListening();
+                    RadioPowerDown();
+
+                    DoSimpleBlink(15,100);
+                    DoSimpleBlink(15,0);
+
 					return false;
 				}
 			}
-	
 
 			// Define an empty package
 			ConfigurationPackage configPackage =
@@ -336,9 +325,7 @@ void SetTransmissionPower()
 					sizeof(ConfigurationPackage));
 			}
 
-
 			radio.stopListening();
-
 
 			if (configPackage.PackageType == DATATYPE_CONFIG)
 			{
@@ -357,13 +344,17 @@ void SetTransmissionPower()
 				}
 
 				MakeSettingsFlagDirty();
+                RadioPowerDown();
+                DoSimpleBlink(15, 0);
 				return true;
 			}
-
 		}
 
+        DoSimpleBlink(15,100);
+        DoSimpleBlink(15,100);
+        DoSimpleBlink(15,0);
+        RadioPowerDown();
 		return false;
-
 	}
 
 

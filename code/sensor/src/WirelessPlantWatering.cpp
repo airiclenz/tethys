@@ -61,7 +61,17 @@ void setup()
 	// A Water Sensor
 	#ifdef TX
 
+        delay(750);
+
 		randomSeed(analogRead(0));
+
+        // Do some intial blinks (blink the ID),
+		// to show that the device is powered
+		for (uint8_t i=0; i<SENSOR_NUMBER; i++)
+		{
+			DoSimpleBlink(150, 300);
+		}
+		delay(750);
 
 		SetupRadioForTx();
 		InitializeSensor();
@@ -69,41 +79,20 @@ void setup()
 		InitializeEeprom();
 		InitializeBattery();
 
+		delay(750);
 
-		delay(500);
-		// Do some intial blinks (blink the ID),
-		// to show that the device is powered
-		for (uint8_t i=0; i<SENSOR_NUMBER; i++)
-		{
-			DoSimpleBlink(100, 200);
-		}
-		delay(1000);
-
-
-		uint32_t 	lastBlinkTime 	= 0;
 		uint32_t 	lastRequestTime = 0;
 		bool 		success 		= false;
-		uint8_t		secondCounter 	= 30;
+		uint16_t	retryCounter 	= 1000;
 
 
-		while (!success &&
-			secondCounter != 0)
+		while (!success && retryCounter != 0)
 		{
-			if (millis() > lastBlinkTime + 1000)
+			if (millis() > lastRequestTime + 1000)
 			{
-				lastBlinkTime = millis();
-				DoSimpleBlink(20, 0);
-				secondCounter--;
-			}
-
-
-			if (millis() > lastRequestTime + 500)
-			{
-				lastRequestTime = millis();
-
-				RadioPowerUp();
-				success = RequestConfiguration();
-				RadioPowerDown();
+				retryCounter--;
+                success = RequestConfiguration();
+                lastRequestTime = millis();
 			}
 		}
 
