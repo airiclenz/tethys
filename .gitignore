@@ -4,8 +4,8 @@
 # Folders
 env*/
 node_modules/
-api/tethys_api/migrations/
-web/tethys_web/migrations/
+code/msaster/api/tethys_api/migrations
+
 
 # Files
 .DS_Store
