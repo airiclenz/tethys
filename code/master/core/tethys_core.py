@@ -1,11 +1,8 @@
-#!/usr/bin/env python3
-
 from __future__ import print_function
 
 import sys
 import os
 
-from time import sleep
 from radio import Radio
 import actionEngine
 

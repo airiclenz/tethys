@@ -3,12 +3,13 @@ Description=Tethys Website
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 -u /home/pi/Repos/tethys/Software/Pi/src/tethys_web.py
-WorkingDirectory=/home/airic/Repos/tethys/Software/Pi/src
+ExecStart={TETHYS-PATH}/env_tethys/bin/gunicorn -c {TETHYS-PATH}/web/conf/gunicorn_config.py tethys_web.wsgi
+WorkingDirectory={TETHYS-PATH}/web/
+Environment="PATH={TETHYS-PATH}/env_tethys/bin"
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=root
+#User=root
 
 [Install]
 WantedBy=multi-user.target

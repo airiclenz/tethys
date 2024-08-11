@@ -1,0 +1,4 @@
+command = '/home/airic/repos/tethys/code/master/env_tethys/bin/gunicorn'
+pythonpath = '/home/airic/repos/tethys/code/master/api'
+bind = 'localhost:5001'
+workers = 3
