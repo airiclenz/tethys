@@ -4,7 +4,7 @@
 // ============================================================================
 namespace tethys {
 
-    const baseApi = ":5001/api/";
+    const baseApi = ":5000/api/";
     let silentPhaseStatus = null;
     let coreTemperature = 0.0;
     let coreServiceState = false;

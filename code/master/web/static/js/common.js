@@ -12,7 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 // ============================================================================
 var tethys;
 (function (tethys) {
-    const baseApi = ":5001/api/";
+    const baseApi = ":5000/api/";
     let silentPhaseStatus = null;
     let coreTemperature = 0.0;
     let coreServiceState = false;
@@ -144,8 +144,8 @@ var tethys;
     }
     tethys.setBaseApiUrl = setBaseApiUrl;
     // ============================================================================
-    function postCall(url = "", body = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
+    function postCall() {
+        return __awaiter(this, arguments, void 0, function* (url = "", body = {}) {
             const response = yield fetch(url, {
                 method: "POST",
                 // mode: no-cors, *cors, same-origin
@@ -166,8 +166,8 @@ var tethys;
     }
     tethys.postCall = postCall;
     // ============================================================================
-    function putCall(url = "", body = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
+    function putCall() {
+        return __awaiter(this, arguments, void 0, function* (url = "", body = {}) {
             const response = yield fetch(url, {
                 method: "PUT",
                 // mode: no-cors, *cors, same-origin
@@ -188,8 +188,8 @@ var tethys;
     }
     tethys.putCall = putCall;
     // ============================================================================
-    function getCall(url = "") {
-        return __awaiter(this, void 0, void 0, function* () {
+    function getCall() {
+        return __awaiter(this, arguments, void 0, function* (url = "") {
             const response = yield fetch(url, {
                 method: "GET",
                 // mode: 'no-cors', '*cors', 'same-origin',
@@ -208,8 +208,8 @@ var tethys;
     }
     tethys.getCall = getCall;
     // ============================================================================
-    function deleteCall(url = "") {
-        return __awaiter(this, void 0, void 0, function* () {
+    function deleteCall() {
+        return __awaiter(this, arguments, void 0, function* (url = "") {
             const response = yield fetch(url, {
                 method: "DELETE",
                 // mode: 'no-cors', '*cors', 'same-origin',

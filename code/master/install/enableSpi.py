@@ -26,7 +26,6 @@ with open(filename, "w") as f:
 			updated = True
 
 		else:
-
 			f.write(line + "\n")
 
 	f.close()
@@ -34,10 +33,7 @@ with open(filename, "w") as f:
 
 # do some final logging
 if updated == True:
-	
 	print("SPI was enabled")
-	
 else:
-	
 	print("SPI is already enabled on this Raspberry Pi")
-	
+
