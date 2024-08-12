@@ -4,10 +4,15 @@
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPT_PATH=$(dirname "$SCRIPT")
+LENGTH=${#SCRIPTPATH}
+ENDPOS=`expr $LENGTH - 8`
+# The root directory of the code for the raspberry pi - within the git that is './tethys/code/master'
+ROOTPATH=$(echo $SCRIPTPATH| cut -c$1-$ENDPOS)
+
 VENV_NAME="env_tethys"
 
-cd $SCRIPT_PATH
-cd ..
+cd $ROOTPATH
+
 echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 echo "Current Directory: $(pwd)"
 
@@ -26,7 +31,7 @@ sudo apt install python3-venv python3-full -y
 sudo apt install python3-dev -y
 # needed for numpy on the Raspberry Pi
 sudo apt install libopenblas-dev -y
-# webserver for hosting our django apps
+# webserver for hosting our* django apps
 sudo apt install nginx -y
 
 
@@ -61,22 +66,23 @@ pip install -r ./install/python-requirements.txt
 echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 echo "handling django migrations now..."
 
-cd api
+cd $ROOTPATH/api
 python manage.py makemigrations tethys_api
 python manage.py migrate
-cd ..
 
-cd web
+cd $ROOTPATH/web
 python manage.py makemigrations tethys_web
 python manage.py migrate
-cd ..
-
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #   S E R V I C E S
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-cd install
+cd $ROOTPATH/install
 # run the service install script
 ./installServices.sh
+
+
+echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+echo "The installation is done."

@@ -5,7 +5,8 @@
 **/env*/
 node_modules/
 **/migrations/
-**/services-local/
+**/assets-localized/
+**/staticcollect/
 
 # Files
 .DS_Store

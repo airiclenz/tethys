@@ -9,7 +9,7 @@ DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 DATETIME_FORMAT_NO_MILL = "%Y-%m-%dT%H:%M:%S"
 LOGGING_INDENT_INNER = " > "
 LOGGING_INDENT_OUTER = " ▩▩▩▩ "
-API_BASE = ":5001/api/"
+API_BASE = ":5000/api/"
 API_URL = "http://localhost" + API_BASE
 POLL_FREQUENCY_SEC = 10
 CHANNEL_GROUP_NAME = "tethys.websocket.clients"
@@ -155,12 +155,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
-
-# STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
-# STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticcollect/')
+#STATICFILES_DIRS = ['/static/']
 
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",

@@ -3,7 +3,7 @@
 import sys
 
 # =============================================================================
-def updatePath(filename, newPath):
+def updateTokenInFile(filename, tokenString, replacementString):
 	
 	# read the file into an array
 	with open(filename, "r") as f:
@@ -17,7 +17,7 @@ def updatePath(filename, newPath):
 		for line in lines:
 			
 			if  "{TETHYS-PATH}" in line:
-				line = line.replace('{TETHYS-PATH}', newPath)
+				line = line.replace(tokenString, replacementString)
 				f.write(line + "\n")
 				
 			else:
@@ -32,15 +32,17 @@ def updatePath(filename, newPath):
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-if len(sys.argv) != 3:
-	print("Expecting two parameters: ('fileName', 'newTethysPath')! --> Leaving...")
+if len(sys.argv) != 4:
+	print("Expecting three parameters: ('fileName', 'token', 'replacement')! --> Leaving...")
 	sys.exit()
 
 
-updatePath(sys.argv[1], sys.argv[2])
-#updatePath("./services-local/tethys-core.service", sys.argv[1])
-#updatePath("./services-local/tethys-watchdog.service", sys.argv[1])
-#updatePath("./services-local/tethys-web.service", sys.argv[1], "tethys_web.py")
+fileName = sys.argv[1]
+tokenString = sys.argv[2]
+replacementString = sys.argv[3] 
+
+updateTokenInFile(fileName, tokenString, replacementString)
+
 
 
 
