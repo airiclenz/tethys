@@ -13,3 +13,4 @@ tzlocal
 numpy
 colorama
 gunicorn
+schedule

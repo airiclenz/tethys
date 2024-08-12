@@ -13,10 +13,10 @@ def updateTokenInFile(filename, tokenString, replacementString):
 	# Go through all the lines and search for correct line
 	with open(filename, "w") as f:
 
-		# go through all lines and look for the string {TETHYS-PATH}
+		# go through all lines and look for the token-string
 		for line in lines:
 			
-			if  "{TETHYS-PATH}" in line:
+			if  tokenString in line:
 				line = line.replace(tokenString, replacementString)
 				f.write(line + "\n")
 				

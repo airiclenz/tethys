@@ -26,8 +26,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "tethys.local", 
-    "tethys2.local",
-    "tethysDev.local",  
     "127.0.0.1", 
     "localhost"]
 

@@ -3,7 +3,7 @@ Description=Tethys API
 After=network.target
 
 [Service]
-ExecStart={TETHYS-PATH}/env_tethys/bin/gunicorn -c {TETHYS-PATH}/api/conf/gunicorn_config.py tethys_api.wsgi
+ExecStart={TETHYS-PATH}/env_tethys/bin/gunicorn -c {TETHYS-PATH}/install/assets-localized/gunicorn_config_api.py tethys_api.wsgi
 WorkingDirectory={TETHYS-PATH}/api/
 Environment="PATH={TETHYS-PATH}/env_tethys/bin"
 StandardOutput=inherit

@@ -9,13 +9,12 @@ ENDPOS=`expr $LENGTH - 8`
 # The root directory of the code for the raspberry pi - within the git that is './tethys/code/master'
 ROOTPATH=$(echo $SCRIPTPATH| cut -c$1-$ENDPOS)
 WWWPATH='/var/www'
+HOSTNAME=$(hostname -s)'.local'
+
 
 
 echo ""
-echo "=====  STARTING the installation of TETHYS  ===================================="
-echo ""
-echo "Root path:  " $ROOTPATH
-echo "Script path:" $SCRIPTPATH
+echo "=====  STARTING the installation of TETHYS services ============================"
 
 cd $SCRIPTPATH
 
@@ -37,7 +36,9 @@ cp ./assets/tethys-web.nginx ./assets-localized/
 echo "Updating the paths in the nginx configurations"
 
 python3 updateTokenInFile.py ./assets-localized/tethys-api.nginx {TETHYS-PATH} $ROOTPATH
+python3 updateTokenInFile.py ./assets-localized/tethys-api.nginx {HOST-NAME} $HOSTNAME
 python3 updateTokenInFile.py ./assets-localized/tethys-web.nginx {TETHYS-PATH} $ROOTPATH
+python3 updateTokenInFile.py ./assets-localized/tethys-web.nginx {HOST-NAME} $HOSTNAME
 
 # -------------------------------------
 echo "Copying localized versins to the nginx system directory"
@@ -66,7 +67,7 @@ sudo mkdir -p $WWWPATH/tethys/
 sudo chmod 755 $WWWPATH/tethys/
 
 cd $WWWPATH/tethys/
-sudo rm -r /staticcollect
+sudo rm -r ./staticcollect
 sudo mkdir staticcollect
 
 sudo cp -r $ROOTPATH/web/static/css $WWWPATH/tethys/staticcollect/css
@@ -83,28 +84,34 @@ echo ""
 echo "================================================================================"
 echo "Installing our customn system services (api, core, web, watchdog)"
 
-cd $SCRIPTPATH
+cd $ROOTPATH
 
-cp ./assets/tethys-api.service ./assets-localized/
-cp ./assets/tethys-core.service ./assets-localized/
-cp ./assets/tethys-web.service ./assets-localized/
-cp ./assets/tethys-watchdog.service ./assets-localized/
+cp ./install/assets/tethys-api.service ./install/assets-localized/
+cp ./install/assets/tethys-core.service ./install/assets-localized/
+cp ./install/assets/tethys-web.service ./install/assets-localized/
+cp ./install/assets/tethys-watchdog.service ./install/assets-localized/
+
+cp ./api/config/gunicorn.py ./install/assets-localized/gunicorn_config_api.py
+cp ./web/config/gunicorn.py ./install/assets-localized/gunicorn_config_web.py
 
 # -------------------------------------
 echo "Updating the paths in localized versions of the service descriptions"
 
-python3 updateTokenInFile.py ./assets-localized/tethys-api.service {TETHYS-PATH} $ROOTPATH
-python3 updateTokenInFile.py ./assets-localized/tethys-core.service {TETHYS-PATH} $ROOTPATH
-python3 updateTokenInFile.py ./assets-localized/tethys-web.service {TETHYS-PATH} $ROOTPATH
-python3 updateTokenInFile.py ./assets-localized/tethys-watchdog.service {TETHYS-PATH} $ROOTPATH
+python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-api.service {TETHYS-PATH} $ROOTPATH
+python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-core.service {TETHYS-PATH} $ROOTPATH
+python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-web.service {TETHYS-PATH} $ROOTPATH
+python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-watchdog.service {TETHYS-PATH} $ROOTPATH
+
+python3 ./install/updateTokenInFile.py ./install/assets-localized/gunicorn_config_api.py {TETHYS-PATH} $ROOTPATH
+python3 ./install/updateTokenInFile.py ./install/assets-localized/gunicorn_config_web.py {TETHYS-PATH} $ROOTPATH
 
 # -------------------------------------
 echo "Copying new service definitions to system path /etc/systemd/system"
 
-sudo cp ./assets-localized/tethys-api.service /etc/systemd/system/tethys-api.service
-sudo cp ./assets-localized/tethys-core.service /etc/systemd/system/tethys-core.service
-sudo cp ./assets-localized/tethys-web.service /etc/systemd/system/tethys-web.service
-sudo cp ./assets-localized/tethys-watchdog.service /etc/systemd/system/tethys-watchdog.service
+sudo cp ./install/assets-localized/tethys-api.service /etc/systemd/system/tethys-api.service
+sudo cp ./install/assets-localized/tethys-core.service /etc/systemd/system/tethys-core.service
+sudo cp ./install/assets-localized/tethys-web.service /etc/systemd/system/tethys-web.service
+sudo cp ./install/assets-localized/tethys-watchdog.service /etc/systemd/system/tethys-watchdog.service
 
 # -------------------------------------
 echo "Enabling the services"
@@ -129,6 +136,14 @@ sudo systemctl start tethys-watchdog.service
 echo "Restarting the nginx server"
 
 sudo systemctl restart nginx
+
+
+echo ""
+echo "================================================================================"
+echo "Initializing the database"
+echo "Calling: " http://$HOSTNAME:5000/api/initializeDatabase
+
+curl http://$HOSTNAME:5000/api/initializeDatabase
 
 
 echo ""

@@ -29,8 +29,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     "tethys.local",
-    "tethys2.local",
-    "tethysDev.local",
 ]
 
 
