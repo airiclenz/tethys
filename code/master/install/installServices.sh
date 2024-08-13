@@ -74,15 +74,26 @@ sudo cp -r $ROOTPATH/web/static/css $WWWPATH/tethys/staticcollect/css
 sudo cp -r $ROOTPATH/web/static/fonts $WWWPATH/tethys/staticcollect/fonts
 sudo cp -r $ROOTPATH/web/static/images $WWWPATH/tethys/staticcollect/images
 sudo cp -r $ROOTPATH/web/static/js $WWWPATH/tethys/staticcollect/js
+sudo cp -r $ROOTPATH/web/static/templatter $WWWPATH/tethys/staticcollect/templatter
+sudo cp -r $ROOTPATH/web/static/ts $WWWPATH/tethys/staticcollect/ts
 
 echo "Giving nginx access to staticcollect"
 sudo chmod -R 755 $WWWPATH/tethys/staticcollect/
 sudo chown -R www-data:www-data $WWWPATH/tethys/staticcollect/
 
+echo ""
+echo "================================================================================"
+echo "Preparing the wesocket folders"
+
+sudo mkdir -p /ws/
+#todo - assign to user that is running daphne
+#sudo chown <your_user>:<your_group> /ws/
+sudo chmod 757 /ws/
+
 
 echo ""
 echo "================================================================================"
-echo "Installing our customn system services (api, core, web, watchdog)"
+echo "Installing our customn system services (api, core, web, watchdog, daphne)"
 
 cd $ROOTPATH
 
@@ -90,6 +101,8 @@ cp ./install/assets/tethys-api.service ./install/assets-localized/
 cp ./install/assets/tethys-core.service ./install/assets-localized/
 cp ./install/assets/tethys-web.service ./install/assets-localized/
 cp ./install/assets/tethys-watchdog.service ./install/assets-localized/
+
+cp ./install/assets/daphne.service ./install/assets-localized/
 
 cp ./api/config/gunicorn.py ./install/assets-localized/gunicorn_config_api.py
 cp ./web/config/gunicorn.py ./install/assets-localized/gunicorn_config_web.py
@@ -101,6 +114,7 @@ python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-api.ser
 python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-core.service {TETHYS-PATH} $ROOTPATH
 python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-web.service {TETHYS-PATH} $ROOTPATH
 python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-watchdog.service {TETHYS-PATH} $ROOTPATH
+python3 ./install/updateTokenInFile.py ./install/assets-localized/daphne.service {TETHYS-PATH} $ROOTPATH
 
 python3 ./install/updateTokenInFile.py ./install/assets-localized/gunicorn_config_api.py {TETHYS-PATH} $ROOTPATH
 python3 ./install/updateTokenInFile.py ./install/assets-localized/gunicorn_config_web.py {TETHYS-PATH} $ROOTPATH
@@ -112,6 +126,7 @@ sudo cp ./install/assets-localized/tethys-api.service /etc/systemd/system/tethys
 sudo cp ./install/assets-localized/tethys-core.service /etc/systemd/system/tethys-core.service
 sudo cp ./install/assets-localized/tethys-web.service /etc/systemd/system/tethys-web.service
 sudo cp ./install/assets-localized/tethys-watchdog.service /etc/systemd/system/tethys-watchdog.service
+sudo cp ./install/assets-localized/daphne.service /etc/systemd/system/daphne.service
 
 # -------------------------------------
 echo "Enabling the services"
@@ -120,6 +135,7 @@ sudo systemctl enable tethys-api.service
 sudo systemctl enable tethys-core.service
 sudo systemctl enable tethys-web.service
 sudo systemctl enable tethys-watchdog.service
+sudo systemctl enable daphne.service
 
 sudo systemctl daemon-reload
 
@@ -130,7 +146,7 @@ sudo systemctl start tethys-api.service
 sudo systemctl start tethys-core.service
 sudo systemctl start tethys-web.service
 sudo systemctl start tethys-watchdog.service
-
+sudo systemctl start daphne.service
 
 # -------------------------------------
 echo "Restarting the nginx server"
@@ -141,9 +157,10 @@ sudo systemctl restart nginx
 echo ""
 echo "================================================================================"
 echo "Initializing the database"
-echo "Calling: " http://$HOSTNAME:5000/api/initializeDatabase
+INIT_DB_URL="http://localhost:5000/api/initializeDatabase/"
+echo "Calling:" $INIT_DB_URL
 
-curl http://$HOSTNAME:5000/api/initializeDatabase
+curl -s $INIT_DB_URL | jq '.'
 
 
 echo ""
@@ -159,3 +176,11 @@ sudo journalctl --vacuum-time=1d
 # sudo journalctl -u tethys-core.service
 # sudo journalctl -u tethys-web.service
 # sudo journalctl -u tethys-watchdog.service
+
+# sudo journalctl -u daphne.service
+# sudo journalctl -u redis-server
+
+# sudo journalctl -u nginx
+# systemctl status nginx.service
+# journalctl -xeu nginx.service
+# sudo nano /var/log/nginx/error.log

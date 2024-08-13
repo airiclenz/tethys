@@ -17,7 +17,7 @@ namespace tethys {
             webSocketUri =
                 "ws://" +
                 url.host +
-                "/ws/";
+                "/ws/tethys/";
 
             console.log("WebSocket URL: " + webSocketUri);
         }

@@ -39,7 +39,10 @@ sudo apt install python3-dev -y
 sudo apt install libopenblas-dev -y
 # webserver for hosting our* django apps
 sudo apt install nginx -y
-
+# the redis server used for the websocket functionality
+sudo apt install redis-server -y
+# used for formatting json
+sudo apt install jq -y
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #   P Y T H O N - V E N V
@@ -96,10 +99,12 @@ cd $ROOTPATH/install
 
 echo ""
 echo "================================================================================"
-echo "Enabling SPI"
+echo "Enabling SPI, Redis-Server"
 
 # enable SPI
 sudo python3 enableSpi.py
+sudo systemctl enable redis-server
+
 
 echo ""
 echo "================================================================================"

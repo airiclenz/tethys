@@ -34,6 +34,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     "daphne",
+    "channels",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -90,9 +91,7 @@ CHANNEL_LAYERS = {
         
         "CONFIG": {
             "hosts": [
-                ('localhost', 6379),
-                #('127.0.0.1', 6379),
-                #('redis', 6379),
+                ('127.0.0.1', 6379),
             ],
         },
     },
