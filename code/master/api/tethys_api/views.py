@@ -1,3 +1,5 @@
+import os
+import sys
 from django.db.models import OuterRef, Subquery, F, Count
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -7,6 +9,13 @@ from .models import *
 from .serializers import *
 from .common import *
 from .globals import LAST_DATA_UPDATE as lastUpdateTimestamp
+
+# Get the absolute path of the core directory
+core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../core'))
+# Append the core directory to sys.path
+sys.path.append(core_path)
+# Now you can import hardware
+import channel as hardwareChannel
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -188,6 +197,37 @@ def channel_single(request, number):
         record.delete()
         setLastDataUpdateNow()
         return Response(status=status.HTTP_202_ACCEPTED)
+
+@api_view(['PATCH'])
+def channel_single_action(request, number, action):
+
+    try:
+        record = Channel.objects.get(pk = number)
+    except Channel.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'PATCH':
+        if record.enabled == False:
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        
+        if action == 'activate':
+            hardwareChannel.setOutputState(
+                number, 
+                record.channelType.name, 
+                True)
+            
+            return Response(status=status.HTTP_202_ACCEPTED) 
+        
+        elif action == 'deactivate':
+            hardwareChannel.setOutputState(
+                number, 
+                record.channelType.name, 
+                False)
+            
+            return Response(status=status.HTTP_202_ACCEPTED) 
+        
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST) 
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

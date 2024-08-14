@@ -45,6 +45,8 @@ def handleChannelAction(channelNumber):
     moistureLevel = channelSummary["sensorData_lastMoisturePercent"]
     triggerLevel = channelSummary["actionTriggerPercent"]
     pumpDuration = channelSummary["pumpDurationSeconds"]
+    channelType = channelSummary["channelType"]
+
 
     # do we need to pump?
     if moistureLevel <= triggerLevel and channelEnabled:
@@ -54,9 +56,19 @@ def handleChannelAction(channelNumber):
 
         startTime = datetime.now()
 
-        hardwareChannel.activateChannel(channelNumber)
+        hardwareChannel.setOutputState(
+            channelNumber, 
+            channelType, 
+            True
+        )
+        
         radioWrapper.handleRadioEvents(timeOutInSec = pumpDuration)
-        hardwareChannel.deactivateChannel(channelNumber)
+
+        hardwareChannel.setOutputState(
+            channelNumber, 
+            channelType, 
+            False
+        )
 
         endTime = datetime.now()
 

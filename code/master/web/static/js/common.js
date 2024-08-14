@@ -188,6 +188,28 @@ var tethys;
     }
     tethys.putCall = putCall;
     // ============================================================================
+    function patchCall() {
+        return __awaiter(this, arguments, void 0, function* (url = "", body = {}) {
+            const response = yield fetch(url, {
+                method: "PATCH",
+                // mode: no-cors, *cors, same-origin
+                // *default, no-cache, reload, force-cache, only-if-cached
+                cache: "no-cache",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                // manual, *follow, error
+                //redirect: 'follow',
+                // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
+                // same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                //referrerPolicy: 'no-referrer',
+                body: JSON.stringify(body)
+            });
+            return response;
+        });
+    }
+    tethys.patchCall = patchCall;
+    // ============================================================================
     function getCall() {
         return __awaiter(this, arguments, void 0, function* (url = "") {
             const response = yield fetch(url, {

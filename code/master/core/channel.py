@@ -5,14 +5,13 @@ import apiInterface as api
 
 
 # =============================================================================
-def activateChannel(channelNumber):
-    channelData = api.loadChannel(channelNumber)
+def setOutputState(
+        channelNumber: int, 
+        type: str,
+        state: bool):
 
-    isEnabled = channelData["enabled"]
-    isValve = channelData["channelType"] == "valve"
-
-    if not isEnabled:
-        return False;
+    # convert to int - in case it comes as a string
+    channelNumber = int(channelNumber)
 
     pinChannel = Pins.CHANNELS[channelNumber - 1]
     pinPump = Pins.PUMP
@@ -22,41 +21,19 @@ def activateChannel(channelNumber):
     GPIO.setup(pinChannel, GPIO.OUT)
     GPIO.setup(pinPump, GPIO.OUT)
 
-    if isValve:
-        GPIO.output(pinChannel, GPIO.HIGH)
-        GPIO.output(pinPump, GPIO.HIGH)
+    if state == True:
+        newPinState = GPIO.HIGH
+    else:
+        newPinState = GPIO.LOW
+
+
+    if type == 'valve':
+        GPIO.output(pinChannel, newPinState)
+        GPIO.output(pinPump, newPinState)
 
     else:
-        GPIO.output(pinChannel, GPIO.HIGH)
+        GPIO.output(pinChannel, newPinState)
 
     return True
 
 
-# =============================================================================
-def deactivateChannel(channelNumber):
-    channelData = api.loadChannel(channelNumber)
-
-    pinChannel = Pins.CHANNELS[channelNumber - 1]
-    pinPump = Pins.PUMP
-    isValve = channelData["channelType"] == "valve"
-
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(pinChannel, GPIO.OUT)
-    GPIO.setup(pinPump, GPIO.OUT)
-
-    if isValve:
-        GPIO.output(pinPump, GPIO.LOW)
-        # we leave the valve open so the water can return to the bucket
-        sleep(20)
-        GPIO.output(pinChannel, GPIO.LOW)
-
-    else:
-        GPIO.output(pinPump, GPIO.LOW)
-        GPIO.output(pinChannel, GPIO.LOW)
-
-    # this seems to interfere with the RF Module as it is switching
-    # off all the pins - so it is here just for reference:
-    # GPIO.cleanup()
-
-    return True

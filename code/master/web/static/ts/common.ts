@@ -228,6 +228,28 @@ namespace tethys {
     }
 
     // ============================================================================
+    export async function patchCall(url = "", body = {}) {
+        const response = await fetch(url, {
+            method: "PATCH",
+            // mode: no-cors, *cors, same-origin
+            // *default, no-cache, reload, force-cache, only-if-cached
+            cache: "no-cache",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            // manual, *follow, error
+            //redirect: 'follow',
+            // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
+            // same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            //referrerPolicy: 'no-referrer',
+            body: JSON.stringify(body)
+        });
+
+        return response;
+    }
+
+
+    // ============================================================================
     export async function getCall(url = "") {
         const response = await fetch(url, {
             method: "GET",

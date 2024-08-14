@@ -548,7 +548,7 @@ var tethys;
             var value = elementTestChannel.checked;
             var callString;
             value ? (callString = "activate") : (callString = "deactivate");
-            tethys.getCall(tethys.apiUrl + "channel/" + selectedChannelNumber + "/" + callString).then((response) => {
+            tethys.patchCall(tethys.apiUrl + "channel/" + selectedChannelNumber + "/" + callString).then((response) => {
                 if (response.ok) {
                     console.log("Channel " + callChannelNumber + " was " + callString + "d.");
                 }

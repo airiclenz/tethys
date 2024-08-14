@@ -93,6 +93,14 @@ sudo chmod 757 /ws/
 
 echo ""
 echo "================================================================================"
+echo "Cleaning up the journals"
+
+cd $SCRIPTPATH
+./services-clearLogs.sh
+
+
+echo ""
+echo "================================================================================"
 echo "Installing our customn system services (api, core, web, watchdog, daphne)"
 
 cd $ROOTPATH
@@ -132,10 +140,19 @@ sudo cp ./install/assets-localized/daphne.service /etc/systemd/system/daphne.ser
 echo "Enabling the services"
 
 sudo systemctl enable tethys-api.service
+echo " > Enabled tethys-api.service"
+
 sudo systemctl enable tethys-core.service
+echo " > Enabled tethys-core.service"
+
 sudo systemctl enable tethys-web.service
+echo " > Enabled tethys-web.service"
+
 sudo systemctl enable tethys-watchdog.service
+echo " > Enabled tethys-watchdog.service"
+
 sudo systemctl enable daphne.service
+echo " > Enabled daphne.service"
 
 sudo systemctl daemon-reload
 
@@ -143,10 +160,19 @@ sudo systemctl daemon-reload
 echo "Starting the services"
 
 sudo systemctl start tethys-api.service
+echo " > Started tethys-api.service"
+
 sudo systemctl start tethys-core.service
+echo " > Started tethys-core.service"
+
 sudo systemctl start tethys-web.service
+echo " > Started tethys-web.service"
+
 sudo systemctl start tethys-watchdog.service
+echo " > Started tethys-watchdog.service"
+
 sudo systemctl start daphne.service
+echo " > Started daphne.service"
 
 # -------------------------------------
 echo "Restarting the nginx server"
@@ -164,23 +190,5 @@ curl -s $INIT_DB_URL | jq '.'
 
 
 echo ""
-echo "================================================================================"
-echo "Cleaning up the journals"
+echo "The Tethys-services were installed."
 
-sudo journalctl --vacuum-time=1d
-
-
-###############################################################################
-# checking the error log:
-# sudo journalctl -u tethys-api.service
-# sudo journalctl -u tethys-core.service
-# sudo journalctl -u tethys-web.service
-# sudo journalctl -u tethys-watchdog.service
-
-# sudo journalctl -u daphne.service
-# sudo journalctl -u redis-server
-
-# sudo journalctl -u nginx
-# systemctl status nginx.service
-# journalctl -xeu nginx.service
-# sudo nano /var/log/nginx/error.log

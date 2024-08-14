@@ -757,7 +757,7 @@ namespace tethys {
             var callString;
             value ? (callString = "activate") : (callString = "deactivate");
 
-            getCall(apiUrl + "channel/" + selectedChannelNumber + "/" + callString).then(
+            patchCall(apiUrl + "channel/" + selectedChannelNumber + "/" + callString).then(
                 (response) => {
                     if (response.ok) {
                         console.log(
