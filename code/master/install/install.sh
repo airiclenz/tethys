@@ -85,6 +85,12 @@ code_pre_reboot() {
     # used for formatting json
     sudo apt install jq -y
 
+    if [ $DEBUG == "true" ]; then
+        # used for installing npm - the typescript compiler
+        sudo apt install npm -y
+        sudo npm install -g typescript
+    fi
+
     # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     #   P Y T H O N - V E N V
     # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

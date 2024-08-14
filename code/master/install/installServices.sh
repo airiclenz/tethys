@@ -40,19 +40,21 @@ echo -e "${YELLOW}=====  STARTING the installation of TETHYS services ==========
 echo ""
 echo "Debug mode is set to: $DEBUG"
 
-cd $SCRIPTPATH
-
-sudo rm -r assets-localized
-mkdir assets-localized
-
 
 echo ""
 echo "================================================================================"
 echo -e "${YELLOW}Setting up the nginx configuration now...${NOCOLOR}"
 echo ""
 
+cd $SCRIPTPATH
+
 # -------------------------------------
-echo "Copying the nginx configurations to the localized folder"
+echo "Re-creating the localized asset folder"
+sudo rm -r assets-localized
+mkdir assets-localized
+
+# -------------------------------------
+echo "Copying the nginx configurations to the localized asset folder"
 
 cp ./assets/tethys-api.nginx ./assets-localized/
 cp ./assets/tethys-web.nginx ./assets-localized/
