@@ -1,20 +1,44 @@
 #!/bin/bash
 
+# Default value for DEBUG
+DEBUG=true
+
 # Absolute path to this script, e.g. /home/user/username/repos/tethys/code/master/install/install.sh
 SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/username/repos/tethys/code/master/install
 SCRIPTPATH=$(dirname "$SCRIPT")
-LENGTH=${#SCRIPTPATH}
-ENDPOS=`expr $LENGTH - 8`
 # The root directory of the code for the raspberry pi - within the git that is './tethys/code/master'
-ROOTPATH=$(echo $SCRIPTPATH| cut -c$1-$ENDPOS)
+ROOTPATH=$(dirname "$SCRIPTPATH")
+
 WWWPATH='/var/www'
 HOSTNAME=$(hostname -s)'.local'
 
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NOCOLOR='\033[0m' # No Color
+
+
+# Parse command-line arguments
+for arg in "$@"
+do
+  case $arg in
+    --debug=*)
+      DEBUG="${arg#*=}"
+      shift # Remove --debug= from processing
+      ;;
+    *)
+      # Unknown option
+      ;;
+  esac
+done
 
 
 echo ""
-echo "=====  STARTING the installation of TETHYS services ============================"
+echo -e "${YELLOW}=====  STARTING the installation of TETHYS services ============================${NOCOLOR}"
+echo ""
+echo "Debug mode is set to: $DEBUG"
 
 cd $SCRIPTPATH
 
@@ -24,7 +48,8 @@ mkdir assets-localized
 
 echo ""
 echo "================================================================================"
-echo "Setting up the nginx configuration now..."
+echo -e "${YELLOW}Setting up the nginx configuration now...${NOCOLOR}"
+echo ""
 
 # -------------------------------------
 echo "Copying the nginx configurations to the localized folder"
@@ -60,7 +85,8 @@ sudo ln -s /etc/nginx/sites-available/tethys-web
 
 echo ""
 echo "================================================================================"
-echo "Collecting static files and changing file permissions for nginx"
+echo -e "${YELLOW}Collecting static files and changing file permissions for nginx${NOCOLOR}"
+echo ""
 
 echo "Copying the static folder to staticcollect"
 sudo mkdir -p $WWWPATH/tethys/
@@ -75,7 +101,10 @@ sudo cp -r $ROOTPATH/web/static/fonts $WWWPATH/tethys/staticcollect/fonts
 sudo cp -r $ROOTPATH/web/static/images $WWWPATH/tethys/staticcollect/images
 sudo cp -r $ROOTPATH/web/static/js $WWWPATH/tethys/staticcollect/js
 sudo cp -r $ROOTPATH/web/static/templatter $WWWPATH/tethys/staticcollect/templatter
-sudo cp -r $ROOTPATH/web/static/ts $WWWPATH/tethys/staticcollect/ts
+
+if [ $DEBUG == "true" ]; then
+    sudo cp -r $ROOTPATH/web/static/ts $WWWPATH/tethys/staticcollect/ts
+fi
 
 echo "Giving nginx access to staticcollect"
 sudo chmod -R 755 $WWWPATH/tethys/staticcollect/
@@ -83,7 +112,8 @@ sudo chown -R www-data:www-data $WWWPATH/tethys/staticcollect/
 
 echo ""
 echo "================================================================================"
-echo "Preparing the wesocket folders"
+echo -e "${YELLOW}Preparing the wesocket folders${NOCOLOR}"
+echo ""
 
 sudo mkdir -p /ws/
 #todo - assign to user that is running daphne
@@ -91,17 +121,23 @@ sudo mkdir -p /ws/
 sudo chmod 757 /ws/
 
 
+if [ $DEBUG == "true" ]; then
+
+    echo ""
+    echo "================================================================================"
+    echo -e "${YELLOW}Cleaning up the journals${NOCOLOR}"
+    echo ""
+
+    cd $SCRIPTPATH
+    ./services-clearLogs.sh
+
+fi
+
+
 echo ""
 echo "================================================================================"
-echo "Cleaning up the journals"
-
-cd $SCRIPTPATH
-./services-clearLogs.sh
-
-
+echo -e "${YELLOW}Installing our customn system services (api, core, web, watchdog, daphne)${NOCOLOR}"
 echo ""
-echo "================================================================================"
-echo "Installing our customn system services (api, core, web, watchdog, daphne)"
 
 cd $ROOTPATH
 
@@ -137,6 +173,7 @@ sudo cp ./install/assets-localized/tethys-watchdog.service /etc/systemd/system/t
 sudo cp ./install/assets-localized/daphne.service /etc/systemd/system/daphne.service
 
 # -------------------------------------
+echo ""
 echo "Enabling the services"
 
 sudo systemctl enable tethys-api.service
@@ -157,6 +194,7 @@ echo " > Enabled daphne.service"
 sudo systemctl daemon-reload
 
 # -------------------------------------
+echo ""
 echo "Starting the services"
 
 sudo systemctl start tethys-api.service
@@ -177,18 +215,11 @@ echo " > Started daphne.service"
 # -------------------------------------
 echo "Restarting the nginx server"
 
+echo ""
 sudo systemctl restart nginx
 
 
 echo ""
-echo "================================================================================"
-echo "Initializing the database"
-INIT_DB_URL="http://localhost:5000/api/initializeDatabase/"
-echo "Calling:" $INIT_DB_URL
-
-curl -s $INIT_DB_URL | jq '.'
-
-
+echo -e "${GREEN}The Tethys-services were installed.${NOCOLOR}"
 echo ""
-echo "The Tethys-services were installed."
 
