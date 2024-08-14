@@ -364,6 +364,17 @@ var tethys;
                     break;
                 }
             }
+            // Test Channel
+            var elementTestChannelLabel = document.getElementById("idTestChannelLabel");
+            var elementTestChannelCheckBoxContainer = document.getElementById("idTestChannelCheckBoxContainer");
+            if (channels[index].enabled) {
+                elementTestChannelLabel.style.visibility = "visible";
+                elementTestChannelCheckBoxContainer.style.visibility = "visible";
+            }
+            else {
+                elementTestChannelLabel.style.visibility = "hidden";
+                elementTestChannelCheckBoxContainer.style.visibility = "hidden";
+            }
         }
         channel_1.updateSettings = updateSettings;
         // ============================================================================
@@ -377,6 +388,7 @@ var tethys;
                     if (result.ok == true) {
                         channels[callChannelNumber - 1].enabled = value;
                         updateChannels();
+                        updateSettings();
                         console.log("Channel " +
                             callChannelNumber +
                             " - [enabled = " +

@@ -509,6 +509,25 @@ namespace tethys {
                     break;
                 }
             }
+
+            // Test Channel
+            var elementTestChannelLabel = <HTMLSelectElement>(
+                (<unknown>document.getElementById("idTestChannelLabel"))
+            );
+
+            var elementTestChannelCheckBoxContainer = <HTMLSelectElement>(
+                (<unknown>document.getElementById("idTestChannelCheckBoxContainer"))
+            );
+
+            if (channels[index].enabled) {
+                elementTestChannelLabel.style.visibility = "visible"
+                elementTestChannelCheckBoxContainer.style.visibility = "visible"
+            }
+            else {
+                elementTestChannelLabel.style.visibility = "hidden"
+                elementTestChannelCheckBoxContainer.style.visibility = "hidden"
+            }
+
         }
 
 
@@ -526,6 +545,7 @@ namespace tethys {
                     if (result.ok == true) {
                         channels[callChannelNumber - 1].enabled = value;
                         updateChannels();
+                        updateSettings();
 
                         console.log(
                             "Channel " +
