@@ -6,22 +6,6 @@ from .models import Schedule
 from .globals import *
 
 
-'''
-# =============================================================================
-def getNaiveDatetimeNow(timeZoneCode):
-    
-    timeZoneInfo = pytz.timezone(timeZoneCode)
-    localTime = datetime.now(timeZoneInfo)
-        
-    return datetime(
-        localTime.year,
-        localTime.month,
-        localTime.day,
-        localTime.hour,
-        localTime.minute,
-        localTime.second
-    )
-'''
 
 # =============================================================================
 def getTimeAsLocalDateTime(timestamp, zoneInfo):

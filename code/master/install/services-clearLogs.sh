@@ -14,8 +14,6 @@ sudo journalctl --vacuum-time=1s -u daphne.service
 sudo journalctl --vacuum-time=1s -u redis-server
 
 echo "Journals were cleaned up..."
-echo ""
-
 
 
 

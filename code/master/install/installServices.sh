@@ -120,6 +120,8 @@ sudo mkdir -p /ws/
 #sudo chown <your_user>:<your_group> /ws/
 sudo chmod 757 /ws/
 
+echo "Done"
+
 
 if [ $DEBUG == "true" ]; then
 
@@ -212,12 +214,13 @@ echo " > Started tethys-watchdog.service"
 sudo systemctl start daphne.service
 echo " > Started daphne.service"
 
+echo ""
 # -------------------------------------
 echo "Restarting the nginx server"
-
-echo ""
 sudo systemctl restart nginx
 
+echo ""
+echo "================================================================================"
 
 echo ""
 echo -e "${GREEN}The Tethys-services were installed.${NOCOLOR}"
