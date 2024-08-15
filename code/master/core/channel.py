@@ -10,6 +10,8 @@ def setOutputState(
         type: str,
         state: bool):
 
+    print(f"channel.setOutputState(channelNumber={channelNumber}, type={type}, state={state}) called")
+
     # convert to int - in case it comes as a string
     channelNumber = int(channelNumber)
 
