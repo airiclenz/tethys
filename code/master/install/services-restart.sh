@@ -4,30 +4,58 @@ SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPTPATH=$(dirname "$SCRIPT")
 
-
-echo "Clearing the logs..."
-
-cd $SCRIPTPATH
-./services-clearLogs.sh
+CLEARLOGS=false
 
 
+# Parse command-line arguments
+for arg in "$@"
+do
+  case $arg in
+    --clearlogs=*)
+      CLEARLOGS="${arg#*=}"
+      shift # Remove --debug= from processing
+      ;;
+    *)
+      # Unknown option
+      ;;
+  esac
+done
+
+echo ""
+
+if [ $CLEARLOGS == "true" ]; then
+
+    echo "Clearing the logs..."
+    cd $SCRIPTPATH
+    ./services-clearLogs.sh
+    echo ""
+
+fi
+
+printf "Restarting tethys-api.service..."
 sudo systemctl restart tethys-api.service
-echo "Restarted tethys-api"
+printf "\rRestarting tethys-api.service       Done\n"
 
+printf "Restarting tethys-core.service..."
 sudo systemctl restart tethys-core.service
-echo "Restarted tethys-core"
+printf "\rRestarting tethys-core.service      Done\n"
 
+printf "Restarting tethys-web.service..."
 sudo systemctl restart tethys-web.service
-echo "Restarted tethys-web"
+printf "\rRestarting tethys-web.service       Done\n"
 
+printf "Restarting tethys-watchdog.service..."
 sudo systemctl restart tethys-watchdog.service
-echo "Restarted tethys-watchdog"
+printf "\rRestarting tethys-watchdog.service  Done\n"
 
+printf "Restarting nginx..."
 sudo systemctl restart nginx
-echo "Restarted nginx"
+printf "\rRestarting nginx                    Done\n"
 
+printf "Restarting redis-server..."
 sudo systemctl restart redis-server
-echo "Restarted redis-server"
+printf "\rRestarting redis-server             Done\n"
 
+printf "Restarting daphne.service..."
 sudo systemctl restart daphne.service
-echo "Restarted daphne"
+printf "\rRestarting daphne.service           Done\n"
