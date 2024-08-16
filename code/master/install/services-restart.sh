@@ -32,30 +32,68 @@ if [ $CLEARLOGS == "true" ]; then
 
 fi
 
-printf "Restarting tethys-api.service..."
-sudo systemctl restart tethys-api.service
-printf "\rRestarting tethys-api.service       Done\n"
 
-printf "Restarting tethys-core.service..."
-sudo systemctl restart tethys-core.service
-printf "\rRestarting tethys-core.service      Done\n"
+show_progress() {
+  local pid=$1
+  local delay=0.5
 
-printf "Restarting tethys-web.service..."
-sudo systemctl restart tethys-web.service
-printf "\rRestarting tethys-web.service       Done\n"
+  while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
 
-printf "Restarting tethys-watchdog.service..."
-sudo systemctl restart tethys-watchdog.service
-printf "\rRestarting tethys-watchdog.service  Done\n"
+    #printf " "
+    sleep $delay
+    #printf "\b"
+    
+    printf " "
+    sleep $delay
+    printf "\b"
+    
+  done
+}
 
-printf "Restarting nginx..."
-sudo systemctl restart nginx
-printf "\rRestarting nginx                    Done\n"
+# make the curesor invisible
+# tput civis
 
-printf "Restarting redis-server..."
-sudo systemctl restart redis-server
-printf "\rRestarting redis-server             Done\n"
+printf "Restarting tethys-api.service       "
+sudo systemctl restart tethys-api.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting tethys-api.service       OK\n"
 
-printf "Restarting daphne.service..."
-sudo systemctl restart daphne.service
-printf "\rRestarting daphne.service           Done\n"
+printf "Restarting tethys-core.service      "
+sudo systemctl restart tethys-core.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting tethys-core.service      OK\n"
+
+printf "Restarting tethys-web.service       "
+sudo systemctl restart tethys-web.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting tethys-web.service       OK\n"
+
+printf "Restarting tethys-watchdog.service  "
+sudo systemctl restart tethys-watchdog.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting tethys-watchdog.service  OK\n"
+
+printf "Restarting nginx                    "
+sudo systemctl restart nginx & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting nginx                    OK\n"
+
+printf "Restarting redis-server             "
+sudo systemctl restart redis-server & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting redis-server             OK\n"
+
+printf "Restarting daphne.service           "
+sudo systemctl restart daphne.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting daphne.service           OK\n"
+
+# make the curesor visible
+# tput cnorm
