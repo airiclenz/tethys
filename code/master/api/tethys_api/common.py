@@ -80,33 +80,16 @@ def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
                 updateReason += " | "
             updateReason += "Leaving Silent Phase"
 
-        print(
-            BG_COLORS.OKCYAN,
-            "=============================================",
-            BG_COLORS.ENDC,
-        )
-        print(
-            BG_COLORS.OKCYAN, "Silent phase status is re-evaluated now...", BG_COLORS.ENDC
-        )
-        print(BG_COLORS.OKCYAN, "[ " + updateReason + " ]", BG_COLORS.ENDC)
-        print(
-            BG_COLORS.OKCYAN,
-            ".............................................",
-            BG_COLORS.ENDC,
-        )
+        print("=============================================")
+        print("Silent phase status is re-evaluated now...")
+        print(f"[ {updateReason} ]")
+        print(".............................................")
 
-        print(
-            BG_COLORS.OKCYAN,
-            "last calculation: ",
-            getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo),
-            BG_COLORS.ENDC,
-        )
-        print(
-            BG_COLORS.OKCYAN, "last data update: ", LAST_DATA_UPDATE, BG_COLORS.ENDC
-        )
-        print(BG_COLORS.OKCYAN, "silence start:    ", SILENT_PHASE.startTime, BG_COLORS.ENDC)
-        print(BG_COLORS.OKCYAN, "silence end:      ", SILENT_PHASE.endTime, BG_COLORS.ENDC)
-        print(BG_COLORS.OKCYAN, "old state:        ", SILENT_PHASE.inPhase, BG_COLORS.ENDC)
+        print(f"last calculation:  {getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo)}")
+        print(f"last data update:  {LAST_DATA_UPDATE}")
+        print(f"silence start:     {SILENT_PHASE.startTime}")
+        print(f"silence end:       {SILENT_PHASE.endTime}")
+        print(f"old state:         {SILENT_PHASE.inPhase}")
 
         SILENT_PHASE.lastCalculationTime = datetime.now()
 
@@ -171,36 +154,11 @@ def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
                         SILENT_PHASE.startTime = start_time
                         SILENT_PHASE.endTime = end_time
 
-                        print(
-                            BG_COLORS.OKCYAN,
-                            ".............................................",
-                            BG_COLORS.ENDC,
-                        )
-                        print(
-                            BG_COLORS.OKGREEN,
-                            "new last calc:    ",
-                            getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo),
-                            BG_COLORS.ENDC,
-                        )
-                        print(
-                            BG_COLORS.OKGREEN,
-                            "new state:        ",
-                            SILENT_PHASE.inPhase,
-                            BG_COLORS.ENDC,
-                        )
-                        print(
-                            BG_COLORS.OKGREEN,
-                            "new silence start:",
-                            SILENT_PHASE.startTime,
-                            BG_COLORS.ENDC,
-                        )
-                        print(
-                            BG_COLORS.OKGREEN,
-                            "new silence end:  ",
-                            SILENT_PHASE.endTime,
-                            BG_COLORS.ENDC,
-                            flush=True,
-                        )
+                        print(".............................................")
+                        print(f"new last calc:     {getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo)}")
+                        print(f"new state:         {SILENT_PHASE.inPhase}")
+                        print(f"new silence start: {SILENT_PHASE.startTime}")
+                        print(f"new silence end:   {SILENT_PHASE.endTime}", flush=True)
 
                         return True
 
@@ -218,28 +176,11 @@ def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
         SILENT_PHASE.startTime = start_time_next
         SILENT_PHASE.endTime = end_time_next
 
-        print(
-            BG_COLORS.OKCYAN,
-            ".............................................",
-            BG_COLORS.ENDC,
-        )
-        print(
-            BG_COLORS.OKGREEN,
-            "new last calc:    ",
-            SILENT_PHASE.lastCalculationTime,
-            BG_COLORS.ENDC,
-        )
-        print(BG_COLORS.OKGREEN, "new state:        ", SILENT_PHASE.inPhase, BG_COLORS.ENDC)
-        print(
-            BG_COLORS.OKGREEN, "new silence start:", SILENT_PHASE.startTime, BG_COLORS.ENDC
-        )
-        print(
-            BG_COLORS.OKGREEN,
-            "new silence end:  ",
-            SILENT_PHASE.endTime,
-            BG_COLORS.ENDC,
-            flush=True,
-        )
+        print(".............................................")
+        print(f"new last calc:     {SILENT_PHASE.lastCalculationTime}")
+        print(f"new state:         {SILENT_PHASE.inPhase}")
+        print(f"new silence start: {SILENT_PHASE.startTime}")
+        print(f"new silence end:   {SILENT_PHASE.endTime}", flush=True)
 
         return False
 

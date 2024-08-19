@@ -3,6 +3,8 @@ from __future__ import print_function
 import sys
 import os
 
+# import lgpio
+from hardware import Pins
 from radio import Radio
 import actionEngine
 
@@ -24,8 +26,20 @@ sys.path.append(os.path.abspath('../globals'))
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
+'''
+chip = lgpio.gpiochip_open(0)
+
+lgpio.gpio_claim_outputtup(chip, Pins.PUMP)
+lgpio.gpio_claim_output(chip, Pins.CHANNELS[0])
+lgpio.gpio_claim_output(chip, Pins.CHANNELS[1])
+lgpio.gpio_claim_output(chip, Pins.CHANNELS[2])
+lgpio.gpio_claim_output(chip, Pins.CHANNELS[3])
+lgpio.gpio_claim_output(chip, Pins.CHANNELS[4])
+'''
+
 radioWrapper = Radio()
 radioWrapper.initializeRadio()
+
 
 print("Tethys Core started...")
 

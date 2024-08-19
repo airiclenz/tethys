@@ -4,30 +4,96 @@ SCRIPT=$(readlink -f "$0")
 # Absolute path this script is in, thus /home/user/bin
 SCRIPTPATH=$(dirname "$SCRIPT")
 
-
-echo "Clearing the logs..."
-
-cd $SCRIPTPATH
-./services-clearLogs.sh
+CLEARLOGS=false
 
 
-sudo systemctl restart tethys-api.service
-echo "Restarted tethys-api"
+# Parse command-line arguments
+for arg in "$@"
+do
+  case $arg in
+    --clearlogs=*)
+      CLEARLOGS="${arg#*=}"
+      shift # Remove --debug= from processing
+      ;;
+    *)
+      # Unknown option
+      ;;
+  esac
+done
 
-sudo systemctl restart tethys-core.service
-echo "Restarted tethys-core"
+echo ""
 
-sudo systemctl restart tethys-web.service
-echo "Restarted tethys-web"
+if [ $CLEARLOGS == "true" ]; then
 
-sudo systemctl restart tethys-watchdog.service
-echo "Restarted tethys-watchdog"
+    echo "Clearing the logs..."
+    cd $SCRIPTPATH
+    ./services-clearLogs.sh
+    echo ""
 
-sudo systemctl restart nginx
-echo "Restarted nginx"
+fi
 
-sudo systemctl restart redis-server
-echo "Restarted redis-server"
 
-sudo systemctl restart daphne.service
-echo "Restarted daphne"
+show_progress() {
+  local pid=$1
+  local delay=0.5
+
+  while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+
+    #printf " "
+    sleep $delay
+    #printf "\b"
+    
+    printf " "
+    sleep $delay
+    printf "\b"
+    
+  done
+}
+
+# make the curesor invisible
+# tput civis
+
+printf "Restarting tethys-api.service       "
+sudo systemctl restart tethys-api.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting tethys-api.service       OK\n"
+
+printf "Restarting tethys-core.service      "
+sudo systemctl restart tethys-core.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting tethys-core.service      OK\n"
+
+printf "Restarting tethys-web.service       "
+sudo systemctl restart tethys-web.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting tethys-web.service       OK\n"
+
+printf "Restarting tethys-watchdog.service  "
+sudo systemctl restart tethys-watchdog.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting tethys-watchdog.service  OK\n"
+
+printf "Restarting nginx                    "
+sudo systemctl restart nginx & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting nginx                    OK\n"
+
+printf "Restarting redis-server             "
+sudo systemctl restart redis-server & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting redis-server             OK\n"
+
+printf "Restarting daphne.service           "
+sudo systemctl restart daphne.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\rRestarting daphne.service           OK\n"
+
+# make the curesor visible
+# tput cnorm

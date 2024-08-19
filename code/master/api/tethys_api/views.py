@@ -28,6 +28,9 @@ def setLastDataUpdateNow():
 @api_view(['GET'])
 def initializeDatabase(request):
 
+    print(f'{request.method} > ./api/initializeDatabase/')
+
+
     if request.method == 'GET':
         actionLog = ModelHelper.initializeDatabase();
         return Response(actionLog)
@@ -36,6 +39,8 @@ def initializeDatabase(request):
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @api_view(['GET'])
 def lastUpdate(request):
+
+    print(f'> {request.method}  ./api/lastUpdate/')
 
     if request.method == 'GET':
 
@@ -46,6 +51,8 @@ def lastUpdate(request):
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @api_view(['GET'])
 def silentPhaseStatus(request, timeZoneIdentifier):
+
+    print(f'> {request.method}  ./api/silentPhaseStatus/{timeZoneIdentifier}')
 
     if request.method == 'GET':
         refreshSilentPhaseStatus(timeZoneIdentifier)
@@ -58,6 +65,8 @@ def silentPhaseStatus(request, timeZoneIdentifier):
 
 @api_view(['GET'])
 def silentPhaseStatusForce(request, timeZoneIdentifier):
+
+    print(f'> {request.method}  ./api/silentPhaseStatus/{timeZoneIdentifier}/force')
 
     if request.method == 'GET':
         refreshSilentPhaseStatus(timeZoneIdentifier, True)
@@ -73,6 +82,8 @@ def silentPhaseStatusForce(request, timeZoneIdentifier):
 @api_view(['GET', 'POST'])
 def actionLog(request):
     
+    print(f'> {request.method}  ./api/actionLog/')
+
     if request.method == 'GET':
         records = ActionLog.objects.all()
         serializer = ActionLogSerializer(records, many=True)
@@ -94,6 +105,8 @@ def actionLog(request):
 @api_view(['GET', 'DELETE'])
 def actionLog_single(request, number):
     
+    print(f'> {request.method}  ./api/actionLog/{number}')
+
     try:
         records = ActionLog.objects.all().filter(channel = number)
     except ActionLog.DoesNotExist:
@@ -113,6 +126,8 @@ def actionLog_single(request, number):
 @api_view(['GET', 'POST'])
 def actionType(request):
     
+    print(f'> {request.method}  ./api/actionType/')
+
     if request.method == 'GET':
         records = ActionType.objects.all()
         serializer = ActionTypeSerializer(records, many=True)
@@ -130,6 +145,8 @@ def actionType(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 def actionType_single(request, id):
     
+    print(f'> {request.method}  ./api/actionType/{id}')
+
     try:
         record = ActionType.objects.get(pk = id)
     except ActionType.DoesNotExist:
@@ -158,6 +175,8 @@ def actionType_single(request, id):
 @api_view(['GET', 'POST'])
 def channel(request):
     
+    print(f'> {request.method}  ./api/channel/')
+
     if request.method == 'GET':
         records = Channel.objects.all()
         serializer = ChannelSerializer(records, many=True)
@@ -174,6 +193,8 @@ def channel(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def channel_single(request, number):
+
+    print(f'> {request.method}  ./api/channel/{number}')
 
     try:
         record = Channel.objects.get(pk = number)
@@ -200,6 +221,8 @@ def channel_single(request, number):
 
 @api_view(['PATCH'])
 def channel_single_action(request, number, action):
+
+    print(f'> {request.method}  ./api/channel/{number}/{action}')
 
     try:
         record = Channel.objects.get(pk = number)
@@ -234,6 +257,8 @@ def channel_single_action(request, number, action):
 @api_view(['GET'])
 def channelSummary(request):
     
+    print(f'> {request.method}  ./api/channelSummary/')
+
     if request.method == 'GET':
         channels = Channel.objects.all()
         
@@ -271,6 +296,8 @@ def channelSummary(request):
 @api_view(['GET'])
 def channelSummary_single(request, number):
     
+    print(f'> {request.method}  ./api/channelSummary/{number}')
+
     try:
         record = Channel.objects.get(pk = number)
     except Channel.DoesNotExist:
@@ -314,6 +341,8 @@ def channelSummary_single(request, number):
 @api_view(['GET', 'POST'])
 def channelType(request):
     
+    print(f'> {request.method}  ./api/channelType/')
+
     if request.method == 'GET':
         records = ChannelType.objects.all()
         serializer = ChannelTypeSerializer(records, many=True)
@@ -330,6 +359,8 @@ def channelType(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def channelType_single(request, id):
+
+    print(f'> {request.method}  ./api/channelType/{id}')
 
     try:
         record = ChannelType.objects.get(pk = id)
@@ -358,7 +389,9 @@ def channelType_single(request, id):
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @api_view(['GET', 'POST'])
 def sensorData(request):
-    
+
+    print(f'> {request.method}  ./api/sensorData/')
+
     if request.method == 'GET':
         records = SensorData.objects.all()
         serializer = SensorDataSerializer(records, many=True)
@@ -376,6 +409,8 @@ def sensorData(request):
 
 @api_view(['GET', 'DELETE'])
 def sensorData_single(request, number):
+
+    print(f'> {request.method}  ./api/sensorData/{number}')
 
     try:
         records = SensorData.objects.all().filter(channel=number)
@@ -396,6 +431,8 @@ def sensorData_single(request, number):
 @api_view(['GET', 'POST'])
 def schedule(request):
     
+    print(f'> {request.method}  ./api/schedule/')
+
     if request.method == 'GET':
         records = Schedule.objects.all()
         serializer = ScheduleSerializer(records, many=True)
@@ -413,6 +450,8 @@ def schedule(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def schedule_single(request, id):
+
+    print(f'> {request.method}  ./api/schedule/{id}')
 
     try:
         record = Schedule.objects.get(pk = id)
@@ -442,6 +481,8 @@ def schedule_single(request, id):
 @api_view(['GET', 'POST'])
 def scheduleType(request):
     
+    print(f'> {request.method}  ./api/scheduleType/')
+
     if request.method == 'GET':
         records = ScheduleType.objects.all()
         serializer = ScheduleTypeSerializer(records, many=True)
@@ -458,6 +499,8 @@ def scheduleType(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def scheduleType_single(request, id):
+
+    print(f'> {request.method}  ./api/scheduleType/{id}')
 
     try:
         record = ScheduleType.objects.get(pk = id)
@@ -487,6 +530,8 @@ def scheduleType_single(request, id):
 @api_view(['GET', 'POST'])
 def transmissionPowerLevel(request):
     
+    print(f'> {request.method}  ./api/transmissionPowerLevel/')
+
     if request.method == 'GET':
         records = TransmissionPowerLevel.objects.all()
         serializer = TransmissionPowerLevelSerializer(records, many=True)
@@ -503,6 +548,8 @@ def transmissionPowerLevel(request):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def transmissionPowerLevel_single(request, id):
+
+    print(f'> {request.method}  ./api/transmissionPowerLevel/{id}')
 
     try:
         record = TransmissionPowerLevel.objects.get(pk = id)
