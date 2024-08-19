@@ -302,7 +302,7 @@ void SetTransmissionPower()
 					radio.stopListening();
                     RadioPowerDown();
 
-                    DoSimpleBlink(15,100);
+                    DoSimpleBlink(15,150);
                     DoSimpleBlink(15,0);
 
 					return false;
@@ -350,8 +350,8 @@ void SetTransmissionPower()
 			}
 		}
 
-        DoSimpleBlink(15,100);
-        DoSimpleBlink(15,100);
+        DoSimpleBlink(15,150);
+        DoSimpleBlink(15,150);
         DoSimpleBlink(15,0);
         RadioPowerDown();
 		return false;
