@@ -1,9 +1,13 @@
-#import RPi.GPIO as GPIO
+import os
+import sys
 import lgpio
 from time import sleep
-from hardware import Pins
-import apiInterface as api
 
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
+if root_path not in sys.path:
+    sys.path.append(root_path)
+
+from core.hardware import Pins
 
 # =============================================================================
 def setOutputState(

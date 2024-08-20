@@ -1,9 +1,16 @@
+import os
+import sys
 import requests
 import json
-from globals import *
+from config import *
 from colorama import Fore
-from logger import Logger
 
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
+if root_path not in sys.path:
+    sys.path.append(root_path)
+    
+# Now you can import hardware
+from globals.logger import Logger
 
 
 _logger = Logger(Fore.BLUE)

@@ -1,3 +1,5 @@
+import os
+import sys
 import struct
 from datetime import datetime, timedelta
 import numpy as np
@@ -8,9 +10,15 @@ import requests
 from requests.exceptions import ConnectionError
 from hardware import Pins
 
-from globals import *
+from config import *
 from colorama import Fore
-from logger import Logger
+
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
+if root_path not in sys.path:
+    sys.path.append(root_path)
+
+# Now you can import hardware
+from globals.logger import Logger
 
 
 DATATYPE_SENSORDATA = 0

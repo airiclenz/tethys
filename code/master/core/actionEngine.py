@@ -1,12 +1,20 @@
+import os
+import sys
 from datetime import datetime
 import apiInterface as api
 import channel as hardwareChannel
-from globals import *
+from config import *
 from colorama import Fore
-from logger import Logger
+
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
+if root_path not in sys.path:
+    sys.path.append(root_path)
+
+# Now you can import hardware
+from globals.logger import Logger
+
 
 radioWrapper = None
-
 
 _logger = Logger(Fore.YELLOW)
 

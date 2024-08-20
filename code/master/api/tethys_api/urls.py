@@ -7,6 +7,8 @@ urlpatterns = [
 
     path('api/lastUpdate/', views.lastUpdate),
 
+    path('api/version/', views.version),
+
     path('api/silentPhaseStatus/<str:timeZoneIdentifier>', views.silentPhaseStatus),
     path('api/silentPhaseStatus/<str:timeZoneIdentifier>/force', views.silentPhaseStatusForce),
 
