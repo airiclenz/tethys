@@ -17,3 +17,5 @@ class Pins:
 
     # The debugging / status LED
     LED = 14
+
+    FAN = 15

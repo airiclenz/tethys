@@ -2,12 +2,12 @@ from __future__ import print_function
 
 import sys
 import os
+import asyncio
 
-# import lgpio
 from hardware import Pins
 from radio import Radio
 import actionEngine
-
+import fanController
 
 
 sys.path.append(os.path.abspath('../globals'))
@@ -26,30 +26,37 @@ sys.path.append(os.path.abspath('../globals'))
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-'''
-chip = lgpio.gpiochip_open(0)
-
-lgpio.gpio_claim_outputtup(chip, Pins.PUMP)
-lgpio.gpio_claim_output(chip, Pins.CHANNELS[0])
-lgpio.gpio_claim_output(chip, Pins.CHANNELS[1])
-lgpio.gpio_claim_output(chip, Pins.CHANNELS[2])
-lgpio.gpio_claim_output(chip, Pins.CHANNELS[3])
-lgpio.gpio_claim_output(chip, Pins.CHANNELS[4])
-'''
-
 radioWrapper = Radio()
 radioWrapper.initializeRadio()
 
 
 print("Tethys Core started...")
 
-# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-# keep on swimming, keep on swimming, keep on swimming swimming swimming...
-while 1:
-
+# =============================================================================
+def handleCoreActivities():
     radioWrapper.handleRadioEvents(timeOutInSec = 30)
-
-    # see if there is anything to do.
     actionEngine.handleActions(radioWrapper)
 
 
+# =============================================================================
+async def main():
+    
+    task_core = asyncio.create_task(handleCoreActivities())
+    task_fan = asyncio.create_task(fanController.control_fan())
+    
+    try:
+
+        while True:
+
+            await task_core
+            await task_fan
+
+    finally:
+        task_core.cancel()
+        task_fan.cancel()
+
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+if __name__ == "__main__":
+
+    asyncio.run(main())

@@ -14,3 +14,4 @@ numpy
 colorama
 gunicorn
 schedule
+simple-pid
