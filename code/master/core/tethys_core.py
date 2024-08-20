@@ -6,11 +6,15 @@ import asyncio
 
 from hardware import Pins
 from radio import Radio
-import actionEngine
-import fanController
 
 
-sys.path.append(os.path.abspath('../globals'))
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
+if root_path not in sys.path:
+    sys.path.append(root_path)
+    
+import core.actionEngine as actionEngine
+import core.fanController as fan
+
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -29,31 +33,23 @@ sys.path.append(os.path.abspath('../globals'))
 radioWrapper = Radio()
 radioWrapper.initializeRadio()
 
-
 print("Tethys Core started...")
 
 # =============================================================================
 def handleCoreActivities():
-    radioWrapper.handleRadioEvents(timeOutInSec = 30)
-    actionEngine.handleActions(radioWrapper)
+    
+    while True:
+        radioWrapper.handleRadioEvents(timeOutInSec = 30)
+        actionEngine.handleActions(radioWrapper)
 
 
 # =============================================================================
 async def main():
-    
+        
     task_core = asyncio.create_task(handleCoreActivities())
-    task_fan = asyncio.create_task(fanController.control_fan())
-    
-    try:
+    task_fan = asyncio.create_task(fan.control_fan())
 
-        while True:
-
-            await task_core
-            await task_fan
-
-    finally:
-        task_core.cancel()
-        task_fan.cancel()
+    await asyncio.gather(task_core, task_fan)
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

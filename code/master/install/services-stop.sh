@@ -5,24 +5,72 @@ SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 
 
+show_progress() {
+  local pid=$1
+  local delay=0.5
 
-sudo systemctl stop tethys-api.service
-echo "Stopped tethys-api"
+  while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
 
-sudo systemctl stop tethys-core.service
-echo "Stopped tethys-core"
+    #printf " "
+    sleep $delay
+    #printf "\b"
+    
+    printf " "
+    sleep $delay
+    printf "\b"
+    
+  done
+}
 
-sudo systemctl stop tethys-web.service
-echo "Stopped tethys-web"
 
-sudo systemctl stop tethys-watchdog.service
-echo "Stopped tethys-watchdog"
 
-sudo systemctl stop nginx
-echo "Stopped nginx"
+echo "Stopping the services"
 
-sudo systemctl stop redis-server
-echo "Stopped redis-server"
+printf " > Stopping tethys-api.service...      "
+sudo systemctl stop tethys-api.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Stoppped tethys-api.service         OK\n"
 
-sudo systemctl stop daphne.service
-echo "Stopped daphne"
+
+printf " > Stopping tethys-core.service...     "
+sudo systemctl stop tethys-core.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Stoppped tethys-core.service        OK\n"
+
+
+printf " > Stopping tethys-web.service...      "
+sudo systemctl stop tethys-web.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Stoppped tethys-web.service         OK\n"
+
+
+printf " > Stopping tethys-watchdog.service... "
+sudo systemctl stop tethys-watchdog.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Stoppped tethys-watchdog.service    OK\n"
+
+
+printf " > Stopping nginx...                   "
+sudo systemctl stop nginx & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Stoppped nginx                      OK\n"
+
+
+printf " > Stopping redis-server...            "
+sudo systemctl stop redis-server & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Stoppped redis-server               OK\n"
+
+
+printf " > Stopping daphne.service...          "
+sudo systemctl stop daphne.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Stoppped daphne.service             OK\n"
+
