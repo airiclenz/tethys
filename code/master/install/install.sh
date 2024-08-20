@@ -75,9 +75,6 @@ code_pre_reboot() {
         sudo npm install -g typescript
     fi
 
-    # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    #   P Y T H O N - V E N V
-    # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     echo ""
     echo "================================================================================"
@@ -100,11 +97,6 @@ code_pre_reboot() {
     echo "Installing needed packages now..."
     pip install -r ./install/python-requirements.txt
 
-
-
-    # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    #   M I G R A T I O N S
-    # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
     echo ""
     echo "================================================================================"
@@ -140,6 +132,8 @@ code_pre_reboot() {
     echo "================================================================================"
     echo -e "${YELLOW}Calling sub-script for installation of the services...${NOCOLOR}"
     echo ""
+
+    cd $SCRIPTPATH
 
     # run the service install script
     ./installServices.sh --debug=$DEBUG

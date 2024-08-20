@@ -11,13 +11,11 @@ from .common import *
 from .globals import LAST_DATA_UPDATE as lastUpdateTimestamp
 
 # Get the absolute path of the core directory
-#core_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../core'))
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 # Append the core directory to sys.path
-#if core_path not in sys.path:
-#    sys.path.append(core_path)
 if root_path not in sys.path:
     sys.path.append(root_path)
+
 # Now you can import hardware
 import core.channel as hardwareChannel
 import globals.config as tethysConfig
