@@ -111,6 +111,7 @@ var tethys;
         function updateDataSet(channelSummary) {
             channels = channelSummary;
             updateChannels();
+            updateSettings();
         }
         channel_1.updateDataSet = updateDataSet;
         // ============================================================================

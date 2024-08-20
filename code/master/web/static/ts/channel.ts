@@ -140,6 +140,8 @@ namespace tethys {
 
             channels = channelSummary;
             updateChannels();
+            updateSettings();
+            
         }
 
         // ============================================================================
