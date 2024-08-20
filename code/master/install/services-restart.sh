@@ -53,47 +53,49 @@ show_progress() {
 # make the curesor invisible
 # tput civis
 
-printf "Restarting tethys-api.service       "
+echo "Starting / Re-starting the services"
+
+printf " > Restarting tethys-api.service       "
 sudo systemctl restart tethys-api.service & pid=$!
 show_progress $pid
 wait $pid
-printf "\rRestarting tethys-api.service       OK\n"
+printf "\r > Restarting tethys-api.service       OK\n"
 
-printf "Restarting tethys-core.service      "
+printf " > Restarting tethys-core.service      "
 sudo systemctl restart tethys-core.service & pid=$!
 show_progress $pid
 wait $pid
-printf "\rRestarting tethys-core.service      OK\n"
+printf "\r > Restarting tethys-core.service      OK\n"
 
-printf "Restarting tethys-web.service       "
+printf " > Restarting tethys-web.service       "
 sudo systemctl restart tethys-web.service & pid=$!
 show_progress $pid
 wait $pid
-printf "\rRestarting tethys-web.service       OK\n"
+printf "\r > Restarting tethys-web.service       OK\n"
 
-printf "Restarting tethys-watchdog.service  "
+printf " > Restarting tethys-watchdog.service  "
 sudo systemctl restart tethys-watchdog.service & pid=$!
 show_progress $pid
 wait $pid
-printf "\rRestarting tethys-watchdog.service  OK\n"
+printf "\r > Restarting tethys-watchdog.service  OK\n"
 
-printf "Restarting nginx                    "
+printf " > Restarting nginx                    "
 sudo systemctl restart nginx & pid=$!
 show_progress $pid
 wait $pid
-printf "\rRestarting nginx                    OK\n"
+printf "\r > Restarting nginx                    OK\n"
 
-printf "Restarting redis-server             "
+printf " > Restarting redis-server             "
 sudo systemctl restart redis-server & pid=$!
 show_progress $pid
 wait $pid
-printf "\rRestarting redis-server             OK\n"
+printf "\r > Restarting redis-server             OK\n"
 
-printf "Restarting daphne.service           "
+printf " > Restarting daphne.service           "
 sudo systemctl restart daphne.service & pid=$!
 show_progress $pid
 wait $pid
-printf "\rRestarting daphne.service           OK\n"
+printf "\r > Restarting daphne.service           OK\n"
 
 # make the curesor visible
 # tput cnorm

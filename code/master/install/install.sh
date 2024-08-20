@@ -38,23 +38,7 @@ done
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 code_pre_reboot() {
-
-    echo "================================================================================"
-    echo ""
-    echo -e "${RED}This script will restart the computer. ${YELLOW}Do you want to continue?${NOCOLOR}"
-    echo ""
-    echo -e "[ ${GREEN}yes${NOCOLOR} / ${RED}no${NOCOLOR} ]"
-    echo ""
-    read answer
-
-    if [ "$answer" != "${answer#[Yy]}" ] ;then
-        echo "Proceeding..."
-        # Place the commands you want to execute here
-    else
-        echo "Aborting..."
-        exit 1
-    fi
-
+    
     clear
     echo -e "${YELLOW}=====  STARTING the installation of ${GREEN}TETHYS${YELLOW}  ====================================${NOCOLOR}"
     echo ""
@@ -143,12 +127,14 @@ code_pre_reboot() {
     echo -e "${YELLOW}Enabling SPI, Redis-Server${NOCOLOR}"
     echo ""
 
-    cd $ROOTPATH/install
-
+    # cd $ROOTPATH/install
     # enable SPI
-    sudo python3 enableSpi.py
+    #sudo python3 enableSpi.py
+    
+    # Enable SPI by adding the necessary line to /boot/config.txt
+    echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
+    # enable the redis-server
     sudo systemctl enable redis-server
-
 
     echo ""
     echo "================================================================================"
@@ -158,15 +144,26 @@ code_pre_reboot() {
     # run the service install script
     ./installServices.sh --debug=$DEBUG
 
-
     echo ""
     echo "================================================================================"
-    echo -e "${YELLOW}Rebooting the computer now...${NOCOLOR}"
     echo ""
+    echo -e "${NOCOLOR}The computer needs to be re-booted. ${YELLOW}Do you want to continue?${NOCOLOR}"
+    echo ""
+    echo -e "[ ${GREEN}yes${NOCOLOR} / ${RED}no${NOCOLOR} ]"
+    echo ""
+    read answer
 
-    # Add a cron job to run the second script once after reboot
-    (crontab -l 2>/dev/null; echo "@reboot $SCRIPT --rebooted=true") | crontab -
-    sudo reboot
+    if [ "$answer" != "${answer#[Yy]}" ] ;then
+        echo "Proceeding..."
+        
+        # Add a cron job to run the second script once after reboot
+        (crontab -l 2>/dev/null; echo "@reboot $SCRIPT --rebooted=true") | crontab -
+        sudo reboot
+    else
+        echo "After the computer was rebooted, run this script again with this command:"
+        echo -e "${BLUE}./install.sh --rebooted=true ${NOCOLOR}"
+    fi
+
 }
 
 

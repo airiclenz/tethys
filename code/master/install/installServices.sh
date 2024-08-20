@@ -180,41 +180,32 @@ sudo cp ./install/assets-localized/daphne.service /etc/systemd/system/daphne.ser
 echo ""
 echo "Enabling the services"
 
+printf " > Enabling tethys-api.service...      "
 sudo systemctl enable tethys-api.service
-echo " > Enabled tethys-api.service"
+printf "\r > Enabled tethys-api.service          OK\n"
 
+printf " > Enabling tethys-core.service...     "
 sudo systemctl enable tethys-core.service
-echo " > Enabled tethys-core.service"
+printf "\r > Enabled tethys-core.service         OK\n"
 
+printf " > Enabling tethys-web.service...      "
 sudo systemctl enable tethys-web.service
-echo " > Enabled tethys-web.service"
+printf "\r > Enabled tethys-web.service          OK\n"
 
+printf " > Enabling tethys-watchdog.service... "
 sudo systemctl enable tethys-watchdog.service
-echo " > Enabled tethys-watchdog.service"
+printf "\r > Enabled tethys-watchdog.service     OK\n"
 
+printf " > Enabling daphne.service...          "
 sudo systemctl enable daphne.service
-echo " > Enabled daphne.service"
+printf "\r > Enabled daphne.service              OK\n"
 
 sudo systemctl daemon-reload
 
 # -------------------------------------
-echo ""
-echo "Starting the services"
-
-sudo systemctl start tethys-api.service
-echo " > Started tethys-api.service"
-
-sudo systemctl start tethys-core.service
-echo " > Started tethys-core.service"
-
-sudo systemctl start tethys-web.service
-echo " > Started tethys-web.service"
-
-sudo systemctl start tethys-watchdog.service
-echo " > Started tethys-watchdog.service"
-
-sudo systemctl start daphne.service
-echo " > Started daphne.service"
+# Start - or Restart all services
+cd $SCRIPTPATH
+./services-restart.sh
 
 echo ""
 # -------------------------------------
