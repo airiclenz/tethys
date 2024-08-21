@@ -27,7 +27,8 @@ const uint64_t pipes[] =
     PIPE_ADDRESS_2,         // TX (Sensor Number 2)
     PIPE_ADDRESS_3,         // TX (Sensor Number 3)
     PIPE_ADDRESS_4,         // TX (Sensor Number 4)
-    PIPE_ADDRESS_5          // TX (Sensor Number 5)
+    PIPE_ADDRESS_5,         // TX (Sensor Number 5)
+    PIPE_ADDRESS_6          // TX (Sensor Number 6)
 };
 
 
@@ -88,6 +89,7 @@ void SetTransmissionPower()
         radio.openReadingPipe(3, pipes[3]);
         radio.openReadingPipe(4, pipes[4]);
         radio.openReadingPipe(5, pipes[5]);
+        radio.openReadingPipe(5, pipes[6]);
 
         radio.startListening();
     }
