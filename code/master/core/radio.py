@@ -46,6 +46,7 @@ class Radio:
         0x5232443233,
         0x5232443234,
         0x5232443235,
+        0x5232443236,
     ]
 
     _logger = Logger(Fore.GREEN)
@@ -75,11 +76,12 @@ class Radio:
         # setting up the reading- and writing pites
         self.radio.openWritingPipe(self._pipeAddresses[0])
 
-        self.radio.openReadingPipe(1, self._pipeAddresses[1])
-        self.radio.openReadingPipe(2, self._pipeAddresses[2])
-        self.radio.openReadingPipe(3, self._pipeAddresses[3])
-        self.radio.openReadingPipe(4, self._pipeAddresses[4])
-        self.radio.openReadingPipe(5, self._pipeAddresses[5])
+        self.radio.openReadingPipe(0, self._pipeAddresses[1])
+        self.radio.openReadingPipe(1, self._pipeAddresses[2])
+        self.radio.openReadingPipe(2, self._pipeAddresses[3])
+        self.radio.openReadingPipe(3, self._pipeAddresses[4])
+        self.radio.openReadingPipe(4, self._pipeAddresses[5])
+        self.radio.openReadingPipe(5, self._pipeAddresses[6])
 
         self.radio.startListening()
 
@@ -140,12 +142,12 @@ class Radio:
 
         if self.radio.available() == True:
             
-            pipeNo = self.radio.available_pipe()[1]
+            pipeNo = self.radio.available_pipe()[1] + 1
 
             self._logger.log(f'Incoming from Pipe: {pipeNo}')
             self._logger.increaseIndent()
 
-            if pipeNo < 1 or pipeNo > 5:
+            if pipeNo < 1 or pipeNo > 6:
                 self._logger.log("Invalid pipe number!")
                 self._logger.decreaseIndent()
                 return

@@ -12,7 +12,7 @@ TIME_ZONE = 'Europe/Stockholm'
 # =============================================================================
 # used for tracking which sensor sent data recently - for action handling
 class FlagHandler:
-    channelFlags = [False, False, False, False, False]
+    channelFlags = [False, False, False, False, False, False]
 
 FLAG_HANDLER = FlagHandler()
 

@@ -183,7 +183,7 @@ class ModelHelper():
 
         # :::::::::::::::::::::
         
-        for i in range(5):
+        for i in range(6):
             try:
                 channel = Channel.objects.get(number = i + 1)
                 actionLog.append("Existing channel with number " + str(i + 1) + " was found.")
