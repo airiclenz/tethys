@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e  # Exit on error
 
 # Default value for DEBUG
 DEBUG=true
@@ -50,22 +51,20 @@ cd $SCRIPTPATH
 
 # -------------------------------------
 echo "Re-creating the localized asset folder"
-sudo rm -r assets-localized
-mkdir assets-localized
+rm -rf assets-localized && mkdir -p assets-localized
 
 # -------------------------------------
 echo "Copying the nginx configurations to the localized asset folder"
 
-cp ./assets/tethys-api.nginx ./assets-localized/
-cp ./assets/tethys-web.nginx ./assets-localized/
+cp ./assets/tethys-{api,web}.nginx ./assets-localized/
 
 # -------------------------------------
 echo "Updating the paths in the nginx configurations"
 
-python3 updateTokenInFile.py ./assets-localized/tethys-api.nginx {TETHYS-PATH} $ROOTPATH
-python3 updateTokenInFile.py ./assets-localized/tethys-api.nginx {HOST-NAME} $HOSTNAME
-python3 updateTokenInFile.py ./assets-localized/tethys-web.nginx {TETHYS-PATH} $ROOTPATH
-python3 updateTokenInFile.py ./assets-localized/tethys-web.nginx {HOST-NAME} $HOSTNAME
+for file in ./assets-localized/tethys-{api,web}.nginx; do
+    python3 updateTokenInFile.py "$file" "{TETHYS-PATH}" "$ROOTPATH"
+    python3 updateTokenInFile.py "$file" "{HOST-NAME}" "$HOSTNAME"
+done
 
 # -------------------------------------
 echo "Copying localized versins to the nginx system directory"
@@ -109,8 +108,9 @@ if [ $DEBUG == "true" ]; then
 fi
 
 echo "Giving nginx access to staticcollect"
-sudo chmod -R 755 $WWWPATH/tethys/staticcollect/
-sudo chown -R www-data:www-data $WWWPATH/tethys/staticcollect/
+
+sudo chown -R www-data:www-data "$WWWPATH/tethys/staticcollect"
+sudo chmod -R u=rwX,g=rX,o=rX "$WWWPATH/tethys/staticcollect"
 
 echo ""
 echo "================================================================================"
@@ -118,9 +118,8 @@ echo -e "${YELLOW}Preparing the wesocket folders${NOCOLOR}"
 echo ""
 
 sudo mkdir -p /ws/
-#todo - assign to user that is running daphne
-#sudo chown <your_user>:<your_group> /ws/
-sudo chmod 757 /ws/
+sudo chown www-data:www-data /ws/
+sudo chmod 770 /ws/
 
 echo "Done"
 
@@ -158,47 +157,21 @@ cp ./web/config/gunicorn.py ./install/assets-localized/gunicorn_config_web.py
 # -------------------------------------
 echo "Updating the paths in localized versions of the service descriptions"
 
-python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-api.service {TETHYS-PATH} $ROOTPATH
-python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-core.service {TETHYS-PATH} $ROOTPATH
-python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-web.service {TETHYS-PATH} $ROOTPATH
-python3 ./install/updateTokenInFile.py ./install/assets-localized/tethys-watchdog.service {TETHYS-PATH} $ROOTPATH
-python3 ./install/updateTokenInFile.py ./install/assets-localized/daphne.service {TETHYS-PATH} $ROOTPATH
+for service in tethys-{api,core,web,watchdog} daphne; do
+    python3 ./install/updateTokenInFile.py "./install/assets-localized/$service.service" "{TETHYS-PATH}" "$ROOTPATH"
+done
 
 python3 ./install/updateTokenInFile.py ./install/assets-localized/gunicorn_config_api.py {TETHYS-PATH} $ROOTPATH
 python3 ./install/updateTokenInFile.py ./install/assets-localized/gunicorn_config_web.py {TETHYS-PATH} $ROOTPATH
 
 # -------------------------------------
-echo "Copying new service definitions to system path /etc/systemd/system"
+echo "Copying new service definitions to system path /etc/systemd/system and enabling services..."
 
-sudo cp ./install/assets-localized/tethys-api.service /etc/systemd/system/tethys-api.service
-sudo cp ./install/assets-localized/tethys-core.service /etc/systemd/system/tethys-core.service
-sudo cp ./install/assets-localized/tethys-web.service /etc/systemd/system/tethys-web.service
-sudo cp ./install/assets-localized/tethys-watchdog.service /etc/systemd/system/tethys-watchdog.service
-sudo cp ./install/assets-localized/daphne.service /etc/systemd/system/daphne.service
-
-# -------------------------------------
-echo ""
-echo "Enabling the services"
-
-printf " > Enabling tethys-api.service...      "
-sudo systemctl enable tethys-api.service
-printf "\r > Enabled tethys-api.service          OK\n"
-
-printf " > Enabling tethys-core.service...     "
-sudo systemctl enable tethys-core.service
-printf "\r > Enabled tethys-core.service         OK\n"
-
-printf " > Enabling tethys-web.service...      "
-sudo systemctl enable tethys-web.service
-printf "\r > Enabled tethys-web.service          OK\n"
-
-printf " > Enabling tethys-watchdog.service... "
-sudo systemctl enable tethys-watchdog.service
-printf "\r > Enabled tethys-watchdog.service     OK\n"
-
-printf " > Enabling daphne.service...          "
-sudo systemctl enable daphne.service
-printf "\r > Enabled daphne.service              OK\n"
+for service in tethys-{api,core,web,watchdog} daphne; do
+    sudo cp "./install/assets-localized/$service.service" "/etc/systemd/system/$service.service"
+    sudo systemctl enable "$service.service"
+    printf " > Enabled %s\n" "$service.service"
+done
 
 sudo systemctl daemon-reload
 

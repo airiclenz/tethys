@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e  # Exit if any command fails
 
 DEBUG=true
 REBOOTED=false
@@ -53,21 +54,10 @@ code_pre_reboot() {
     echo -e "${YELLOW}Running a system update / upgrade${NOCOLOR}"
     echo ""
 
-    sudo apt update -y
-    sudo apt full-upgrade -y
-
-    # needed for virtual environments (if not yet installed)
-    sudo apt install python3-venv python3-full -y
-    # this is needed for the later installation of the python lib RPi.GPIO
-    sudo apt install python3-dev -y
-    # needed for numpy on the Raspberry Pi
-    sudo apt install libopenblas-dev -y
-    # webserver for hosting our* django apps
-    sudo apt install nginx -y
-    # the redis server used for the websocket functionality
-    sudo apt install redis-server -y
-    # used for formatting json
-    sudo apt install jq -y
+    sudo apt update -y && sudo apt full-upgrade -y
+    sudo apt install -y \
+        python3-venv python3-full python3-dev \
+        libopenblas-dev nginx redis-server jq
 
     if [ $DEBUG == "true" ]; then
         # used for installing npm - the typescript compiler
@@ -81,11 +71,11 @@ code_pre_reboot() {
     echo -e "${YELLOW}Setting up the python environment${NOCOLOR}"
     echo ""
 
-    if [ ! -d $VENV_NAME ]; then
-        echo $VENV_NAME "does not exist -> creating it now..."
-        python3 -m venv $VENV_NAME
+    if [ ! -d "$VENV_NAME/bin" ]; then
+        echo $VENV_NAME " environment was not found. Creating..."
+        python3 -m venv "$VENV_NAME"
     else
-        echo $VENV_NAME " already exists."
+        echo "Virtual environment exists."
     fi
 
     source $VENV_NAME/bin/activate
@@ -126,7 +116,7 @@ code_pre_reboot() {
     # Enable SPI by adding the necessary line to /boot/config.txt
     echo "dtparam=spi=on" | sudo tee -a /boot/config.txt
     # enable the redis-server
-    sudo systemctl enable redis-server
+    sudo systemctl enable --now redis-server
 
     echo ""
     echo "================================================================================"
@@ -145,13 +135,14 @@ code_pre_reboot() {
     echo ""
     echo -e "[ ${GREEN}yes${NOCOLOR} / ${RED}no${NOCOLOR} ]"
     echo ""
+    
     read answer
 
     if [ "$answer" != "${answer#[Yy]}" ] ;then
         echo "Proceeding..."
         
-        # Add a cron job to run the second script once after reboot
-        (crontab -l 2>/dev/null; echo "@reboot $SCRIPT --rebooted=true") | crontab -
+        # Configure rc.local to run the script with the given parameter after reboot
+        sudo bash -c 'echo "$SCRIPT --rebooted=true" >> /etc/rc.local'
         sudo reboot
     else
         echo "After the computer was rebooted, run this script again with this command:"
@@ -178,7 +169,16 @@ code_post_reboot() {
     INIT_DB_URL="http://localhost:5000/api/initializeDatabase/"
     echo -e "Calling: ${BLUE} $INIT_DB_URL ${NOCOLOR}"
 
-    curl -s $INIT_DB_URL | jq '.'
+    RETRIES=5
+    for i in $(seq 1 $RETRIES); do
+        if curl -s --connect-timeout 5 "$INIT_DB_URL" | jq '.'; then
+            echo "Database initialized successfully!"
+            break
+        else
+            echo "Retrying database initialization... ($i/$RETRIES)"
+            sleep 5
+        fi
+    done
 
 
     echo ""
