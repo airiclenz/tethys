@@ -1,2 +1,2 @@
 
-![Tethys](https://raw.githubusercontent.com/airiclenz/tethys/main/graphics/logo/tethys%20logo.svg?token=GHSAT0AAAAAACVSFQZR7NABIX6FEMA4CKQQZV3VS7Q "Tethys")
+![Tethys](https://raw.githubusercontent.com/airiclenz/tethys/refs/heads/main/graphics/logo/tethys%20logo.svg?token=GHSAT0AAAAAAC7HC2LUBZ6FVKHD4XWXE2OWZ5ZXADA "Tethys")
