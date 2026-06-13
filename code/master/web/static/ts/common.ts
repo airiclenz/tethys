@@ -35,7 +35,59 @@ namespace tethys {
         tethys.websocket.connect();
         updateSilentPhaseStatus();
         markActiveMenu();
+        loadApiKeyField();
 
+    }
+
+
+    // ============================================================================
+    // API key (stored locally in the browser). The API requires this key as the
+    // `X-API-Key` header on every mutating request (POST/PUT/PATCH/DELETE),
+    // including manual pump activate/deactivate. Reads (GET) do not need it.
+    // ============================================================================
+    const API_KEY_STORAGE = "tethys_api_key";
+
+    export function getApiKey() {
+        try {
+            return localStorage.getItem(API_KEY_STORAGE) || "";
+        } catch (e) {
+            return "";
+        }
+    }
+
+    export function setApiKey(key) {
+        try {
+            localStorage.setItem(API_KEY_STORAGE, (key || "").trim());
+        } catch (e) {
+            console.error("Could not store the API key:", e);
+        }
+    }
+
+    // Header object merged into every mutating request; empty when no key is set.
+    function authHeaders() {
+        const key = getApiKey();
+        return key ? { "X-API-Key": key } : {};
+    }
+
+    // Called from the Settings popup Save button.
+    export function saveApiKeyFromField() {
+        var element = <HTMLInputElement>(
+            (<unknown>document.getElementById("idApiKey"))
+        );
+        if (element) {
+            setApiKey(element.value);
+            console.log("API key saved locally.");
+        }
+    }
+
+    // Populate the Settings field with the stored key on page load.
+    function loadApiKeyField() {
+        var element = <HTMLInputElement>(
+            (<unknown>document.getElementById("idApiKey"))
+        );
+        if (element) {
+            element.value = getApiKey();
+        }
     }
 
 
@@ -192,7 +244,8 @@ namespace tethys {
             // *default, no-cache, reload, force-cache, only-if-cached
             cache: "no-cache",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                ...authHeaders()
             },
             // manual, *follow, error
             //redirect: 'follow',
@@ -214,7 +267,8 @@ namespace tethys {
             // *default, no-cache, reload, force-cache, only-if-cached
             cache: "no-cache",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                ...authHeaders()
             },
             // manual, *follow, error
             //redirect: 'follow',
@@ -235,7 +289,8 @@ namespace tethys {
             // *default, no-cache, reload, force-cache, only-if-cached
             cache: "no-cache",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                ...authHeaders()
             },
             // manual, *follow, error
             //redirect: 'follow',
@@ -275,8 +330,10 @@ namespace tethys {
             method: "DELETE",
             // mode: 'no-cors', '*cors', 'same-origin',
             // *default, no-cache, reload, force-cache, only-if-cached
-            cache: "no-cache"
-            //headers: { 'Content-Type': 'application/json' },
+            cache: "no-cache",
+            headers: {
+                ...authHeaders()
+            },
             // manual, *follow, error
             //redirect: 'follow',
             // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,

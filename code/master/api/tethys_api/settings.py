@@ -10,10 +10,28 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Make the shared `globals` package (code/master/globals) importable here.
+# BASE_DIR is the `api/` directory, so its parent is `code/master`. The core
+# process already adds the same dir to sys.path; this lets settings (which runs
+# before views.py) read the single git-ignored secrets file.
+MASTER_DIR = BASE_DIR.parent
+if str(MASTER_DIR) not in sys.path:
+    sys.path.insert(0, str(MASTER_DIR))
+
+try:
+    from globals.secrets import TETHYS_API_KEY
+except ImportError as exc:  # pragma: no cover - configuration error path
+    raise ImportError(
+        "Missing globals/secrets.py. Copy code/master/globals/secrets.example.py "
+        "to code/master/globals/secrets.py and set TETHYS_API_KEY (or run "
+        "install/install.sh, which generates it)."
+    ) from exc
 
 
 # Quick-start development settings - unsuitable for production
@@ -59,6 +77,19 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+# The web UI (different origin/port) sends the key as a custom request header,
+# which must be explicitly allow-listed for CORS even with all origins allowed.
+from corsheaders.defaults import default_headers
+CORS_ALLOW_HEADERS = list(default_headers) + ["x-api-key"]
+
+# Require the shared API key (X-API-Key header) on all mutating requests; reads
+# stay open. No session/BasicAuth so DRF's SessionAuthentication CSRF check never
+# engages for these header-authenticated, cookie-less calls.
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ["tethys_api.permissions.ApiKeyForWrite"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
+}
 
 ROOT_URLCONF = 'tethys_api.urls'
 

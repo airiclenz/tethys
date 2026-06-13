@@ -19,6 +19,10 @@ if root_path not in sys.path:
 
 # Now you can import hardware
 from globals.logger import Logger
+from globals.secrets import TETHYS_API_KEY
+
+# Sent on mutating API calls; the API gates POST/PUT/PATCH/DELETE behind this key.
+_AUTH_HEADERS = {"X-API-Key": TETHYS_API_KEY}
 
 
 DATATYPE_SENSORDATA = 0
@@ -195,7 +199,7 @@ class Radio:
             url = BASE_API_URL + "sensorData/"
 
             try:
-                response = requests.post(url, json=dataset_json)
+                response = requests.post(url, json=dataset_json, headers=_AUTH_HEADERS)
 
                 # check if the response code is in the 200 range: 2xx
                 responseCode = response.status_code - (response.status_code % 100)

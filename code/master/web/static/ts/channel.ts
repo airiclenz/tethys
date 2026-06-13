@@ -794,6 +794,16 @@ namespace tethys {
                             "d: " +
                             response.statusText
                         );
+
+                        // Permission denied: the API key is missing or wrong.
+                        // Revert the toggle and point the user at Settings.
+                        if (response.status === 403) {
+                            elementTestChannel.checked = !value;
+                            alert(
+                                "Not authorized to control the pump. Set the " +
+                                "correct API key in Settings (top menu)."
+                            );
+                        }
                     }
                 }
             );

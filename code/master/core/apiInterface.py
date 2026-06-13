@@ -11,10 +11,14 @@ if root_path not in sys.path:
     
 # Now you can import hardware
 from globals.logger import Logger
+from globals.secrets import TETHYS_API_KEY
 
 
 _logger = Logger(Fore.BLUE)
 _logger.increaseIndent()
+
+# Sent on mutating API calls; the API gates POST/PUT/PATCH/DELETE behind this key.
+_AUTH_HEADERS = {"X-API-Key": TETHYS_API_KEY}
 
 
 # =============================================================================
@@ -105,7 +109,7 @@ def createPumpActionInDB(channelNumber, startTime, endTime):
         "endTime": endTime.strftime(DATETIME_FORMAT),
     }
 
-    response = requests.post(url=callUrl, json=jsonBody)
+    response = requests.post(url=callUrl, json=jsonBody, headers=_AUTH_HEADERS)
 
     # check if the response code is in the 200 range: 2xx
     responseCode = response.status_code - (response.status_code % 100)
