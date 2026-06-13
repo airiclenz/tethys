@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 import sys
 from pathlib import Path
 
@@ -25,29 +26,36 @@ if str(MASTER_DIR) not in sys.path:
     sys.path.insert(0, str(MASTER_DIR))
 
 try:
-    from globals.secrets import TETHYS_API_KEY
+    from globals.secrets import TETHYS_API_KEY, API_SECRET_KEY
 except ImportError as exc:  # pragma: no cover - configuration error path
     raise ImportError(
-        "Missing globals/secrets.py. Copy code/master/globals/secrets.example.py "
-        "to code/master/globals/secrets.py and set TETHYS_API_KEY (or run "
-        "install/install.sh, which generates it)."
+        "Missing globals/secrets.py or a required value. Copy "
+        "code/master/globals/secrets.example.py to code/master/globals/secrets.py "
+        "and set TETHYS_API_KEY and API_SECRET_KEY (or run install/install.sh, which "
+        "generates them). Existing installs predating the Django key move must add "
+        "API_SECRET_KEY / WEB_SECRET_KEY to secrets.py."
     ) from exc
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-hx!=+4j#v*^*^3ls=-b5f_91c$)k%spgqodtk)f!t)@$4t%=)@'
+# Secret key now lives in the git-ignored globals/secrets.py (imported above), so
+# it is unique per install and never committed.
+SECRET_KEY = API_SECRET_KEY
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Off by default; opt in for local dev with TETHYS_DEBUG=1. The systemd units set
+# this from the installer's --debug flag (default false).
+DEBUG = os.environ.get("TETHYS_DEBUG") == "1"
 
+# Base hosts plus any supplied via TETHYS_ALLOWED_HOSTS (comma-separated), e.g. a
+# Tailscale name like tethys.<tailnet>.ts.net for remote (VPN) access.
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     "tethys.local",
 ]
+ALLOWED_HOSTS += [h for h in os.environ.get("TETHYS_ALLOWED_HOSTS", "").split(",") if h]
 
 
 # Application definition
@@ -83,11 +91,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 from corsheaders.defaults import default_headers
 CORS_ALLOW_HEADERS = list(default_headers) + ["x-api-key"]
 
-# Require the shared API key (X-API-Key header) on all mutating requests; reads
-# stay open. No session/BasicAuth so DRF's SessionAuthentication CSRF check never
-# engages for these header-authenticated, cookie-less calls.
+# Require the shared API key (X-API-Key header) on every request, reads included
+# (only the CORS preflight OPTIONS is exempt). No session/BasicAuth so DRF's
+# SessionAuthentication CSRF check never engages for these header-authenticated,
+# cookie-less calls.
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ["tethys_api.permissions.ApiKeyForWrite"],
+    "DEFAULT_PERMISSION_CLASSES": ["tethys_api.permissions.ApiKeyRequired"],
     "DEFAULT_AUTHENTICATION_CLASSES": [],
 }
 

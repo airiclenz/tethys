@@ -277,7 +277,7 @@ class Radio:
             url = BASE_API_URL + "channelSummary/" + str(channel)
 
             try:
-                response = requests.get(url, timeout=REQUEST_TIMEOUT)
+                response = requests.get(url, headers=_AUTH_HEADERS, timeout=REQUEST_TIMEOUT)
             except (ConnectionError, Timeout):
                 self._logger.log(f'Config refresh: API not reachable ({url}).')
                 continue

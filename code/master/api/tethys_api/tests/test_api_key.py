@@ -1,10 +1,12 @@
 # =============================================================================
-# Tests for the shared-API-key permission (tethys_api.permissions.ApiKeyForWrite).
+# Tests for the shared-API-key permission (tethys_api.permissions.ApiKeyRequired).
 #
-# Verifies the security contract: read-only requests stay open, but every
-# mutating request requires a correct X-API-Key header. The pump
-# activate/deactivate endpoint is the worst-case target, so it is exercised
-# end-to-end (with the hardware call mocked out so no GPIO is touched).
+# Verifies the security contract after reads were locked down for safe remote
+# (VPN) access: EVERY request needs a correct X-API-Key header, reads included;
+# only the CORS preflight (OPTIONS) is exempt. The pump activate/deactivate
+# endpoint is the worst-case target, so it is exercised end-to-end (with the
+# hardware call mocked out so no GPIO is touched). The state-seeding
+# initializeDatabase endpoint is verified to be a key-gated POST, not an open GET.
 #
 # Run from code/master/api/:  python manage.py test tethys_api
 # =============================================================================
@@ -40,14 +42,18 @@ class ApiKeyPermissionTests(TestCase):
             sensorTransmissionPowerLevel=power,
         )
 
-    # -- reads stay open ------------------------------------------------------
+    # -- reads are gated too --------------------------------------------------
 
-    def test_get_is_open_without_key(self):
+    def test_get_denied_without_key(self):
         response = self.client.get("/api/channelSummary/")
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_allowed_with_key(self):
+        response = self.client.get("/api/channelSummary/", **_auth(self.key))
         self.assertEqual(response.status_code, 200)
 
     def test_options_preflight_is_open_without_key(self):
-        # SAFE_METHODS includes OPTIONS, so the CORS preflight is never blocked.
+        # Only OPTIONS is exempt, so the browser's CORS preflight is never blocked.
         response = self.client.options("/api/channel/1/activate")
         self.assertNotEqual(response.status_code, 403)
 
@@ -89,3 +95,32 @@ class ApiKeyPermissionTests(TestCase):
         )
         self.assertEqual(response.status_code, 201)
         self.assertTrue(ChannelType.objects.filter(name="drip").exists())
+
+    # -- initializeDatabase is a key-gated POST, not an open GET --------------
+    # (DRF checks permissions before method dispatch, so an unauthenticated GET
+    # is denied at 403; a keyed GET reaches the method check and returns 405.)
+
+    @mock.patch("tethys_api.views.ModelHelper.initializeDatabase")
+    def test_initialize_db_get_denied_without_key(self, mock_init):
+        response = self.client.get("/api/initializeDatabase/")
+        self.assertEqual(response.status_code, 403)
+        mock_init.assert_not_called()
+
+    @mock.patch("tethys_api.views.ModelHelper.initializeDatabase")
+    def test_initialize_db_get_method_not_allowed_with_key(self, mock_init):
+        response = self.client.get("/api/initializeDatabase/", **_auth(self.key))
+        self.assertEqual(response.status_code, 405)
+        mock_init.assert_not_called()
+
+    @mock.patch("tethys_api.views.ModelHelper.initializeDatabase")
+    def test_initialize_db_post_denied_without_key(self, mock_init):
+        response = self.client.post("/api/initializeDatabase/")
+        self.assertEqual(response.status_code, 403)
+        mock_init.assert_not_called()
+
+    @mock.patch("tethys_api.views.ModelHelper.initializeDatabase")
+    def test_initialize_db_post_allowed_with_key(self, mock_init):
+        mock_init.return_value = {"ok": True}
+        response = self.client.post("/api/initializeDatabase/", **_auth(self.key))
+        self.assertEqual(response.status_code, 200)
+        mock_init.assert_called_once()

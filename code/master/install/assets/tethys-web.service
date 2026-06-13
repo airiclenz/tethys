@@ -6,6 +6,8 @@ After=network.target
 ExecStart={TETHYS-PATH}/env_tethys/bin/gunicorn -c {TETHYS-PATH}/install/assets-localized/gunicorn_config_web.py tethys_web.wsgi
 WorkingDirectory={TETHYS-PATH}/web/
 Environment="PATH={TETHYS-PATH}/env_tethys/bin"
+Environment="TETHYS_DEBUG={DEBUG-FLAG}"
+Environment="TETHYS_ALLOWED_HOSTS={ALLOWED-HOSTS}"
 StandardOutput=inherit
 StandardError=inherit
 Restart=always

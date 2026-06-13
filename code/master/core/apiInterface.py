@@ -25,7 +25,7 @@ _AUTH_HEADERS = {"X-API-Key": TETHYS_API_KEY}
 def loadChannel(channelNumber):
     # Load the channel data to see if we need to perform an action
     url = BASE_API_URL + "channel/" + str(channelNumber)
-    response = requests.get(url)
+    response = requests.get(url, headers=_AUTH_HEADERS)
 
     # check if the response code is in the 200 range: 2xx
     responseCode = response.status_code - (response.status_code % 100)
@@ -42,7 +42,7 @@ def loadChannel(channelNumber):
 def loadChannelSummary(channelNumber):
     # Load the channel summary to see if we need to perform an action
     url = BASE_API_URL + "channelSummary/" + str(channelNumber)
-    response = requests.get(url)
+    response = requests.get(url, headers=_AUTH_HEADERS)
 
     # check if the response code is in the 200 range: 2xx
     responseCode = response.status_code - (response.status_code % 100)
@@ -59,7 +59,7 @@ def loadChannelSummary(channelNumber):
 def loadAllChannelSummaries():
     # Load the channel summaries to see if we need to perform an action
     url = BASE_API_URL + "channelSummary/"
-    response = requests.get(url)
+    response = requests.get(url, headers=_AUTH_HEADERS)
 
     # check if the response code is in the 200 range: 2xx
     responseCode = response.status_code - (response.status_code % 100)
@@ -80,7 +80,7 @@ def isInSilentPhase():
     url = BASE_API_URL + "silentPhaseStatus/" + TIME_ZONE.replace('/', '-')
 
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=_AUTH_HEADERS)
     except:
         _logger.log("The Tethys API is not reachable.")
         return None

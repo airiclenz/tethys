@@ -1,36 +1,42 @@
 # =============================================================================
 # API key permission.
 #
-# Tethys has no user accounts; the API is a single-tenant device API on the LAN.
-# This permission gates every *mutating* request (POST/PUT/PATCH/DELETE) behind a
-# single shared key, while leaving read-only requests open so the dashboard,
-# polling, and the core's GET reads keep working. The worst risk it closes is an
-# unauthenticated host turning on a pump via PATCH /api/channel/<n>/activate.
+# Tethys has no user accounts; the API is a single-tenant device API. This
+# permission gates EVERY request (reads and writes alike) behind a single shared
+# key. Reads were locked down alongside enabling safe remote (VPN) access: with
+# the system reachable from a Tailscale/WireGuard device, sensor data and channel
+# state should not be readable by anything that merely reaches the port. The worst
+# risk it closes remains an unauthenticated host turning on a pump via
+# PATCH /api/channel/<n>/activate.
+#
+# Only OPTIONS stays open, so the browser's CORS preflight (which never carries
+# the key) succeeds; the real GET that follows must present the key.
 #
 # The key is sent in the `X-API-Key` request header and must match
-# settings.TETHYS_API_KEY (loaded from the git-ignored globals/secrets.py).
+# settings.TETHYS_API_KEY (loaded from the git-ignored globals/secrets.py). All
+# callers send it: the web UI (browser localStorage), the core daemon, and the
+# web backend's server-side polling.
 #
-# Limitation: traffic is plain HTTP on the LAN, so the key is observable to a
-# sniffer. This raises the bar from "any LAN host" to "needs the key"; it is not
-# a substitute for transport encryption.
+# Note: the key is the access control; the VPN tunnel provides the transport
+# encryption, so the key is not observable off-device.
 # =============================================================================
 
 import hmac
 
 from django.conf import settings
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import BasePermission
 
 
-class ApiKeyForWrite(BasePermission):
-    '''Allow safe methods (GET/HEAD/OPTIONS) unconditionally; require a matching
-    X-API-Key header for every mutating method.'''
+class ApiKeyRequired(BasePermission):
+    '''Allow CORS preflight (OPTIONS) unconditionally; require a matching
+    X-API-Key header for every other method, reads included.'''
 
     message = "A valid X-API-Key header is required for this request."
 
     def has_permission(self, request, view):
-        # Safe methods stay open. OPTIONS being safe also lets the browser's
-        # CORS preflight succeed without the key.
-        if request.method in SAFE_METHODS:
+        # OPTIONS stays open so the browser's CORS preflight succeeds without the
+        # key; every other method (GET/HEAD included) must present it.
+        if request.method == "OPTIONS":
             return True
 
         expected = getattr(settings, "TETHYS_API_KEY", None)

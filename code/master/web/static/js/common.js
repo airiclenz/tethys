@@ -41,8 +41,8 @@ var tethys;
     tethys.afterPageLoad = afterPageLoad;
     // ============================================================================
     // API key (stored locally in the browser). The API requires this key as the
-    // `X-API-Key` header on every mutating request (POST/PUT/PATCH/DELETE),
-    // including manual pump activate/deactivate. Reads (GET) do not need it.
+    // `X-API-Key` header on every request, reads included (only the CORS preflight
+    // OPTIONS is exempt). The dashboard stays blank until the key is set here.
     // ============================================================================
     const API_KEY_STORAGE = "tethys_api_key";
     function getApiKey() {
@@ -63,7 +63,8 @@ var tethys;
         }
     }
     tethys.setApiKey = setApiKey;
-    // Header object merged into every mutating request; empty when no key is set.
+    // Header object merged into every request (reads and writes); empty when no
+    // key is set.
     function authHeaders() {
         const key = getApiKey();
         return key ? { "X-API-Key": key } : {};
@@ -279,8 +280,10 @@ var tethys;
                 method: "GET",
                 // mode: 'no-cors', '*cors', 'same-origin',
                 // *default, no-cache, reload, force-cache, only-if-cached
-                cache: "no-cache"
-                //headers: { 'Content-Type': 'application/json' },
+                cache: "no-cache",
+                // Reads now require the key too (only OPTIONS is exempt server-side),
+                // so the dashboard shows data only once the key is set in Settings.
+                headers: Object.assign({}, authHeaders()),
                 // manual, *follow, error
                 //redirect: 'follow',
                 // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,

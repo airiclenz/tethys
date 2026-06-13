@@ -5,6 +5,14 @@
 **Last commit:** `e002e1f` — work below is **uncommitted** in the working tree.
 **Status:** Implemented + **verified live on the Pi**. NOT committed. NOT pushed.
 
+> **Superseded (2026-06-13, remote-access hardening):** the "reads stay open"
+> design below was tightened. The API key is now required on **every** request,
+> reads included (only the CORS preflight `OPTIONS` is exempt), so the system can
+> be reached over a VPN overlay without exposing sensor/channel data. The
+> permission class was renamed `ApiKeyForWrite` → `ApiKeyRequired`, all read
+> callers (web UI, core, web backend) now send the key, and `initializeDatabase`
+> became a key-gated `POST`. See `docs/remote-access-hardening.md`.
+
 ---
 
 ## What this work is

@@ -14,10 +14,13 @@
 #   python3 -c "import secrets; print(secrets.token_urlsafe(32))"
 # =============================================================================
 
-# Shared key required on every mutating API request (POST/PUT/PATCH/DELETE),
-# including the manual pump activate/deactivate endpoint.
+# Shared key required on every API request that mutates state, and (since the
+# reads were locked down) on read requests too. Used by the web UI, the core
+# daemon, and the web backend's server-side polling.
 TETHYS_API_KEY = "change-me"
 
-# Room to grow: the Django SECRET_KEYs can move here too (audit quick win), e.g.
-# API_SECRET_KEY = "..."
-# WEB_SECRET_KEY = "..."
+# Django SECRET_KEYs, one per Django app. Unique per install, never committed.
+# Generate each with:
+#   python3 -c "from django.core.management.utils import get_random_secret_key as g; print(g())"
+API_SECRET_KEY = "change-me"
+WEB_SECRET_KEY = "change-me"

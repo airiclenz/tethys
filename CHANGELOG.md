@@ -10,6 +10,47 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Remote-access hardening (prerequisite for safe VPN access)
+
+> Branch `fix/pump-control-safety-module` (2026-06-13). Hardens the app so it can
+> be reached from outside the LAN over an encrypted overlay (Tailscale/WireGuard)
+> **without** opening the LAN to the internet. The transport itself is operator
+> setup, not code. See `docs/remote-access-hardening.md`.
+
+#### Added
+- **`docs/remote-access-hardening.md`** — the env vars, secrets, installer flags,
+  the read-now-needs-key behavior, and a Tailscale setup pointer.
+- **`globals/secrets.example.py`** — now also documents `API_SECRET_KEY` /
+  `WEB_SECRET_KEY` (the Django secret keys, moved out of `settings.py`).
+- **`api/tethys_api/tests/test_api_key.py`** — extended for the new posture: reads
+  are denied without the key (403) and allowed with it (200); `initializeDatabase`
+  is denied on unauthenticated GET (403), method-not-allowed on keyed GET (405),
+  denied on keyless POST (403), and allowed on keyed POST.
+
+#### Changed
+- **`api/tethys_api/settings.py`, `web/tethys_web/settings.py`** — `DEBUG` now
+  reads `TETHYS_DEBUG` (off by default); `SECRET_KEY` reads from the git-ignored
+  `globals/secrets.py`; `ALLOWED_HOSTS` appends `TETHYS_ALLOWED_HOSTS`. The web
+  settings also exposes `API_AUTH_HEADERS` for its server-side polling.
+- **`api/tethys_api/permissions.py`** — `ApiKeyForWrite` → **`ApiKeyRequired`**:
+  every request now needs `X-API-Key`, reads included; only `OPTIONS` (CORS
+  preflight) is exempt.
+- **Read callers now send the key** — the web UI `getCall` (`common.ts`), the core
+  daemon (`apiInterface.py`, `radio.py`), and the web backend's server-side polls
+  (`jobs.py`, `tools.py`).
+- **`api/tethys_api/views.py`** — `initializeDatabase` is now a key-gated `POST`
+  (was an open `GET`); `install.sh` calls it via authenticated `POST`.
+- **`install/install.sh`, `installServices.sh`** — production-safe `DEBUG` default;
+  new `--allowed-hosts` flag; generate `API_SECRET_KEY` / `WEB_SECRET_KEY` (and
+  append them to pre-existing `secrets.py` on upgrade); inject `TETHYS_DEBUG` /
+  `TETHYS_ALLOWED_HOSTS` into the systemd units.
+
+#### Security
+- Sensor data and channel state are no longer readable by anything that merely
+  reaches the port; the worst-case (turning on a pump unauthenticated) remains
+  closed. Combined with a VPN overlay, this enables remote access with no inbound
+  ports and encrypted transport.
+
 ### Silent-phase watering gate fix (audit action items #4, #5, #8)
 
 > Branch `fix/pump-control-safety-module` (2026-06-13). Fixes the quiet-hours

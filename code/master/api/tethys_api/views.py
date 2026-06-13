@@ -27,13 +27,14 @@ def setLastDataUpdateNow():
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-@api_view(['GET'])
+@api_view(['POST'])
 def initializeDatabase(request):
 
     print(f'{request.method} > ./api/initializeDatabase/')
 
-
-    if request.method == 'GET':
+    # POST + key-gated (the default ApiKeyRequired permission applies): this seeds
+    # the database, so it must not be triggerable by a bare GET.
+    if request.method == 'POST':
         actionLog = ModelHelper.initializeDatabase();
         return Response(actionLog)
     

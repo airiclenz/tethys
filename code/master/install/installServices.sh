@@ -1,8 +1,11 @@
 #!/bin/bash
 set -e  # Exit on error
 
-# Default value for DEBUG
-DEBUG=true
+# Production-safe default; --debug=true is a developer install (see install.sh).
+DEBUG=false
+# Extra hostnames for Django ALLOWED_HOSTS (comma-separated); substituted into the
+# systemd units as TETHYS_ALLOWED_HOSTS.
+ALLOWED_HOSTS_ARG=""
 
 # Absolute path to this script, e.g. /home/user/username/repos/tethys/code/master/install/install.sh
 SCRIPT=$(readlink -f "$0")
@@ -29,11 +32,22 @@ do
       DEBUG="${arg#*=}"
       shift # Remove --debug= from processing
       ;;
+    --allowed-hosts=*)
+      ALLOWED_HOSTS_ARG="${arg#*=}"
+      shift # Remove --allowed-hosts= from processing
+      ;;
     *)
       # Unknown option
       ;;
   esac
 done
+
+# Django reads TETHYS_DEBUG as "1"/"0"; map the install flag onto it.
+if [ "$DEBUG" == "true" ]; then
+    DEBUG_FLAG=1
+else
+    DEBUG_FLAG=0
+fi
 
 
 echo ""
@@ -159,6 +173,9 @@ echo "Updating the paths in localized versions of the service descriptions"
 
 for service in tethys-{api,core,web,watchdog} daphne; do
     python3 ./install/updateTokenInFile.py "./install/assets-localized/$service.service" "{TETHYS-PATH}" "$ROOTPATH"
+    # {DEBUG-FLAG} / {ALLOWED-HOSTS} only appear in the Django units; a no-op elsewhere.
+    python3 ./install/updateTokenInFile.py "./install/assets-localized/$service.service" "{DEBUG-FLAG}" "$DEBUG_FLAG"
+    python3 ./install/updateTokenInFile.py "./install/assets-localized/$service.service" "{ALLOWED-HOSTS}" "$ALLOWED_HOSTS_ARG"
 done
 
 python3 ./install/updateTokenInFile.py ./install/assets-localized/gunicorn_config_api.py {TETHYS-PATH} $ROOTPATH
