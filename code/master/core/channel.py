@@ -1,3 +1,9 @@
+# NOTE: This module is superseded by core/pumpController.py for the core
+# (automatic) watering path. It is intentionally kept only for the Django API's
+# manual activate/deactivate path until phase 2 removes GPIO from the API and
+# routes it through the controller. Do not add new callers — and note that
+# setOutputState still returns True even on a swallowed error (a known bug fixed
+# in pumpController, not here, to avoid changing the API contract this phase).
 import os
 import sys
 import lgpio

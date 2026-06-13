@@ -1,10 +1,9 @@
 import os
 import sys
-from datetime import datetime
 import apiInterface as api
-import channel as hardwareChannel
 from config import *
 from colorama import Fore
+from pumpController import PumpError
 
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
 if root_path not in sys.path:
@@ -14,16 +13,11 @@ if root_path not in sys.path:
 from globals.logger import Logger
 
 
-radioWrapper = None
-
 _logger = Logger(Fore.YELLOW)
 
 
 # =============================================================================
-def handleActions(radioWrapperIn):
-    
-    global radioWrapper
-    radioWrapper = radioWrapperIn
+def handleActions(pumpController):
 
     if api.isInSilentPhase():
         return
@@ -32,22 +26,25 @@ def handleActions(radioWrapperIn):
 
     for flag in FlagHandler().channelFlags:
         if flag == True:
-            handleChannelAction(counter + 1)
-            FlagHandler.channelFlags[counter] = False
-            flag = False
+            handled = handleChannelAction(counter + 1, pumpController)
+            # Only clear the flag if the action was actually handled. If the
+            # controller was busy (deferred), leave the flag set so we retry on
+            # the next loop pass.
+            if handled:
+                FlagHandler.channelFlags[counter] = False
 
         counter += 1
 
 
 # =============================================================================
-def handleChannelAction(channelNumber):
-    
+def handleChannelAction(channelNumber, pumpController):
+
     # Load the channel summaries to see if we need to perform an action
     channelSummary = api.loadChannelSummary(channelNumber)
 
     if channelSummary == None:
         _logger.log(f'Could not retrieve data for checking if actions are due on channel {channelNumber}')
-        return
+        return True
 
     channelEnabled = channelSummary["enabled"]
     moistureLevel = channelSummary["sensorData_lastMoisturePercent"]
@@ -55,33 +52,30 @@ def handleChannelAction(channelNumber):
     pumpDuration = channelSummary["pumpDurationSeconds"]
     channelType = channelSummary["channelType"]
 
-
     # do we need to pump?
-    if moistureLevel <= triggerLevel and channelEnabled:
+    if not (moistureLevel <= triggerLevel and channelEnabled):
+        return True
 
-        _logger.log(f'Pumping for channel {channelNumber} initiated ({pumpDuration} sec)')
-        _logger.increaseIndent()
+    _logger.log(f'Pumping for channel {channelNumber} initiated ({pumpDuration} sec)')
 
-        startTime = datetime.now()
-
-        hardwareChannel.setOutputState(
-            channelNumber, 
-            channelType, 
-            True
+    # The controller clamps the duration, guarantees the pump is switched off,
+    # and logs the completed action to the DB from its timer callback (so the
+    # core loop is not blocked and the radio keeps listening while pumping).
+    try:
+        handle = pumpController.run_pump(
+            channelNumber,
+            pumpDuration,
+            channelType,
+            on_complete=lambda startTime, endTime: api.createPumpActionInDB(
+                channelNumber, startTime, endTime,
+            ),
         )
-        
-        radioWrapper.handleRadioEvents(timeOutInSec = pumpDuration)
+    except (ValueError, PumpError) as e:
+        _logger.log(f'ERROR: could not pump channel {channelNumber}: {e}')
+        return True  # don't hot-loop on a hardware/config error
 
-        hardwareChannel.setOutputState(
-            channelNumber, 
-            channelType, 
-            False
-        )
+    if handle is None:
+        # Controller busy (max concurrent pumps reached) — retry next pass.
+        return False
 
-        endTime = datetime.now()
-
-        _logger.log(f'Pumping for {pumpDuration} sec finsished.')
-
-        api.createPumpActionInDB(channelNumber, startTime, endTime)
-
-        _logger.decreaseIndent()
+    return True

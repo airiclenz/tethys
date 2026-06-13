@@ -8,7 +8,7 @@ from pyrf24 import *
 
 import requests
 from requests.exceptions import ConnectionError
-from hardware import Pins
+from hardware import Pins, CHANNEL_COUNT
 
 from config import *
 from colorama import Fore
@@ -203,7 +203,13 @@ class Radio:
                 if responseCode == 200:
                     self._logger.log("Data was succesfully saved to the API.")
 
-                    FlagHandler().channelFlags[channelNo - 1] = True
+                    # Guard against a stray packet from a pipe beyond the known
+                    # channels (the radio supports 6 pipes but only CHANNEL_COUNT
+                    # channels exist) so we never index past channelFlags.
+                    if 1 <= channelNo <= CHANNEL_COUNT:
+                        FlagHandler().channelFlags[channelNo - 1] = True
+                    else:
+                        self._logger.log(f"Ignoring data for unknown channel {channelNo}")
 
                 else:
                     self._logger.log("There was an error saving the data: ", response.reason)
