@@ -67,10 +67,11 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 - **`api/tethys_api/globals.py`** — `setLastDataUpdate()` / `getLastDataUpdate()`
   helpers so the `LAST_DATA_UPDATE` timestamp is read/written through one
   canonical module global (see the fix below).
-- **`api/tethys_api/tests/test_silentphase.py`** — 7 tests: the window math
-  (inside / before / after a window, post-midnight wraparound, wrong weekday,
-  and UTC-stored→local-localized), and that `loadSilentSchedules` returns only
-  enabled schedules of type `silent`.
+- **`api/tethys_api/tests/test_silentphase.py`** — 8 tests: 7 window-math cases
+  (inside / before / after a window, the real 22:00→07:00 window, post-midnight
+  wraparound, wrong weekday, and that the stored time-of-day is not shifted by
+  the placeholder date's historical UTC offset), plus that `loadSilentSchedules`
+  returns only enabled schedules of type `silent`.
 - **`api/tethys_api/tests/test_last_data_update.py`** — 2 tests pinning the
   `LAST_DATA_UPDATE` wiring (setter mutates the canonical value through an
   alias; a mutating request bumps it).
@@ -78,9 +79,12 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
   (unknown → skip and keep the flag; in-phase → skip; not-silent → evaluate).
 
 #### Changed
-- **`globals/config.py`** — now the single source of truth for `TIME_ZONE`
-  (`Europe/Stockholm`). `api`/`web` Django settings and `core/config.py` all
-  import it instead of hardcoding their own copies.
+- **`globals/config.py`** — single source of truth for the deployment/display
+  `TIME_ZONE` (`Europe/Stockholm`), imported by `core/config.py` (the identifier
+  the core passes to `silentPhaseStatus`) and the `web` Django settings. The
+  **API keeps its Django `TIME_ZONE = 'UTC'`** as its storage zone — schedule
+  start times are wall-clock times-of-day, so storing in UTC preserves the
+  entered clock-face; the deployment zone is applied at silent-phase evaluation.
 - **`api/tethys_api/common.py`** — `refreshSilentPhaseStatus` does all
   comparisons in the caller-supplied timezone (`datetime.now(tz)`), delegating
   the window math to `evaluate_silent_phase`; the cached `SILENT_PHASE`
@@ -100,10 +104,19 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
   compared against the server's *naive local* `datetime.now()`, offsetting the
   window by the server's UTC↔local difference (and aware-vs-naive compares could
   `TypeError`). Both sides are now timezone-aware in the configured zone.
-- **[Audit #5] divergent `TIME_ZONE`** — `api` used `UTC` while `core`/`web` used
-  `Europe/Stockholm` (the root enabler of the window bug); now one shared value,
-  so the API stores/interprets schedule times in the same zone the core
-  localizes against.
+- **[Audit #5] divergent `TIME_ZONE`** — `core`/`web` now share one
+  deployment-zone definition (`globals/config.py`). The API deliberately keeps a
+  `UTC` storage zone (see below); the previous divergence was a bug only because
+  the old window math mishandled it.
+- **silent-phase window shifted by an hour (icon failed to appear)** — schedule
+  start times are wall-clock times-of-day stored on a placeholder date
+  (`1900-01-01`). The evaluator localized that value with `astimezone()`, which
+  uses the *placeholder date's* historical UTC offset (Stockholm was `+01:00` in
+  1900 vs `+02:00` in summer today), shifting a 22:00 window to 23:00 — so at
+  22:30 the gate read "not silent" and the UI icon stayed hidden while the
+  schedule UI still showed 22:00–07:00. The evaluator now reads the stored UTC
+  clock-face as the time-of-day and re-anchors it on today's date in the
+  comparison zone (no cross-date `astimezone`).
 - **[Audit #8] `isInSilentPhase()` → `None` was treated as "not silent"
   (fail-open)** — when the API is unreachable the engine watered blind. It now
   fails closed: an unknown status skips watering for that pass.
