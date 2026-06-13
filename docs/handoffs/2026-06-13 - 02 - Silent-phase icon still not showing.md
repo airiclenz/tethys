@@ -5,6 +5,34 @@ even though the silent-phase *calculation* is now correct.
 
 ---
 
+## ✅ RESOLVED (2026-06-13)
+
+The icon now shows. Two parts to the fix:
+
+1. **The code fix (as recommended below).** `web/tethys_web/tools.py` →
+   `getReponseForSystemStatus()` no longer returns the hardcoded stub. A new
+   helper `getSilentPhaseStatus()` fetches the live status from the API
+   (`GET silentPhaseStatus/<IANA-id>` with `settings.API_AUTH_HEADERS`),
+   mirroring the `jobs.py` pattern, and falls back to `inPhase: False` on
+   non-200 / connection error. Verified live: returns `inPhase: True`, window
+   22:00–07:00. (Committed in `f668318`.)
+
+2. **The real "still not showing" gotcha — restart the RIGHT service.** The
+   `silentPhaseStatus` payload reaches the browser over the **websocket**, and
+   the websocket consumer (`consumers.py` via `tethys_web.asgi:application`) runs
+   under **`daphne.service`** (ASGI, port 8001) — *not* `tethys-web` (gunicorn,
+   WSGI, port 8000, which only serves the HTTP pages). Restarting `tethys-web`
+   alone left daphne running the old stubbed code, so the icon stayed hidden.
+   **Fix: restart `daphne.service` as well** (or just use
+   `install/services-restart.sh`, which restarts everything).
+
+   → **Lesson for any future `web/` Python change that touches the websocket
+   path: restart both `tethys-web` AND `daphne`.** The served static JS was
+   confirmed identical to the repo (`/var/www/tethys/staticcollect`), so no
+   `deploy-static.sh` was needed here.
+
+---
+
 ## TL;DR — root cause (high confidence)
 
 `web/tethys_web/tools.py` → `getReponseForSystemStatus()` (lines ~80–90) returns
