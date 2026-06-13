@@ -90,6 +90,25 @@ namespace tethys {
         }
     }
 
+    // Toggle the API key field between masked (password) and plain (text), so
+    // the user can verify what they pasted. Called from the Settings popup.
+    export function toggleApiKeyVisibility() {
+        var field = <HTMLInputElement>(
+            (<unknown>document.getElementById("idApiKey"))
+        );
+        var toggle = document.getElementById("idApiKeyToggle");
+        if (!field) {
+            return;
+        }
+        if (field.type === "password") {
+            field.type = "text";
+            if (toggle) { toggle.innerHTML = "Hide"; }
+        } else {
+            field.type = "password";
+            if (toggle) { toggle.innerHTML = "Show"; }
+        }
+    }
+
 
     // ============================================================================
     export function deselectAll() {

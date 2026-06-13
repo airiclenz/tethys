@@ -237,6 +237,40 @@ h2 {
 .text-field {
 	width: 100%;
 	height: 1.35rem;
+	/* Include padding/border in the width so width:100% never overflows its
+	   container (which previously caused a horizontal scrollbar in popups). */
+	box-sizing: border-box;
+}
+
+/* Row holding a text field plus an inline action button (e.g. the API key
+   show/hide toggle). The field flexes to fill, the button keeps its size. */
+.input-with-toggle {
+	display: flex;
+	gap: 0.4rem;
+	align-items: stretch;
+}
+
+.input-with-toggle .text-field {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.field-toggle {
+	flex: 0 0 auto;
+	height: 1.35rem;
+	padding: 0 0.6rem;
+	font-family: inherit;
+	font-size: 0.8rem;
+	color: #333333;
+	background-color: #eeeeee;
+	border: 1px solid #cccccc;
+	border-radius: 0.3rem;
+	cursor: pointer;
+	transition: all 200ms;
+}
+
+.field-toggle:hover {
+	background-color: #dddddd;
 }
 
 
