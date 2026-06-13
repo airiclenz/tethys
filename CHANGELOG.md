@@ -10,6 +10,68 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Communication-protocol hardening
+
+> Branch `fix/pump-control-safety-module` (2026-06-13). Makes the nRF24 link
+> between the sensor nodes and the Pi master more robust (owner-reported
+> unreliability). Source: `docs/audits/2026-06-13 - ProtocolReview.md` (findings
+> P-01..P-07).
+
+#### Added
+- **`core/protocol.py`** — dependency-free (stdlib `struct` only) wire-format
+  layer: versioned, fixed-size framing with validate-don't-raise parsing
+  (`message_type`, `parse_sensor_reading`, `build_config_payload`), channel↔pipe
+  mapping, and a `ConfigCache`. `radio.py` is now a thin driver over it, so the
+  framing rules are unit-testable without `pyrf24`/`numpy`/GPIO.
+- **`core/tests/test_protocol.py`** — 9 tests (battery-alert parsed, malformed
+  frames never raise, version drop, config round-trip, pinned wire sizes,
+  channel↔pipe mapping, config cache).
+- **Versioned wire format** — a leading `ProtocolVersion` byte on both message
+  structs, `__attribute__((packed))` + `static_assert` size checks in
+  `sensor/include/wpw_RXTX.h`, and `PROTOCOL_VERSION` / `PAYLOAD_SIZE` constants
+  in `wpw_Config.h`, mirrored by the Python `struct` formats.
+
+#### Changed
+- **`core/radio.py`** — answers `GETCONFIG` from an in-memory `ConfigCache`
+  (warmed by `refreshConfigCache`) instead of a blocking HTTP GET inside the
+  sensor's listen window; reads a fixed `PAYLOAD_SIZE` (no `getDynamicPayloadSize`
+  with dynamic payloads disabled); reserves pipe 0 and maps channels 1:1 onto
+  reading pipes 1..N; drains the whole RX FIFO; `setPayloadSize`/`setRetries`;
+  per-call HTTP `REQUEST_TIMEOUT`.
+- **`core/tethys_core.py`** — warms the config cache at startup and once per core
+  loop pass (out of the radio response window).
+- **`sensor/src/wpw_RXTX.cpp`** — `setPayloadSize`/`setRetries`, version byte on
+  every outbound frame, version check on the received config, config-reply
+  timeout 200 ms → 500 ms.
+- **`sensor/src/WirelessPlantWatering.cpp`** — boot config handshake is now a
+  bounded 5 retries with linear backoff that falls back to the EEPROM-cached
+  config (was up to 1000× at 1 s, draining battery).
+
+#### Fixed
+- **[P-01]** master silently discarded a sensor's whole reading on a low battery
+  (`DATATYPE_SENSORDATA_BATTERYALERT` matched no dispatch branch); both data
+  types now save, and the alert is parsed + logged.
+- **[P-02]** master read an undefined dynamic payload size (could flush the RX
+  FIFO) while dynamic payloads were disabled — now a fixed payload size.
+- **[P-03]** racy config handshake + boot retry storm (cache-served reply + a
+  500 ms window + bounded backoff with EEPROM fallback).
+- **[P-04]** a short/garbage frame raised an unhandled exception in the radio
+  loop — parsing now validates length+version and never raises;
+  `handlePayload` always resumes listening.
+- **[P-05/06/07]** fragile unversioned struct layout, sensor bound to pipe 0, and
+  FIFO drain that kept only the last frame.
+
+#### Known limitations / coordinated flash
+- **Not backward-compatible:** the version byte + fixed 8-byte payload mean the
+  master and every sensor must be flashed together. A node on old firmware uses
+  the 32-byte default payload → CRC mismatch → no ACK → it goes dark (clean, not
+  corrupting; any stray frame is dropped by the version check). A length-based
+  compatibility mode is possible if a phased rollout is ever needed.
+- The low-battery **flag is not yet persisted** (`SensorData` has no column); the
+  saved voltage carries the signal and the alert is logged. Tracked in `TODO.md`.
+- The legacy Arduino `#ifdef RX` firmware receiver is untouched (slated for
+  removal — `TODO.md`).
+
 ### API key for mutating endpoints (audit #3)
 
 > Branch `fix/pump-control-safety-module` (2026-06-13). Implements the audit's

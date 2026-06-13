@@ -43,6 +43,19 @@
 	#define		LOOPS_PER_MINUTE		6.667		// 9 sec per loop
 
 
+	// ------------------------------------------------
+	// Wire protocol (MUST stay in sync with code/master/core/protocol.py)
+
+	// Bump whenever the on-air struct layout changes. A frame whose first byte
+	// does not match is dropped instead of mis-parsed.
+	#define		PROTOCOL_VERSION		1
+
+	// Fixed on-air payload size in bytes. Both ends call setPayloadSize() with
+	// this value; shorter frames are zero-padded by the radio. Must be >= the
+	// largest message (Package = 7 bytes).
+	#define		PAYLOAD_SIZE			8
+
+
 
 
     // ------------------------------------------------

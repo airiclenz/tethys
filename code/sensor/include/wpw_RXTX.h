@@ -25,21 +25,34 @@
 
 
 
-	struct ConfigurationPackage
+	// Wire structs are sent/received as raw bytes, so the layout MUST match the
+	// master's struct format strings in code/master/core/protocol.py exactly.
+	// packed -> no padding (the master assumes a tight little-endian layout);
+	// the static_asserts below fail the build if the size ever drifts.
+
+	// Master --> Sensor   (matches Python "<BBHB?")
+	struct __attribute__((packed)) ConfigurationPackage
 	{
+		uint8_t		ProtocolVersion;
 		uint8_t     PackageType;
 		uint16_t    MeasureFrequency;
 		uint8_t		TransmissionPowerLevel;
 		bool        TriggerCalibration;
 	};
 
-
-	struct Package
+	// Sensor --> Master   (matches Python "<BBBf")
+	struct __attribute__((packed)) Package
 	{
+		uint8_t		ProtocolVersion;
 		uint8_t     PackageType;
 		uint8_t   	MoistureLevel;
 		float       BatteryVoltage;
 	};
+
+	static_assert(sizeof(ConfigurationPackage) == 6,
+		"ConfigurationPackage must be 6 packed bytes (matches master <BBHB?)");
+	static_assert(sizeof(Package) == 7,
+		"Package must be 7 packed bytes (matches master <BBBf)");
 
 
 

@@ -36,6 +36,11 @@ import core.fanController as fan
 radioWrapper = Radio()
 radioWrapper.initializeRadio()
 
+# Warm the config cache before we start serving GETCONFIG requests, so the very
+# first sensor handshake after boot is answered from memory rather than a
+# blocking HTTP GET inside the sensor's short listen window.
+radioWrapper.refreshConfigCache()
+
 # Single owner of the watering GPIO. Built once; drives all lines LOW on
 # construction (fail-safe boot) and again on shutdown so a crash/restart can
 # never leave a pump energised.
@@ -53,6 +58,10 @@ print("Tethys Core started...")
 def handleCoreActivities():
 
     while True:
+        # Keep config replies cache-served and out of the radio response
+        # window. Runs between listen windows, so its HTTP calls never delay a
+        # sensor's handshake.
+        radioWrapper.refreshConfigCache()
         radioWrapper.handleRadioEvents(timeOutInSec = 30)
         actionEngine.handleActions(pumpController)
 
