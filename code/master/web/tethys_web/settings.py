@@ -1,8 +1,16 @@
 import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Make the shared `globals` package (code/master/globals) importable so the
+# canonical TIME_ZONE can be read from a single source (mirrors the api
+# settings). BASE_DIR is the `web/` directory, so its parent is `code/master`.
+MASTER_DIR = BASE_DIR.parent
+if str(MASTER_DIR) not in sys.path:
+    sys.path.insert(0, str(MASTER_DIR))
 
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
@@ -142,7 +150,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Europe/Stockholm"
+# Sourced from the single canonical definition (globals/config.py).
+from globals.config import TIME_ZONE
 
 USE_I18N = True
 

@@ -3,7 +3,6 @@
 
 items from this list tjhat have been implemented are moved to the file `CHANGELOG.md`.
 
-- silent phase calculation is not based on UTC but local time --> needs fixing
 - solve as websocket request to avoid CORS:
     - add new channel / schedule
     - remove

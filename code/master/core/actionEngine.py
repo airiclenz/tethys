@@ -19,7 +19,14 @@ _logger = Logger(Fore.YELLOW)
 # =============================================================================
 def handleActions(pumpController):
 
-    if api.isInSilentPhase():
+    # Fail closed: if the silent-phase status is unknown (None -- e.g. the API
+    # is unreachable), do NOT water. Treating an unknown state as "not silent"
+    # previously let the engine water blind on possibly-stale state.
+    silentPhase = api.isInSilentPhase()
+    if silentPhase is None:
+        _logger.log('Silent-phase status unknown (API unreachable); skipping watering this pass.')
+        return
+    if silentPhase:
         return
 
     counter = 0

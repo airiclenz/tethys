@@ -1,8 +1,9 @@
 
 from zoneinfo import ZoneInfo
-from datetime import datetime, date, timedelta
+from datetime import datetime
 
 from .models import Schedule
+from .silentphase import evaluate_silent_phase
 from .globals import *
 
 
@@ -23,12 +24,16 @@ def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
 
     """
     This re-evaluates if we have a silent-schedule that is active right now.
+
+    All time comparisons happen in the caller-supplied timezone so the window
+    matches the user's declared local quiet hours. (Previously the math mixed a
+    naive UTC-derived window with the server's naive local clock, offsetting the
+    window by the server's UTC<->local difference.)
     """
 
-    # datetime.replace(tzinfo=timezone.utc)
-    # datetime.now(timezone.utc)
-
     timeZoneInfo = ZoneInfo(timeZoneIdentifier.replace('-', '/'))
+    now = datetime.now(timeZoneInfo)
+
     isDataUpdate = False
     isEnteringSilentPhase = False
     isLeavingSilentPhase = False
@@ -36,14 +41,22 @@ def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
     isInit = SILENT_PHASE.lastCalculationTime == datetime.min
 
     if isInit is False:
-        isDataUpdate = SILENT_PHASE.lastCalculationTime < LAST_DATA_UPDATE
+        # getLastDataUpdate() is a naive server-local timestamp (or the
+        # datetime.min sentinel until the first data-mutating request). Only
+        # compare once it has actually been set, and localize it to an aware
+        # datetime so it is comparable to the timezone-aware lastCalculationTime.
+        lastDataUpdate = getLastDataUpdate()
+        isDataUpdate = (
+            lastDataUpdate != datetime.min
+            and SILENT_PHASE.lastCalculationTime < lastDataUpdate.astimezone()
+        )
 
         isEnteringSilentPhase = (
-            SILENT_PHASE.startTime < datetime.now() and SILENT_PHASE.inPhase is False
+            SILENT_PHASE.startTime < now and SILENT_PHASE.inPhase is False
         )
 
         isLeavingSilentPhase = (
-            SILENT_PHASE.endTime < datetime.now() and SILENT_PHASE.inPhase
+            SILENT_PHASE.endTime < now and SILENT_PHASE.inPhase
         )
 
     # --------------------------------
@@ -86,12 +99,12 @@ def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
         print(".............................................")
 
         print(f"last calculation:  {getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo)}")
-        print(f"last data update:  {LAST_DATA_UPDATE}")
+        print(f"last data update:  {getLastDataUpdate()}")
         print(f"silence start:     {SILENT_PHASE.startTime}")
         print(f"silence end:       {SILENT_PHASE.endTime}")
         print(f"old state:         {SILENT_PHASE.inPhase}")
 
-        SILENT_PHASE.lastCalculationTime = datetime.now()
+        SILENT_PHASE.lastCalculationTime = now
 
         # Load the Offline Times to check if we are supposed to wait
         # (Don't forget to add a 5min block around the restart time)
@@ -101,98 +114,29 @@ def refreshSilentPhaseStatus(timeZoneIdentifier, forceRecaclulation=False):
             SILENT_PHASE.inPhase = False
             return False
 
-        else:
-            start_time = None
-            end_time = None
-            start_time_next = datetime.max.replace()
-            end_time_next = datetime.max
-            today = date.today()
-            is_today = False
-            yesterday = date.today() - timedelta(days=1)
+        inPhase, startTime, endTime = evaluate_silent_phase(silent_schedules, now)
 
-            # loop through the silent schedules
-            for schedule in silent_schedules:
-                # only continue if the weekday is the same as today or
-                # yesterday (for long)
-                if (today.strftime("%A") == schedule.weekday) or (
-                    yesterday.strftime("%A") == schedule.weekday
-                ):
-                    start_time = schedule.startTime
-                    
-                    if today.strftime("%A") == schedule.weekday:
-                        # add the date component (from today) to the start time
-                        start_time = datetime(
-                            today.year,
-                            today.month,
-                            today.day,
-                            start_time.hour,
-                            start_time.minute,
-                        )
-
-                        is_today = True
-
-                    else:
-                        # add the date component (from today) to the start time
-                        start_time = datetime(
-                            yesterday.year,
-                            yesterday.month,
-                            yesterday.day,
-                            start_time.hour,
-                            start_time.minute,
-                        )
-
-                        is_today = False
-
-                    # add the duration in minutes to the start time to get the end time
-                    end_time = start_time + timedelta(minutes=schedule.durationMinutes)
-                    end_time = end_time
-                    
-                    # if now is between the start- and the end-time, then we are
-                    # in a silent phase
-                    if start_time < datetime.now() < end_time:
-                        SILENT_PHASE.inPhase = True
-                        SILENT_PHASE.startTime = start_time
-                        SILENT_PHASE.endTime = end_time
-
-                        print(".............................................")
-                        print(f"new last calc:     {getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo)}")
-                        print(f"new state:         {SILENT_PHASE.inPhase}")
-                        print(f"new silence start: {SILENT_PHASE.startTime}")
-                        print(f"new silence end:   {SILENT_PHASE.endTime}", flush=True)
-
-                        return True
-
-                    # if we are not in a silent phase withthe current schedule,
-                    # see if it could be the upcoming schedule (after now but before
-                    # the previous nex-schedule saved already):
-                    elif is_today:
-                        if (start_time > datetime.now()) and (start_time < start_time_next):
-                            start_time_next = start_time
-                            end_time_next = end_time
-
-            # loop schedules
-
-        SILENT_PHASE.inPhase = False
-        SILENT_PHASE.startTime = start_time_next
-        SILENT_PHASE.endTime = end_time_next
+        SILENT_PHASE.inPhase = inPhase
+        SILENT_PHASE.startTime = startTime
+        SILENT_PHASE.endTime = endTime
 
         print(".............................................")
-        print(f"new last calc:     {SILENT_PHASE.lastCalculationTime}")
+        print(f"new last calc:     {getTimeAsLocalDateTime(SILENT_PHASE.lastCalculationTime, timeZoneInfo)}")
         print(f"new state:         {SILENT_PHASE.inPhase}")
         print(f"new silence start: {SILENT_PHASE.startTime}")
         print(f"new silence end:   {SILENT_PHASE.endTime}", flush=True)
 
-        return False
+        return inPhase
 
     else:
         return SILENT_PHASE.inPhase
-    
+
 
 # =============================================================================
 def loadSilentSchedules():
 
     """
-    Retrieves all schedules of type silent.
+    Retrieves all enabled schedules of type silent.
     """
 
-    return Schedule.objects.filter(enabled=True)
+    return Schedule.objects.filter(enabled=True, scheduleType__name="silent")

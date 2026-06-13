@@ -10,6 +10,70 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Silent-phase watering gate fix (audit action items #4, #5, #8)
+
+> Branch `fix/pump-control-safety-module` (2026-06-13). Fixes the quiet-hours
+> ("silent phase") gate that suppresses **all** watering. Source:
+> `docs/audits/2026-06-11 CodeAudit.md` (the silent-phase timezone bug —
+> cross-validated ×4 — plus the `loadSilentSchedules` type filter, the fail-open
+> `isInSilentPhase()`, and the divergent `TIME_ZONE` config that enabled them).
+
+#### Added
+- **`api/tethys_api/silentphase.py`** — `evaluate_silent_phase(schedules, now)`:
+  a dependency-free (stdlib only) timezone-aware window evaluator extracted so
+  the math that gates all watering is unit-testable without Django. `common.py`
+  is now a thin wrapper (ORM query + cached `SILENT_PHASE` state) over it.
+- **`api/tethys_api/globals.py`** — `setLastDataUpdate()` / `getLastDataUpdate()`
+  helpers so the `LAST_DATA_UPDATE` timestamp is read/written through one
+  canonical module global (see the fix below).
+- **`api/tethys_api/tests/test_silentphase.py`** — 7 tests: the window math
+  (inside / before / after a window, post-midnight wraparound, wrong weekday,
+  and UTC-stored→local-localized), and that `loadSilentSchedules` returns only
+  enabled schedules of type `silent`.
+- **`api/tethys_api/tests/test_last_data_update.py`** — 2 tests pinning the
+  `LAST_DATA_UPDATE` wiring (setter mutates the canonical value through an
+  alias; a mutating request bumps it).
+- **`core/tests/test_action_engine.py`** — 3 tests pinning the fail-closed gate
+  (unknown → skip and keep the flag; in-phase → skip; not-silent → evaluate).
+
+#### Changed
+- **`globals/config.py`** — now the single source of truth for `TIME_ZONE`
+  (`Europe/Stockholm`). `api`/`web` Django settings and `core/config.py` all
+  import it instead of hardcoding their own copies.
+- **`api/tethys_api/common.py`** — `refreshSilentPhaseStatus` does all
+  comparisons in the caller-supplied timezone (`datetime.now(tz)`), delegating
+  the window math to `evaluate_silent_phase`; the cached `SILENT_PHASE`
+  timestamps are now timezone-aware.
+- **`core/actionEngine.py`** — the silent-phase check is now fail-closed.
+- **`api/tethys_api/views.py`** — `setLastDataUpdateNow` / the `lastUpdate`
+  endpoint go through the new `globals` helpers instead of a `from import`-aliased
+  name (the `lastUpdate` web-polling wire format is unchanged).
+
+#### Fixed
+- **[Audit #4] `loadSilentSchedules()` ignored the schedule type** — it returned
+  every enabled schedule (`filter(enabled=True)`), so any enabled schedule of any
+  type became a quiet-hours window suppressing watering. Now filtered to
+  `scheduleType__name="silent"`, matching its docstring.
+- **[Audit #4] silent-phase window compared mismatched time bases** — the window
+  was rebuilt as a *naive* datetime from a schedule's UTC `.hour/.minute` and
+  compared against the server's *naive local* `datetime.now()`, offsetting the
+  window by the server's UTC↔local difference (and aware-vs-naive compares could
+  `TypeError`). Both sides are now timezone-aware in the configured zone.
+- **[Audit #5] divergent `TIME_ZONE`** — `api` used `UTC` while `core`/`web` used
+  `Europe/Stockholm` (the root enabler of the window bug); now one shared value,
+  so the API stores/interprets schedule times in the same zone the core
+  localizes against.
+- **[Audit #8] `isInSilentPhase()` → `None` was treated as "not silent"
+  (fail-open)** — when the API is unreachable the engine watered blind. It now
+  fails closed: an unknown status skips watering for that pass.
+- **`LAST_DATA_UPDATE` never reached `common.py`** — `views.setLastDataUpdateNow`
+  rebound a `from import`-aliased copy, so the canonical `globals.LAST_DATA_UPDATE`
+  stayed `datetime.min` and the silent-phase "data update" recalc trigger never
+  fired (an edited/added/removed schedule was only picked up at the next window
+  boundary). Reads/writes now share one value via the `globals` helpers, and the
+  recalc comparison localizes the naive timestamp to compare against the
+  timezone-aware last-calculation time.
+
 ### Communication-protocol hardening
 
 > Branch `fix/pump-control-safety-module` (2026-06-13). Makes the nRF24 link

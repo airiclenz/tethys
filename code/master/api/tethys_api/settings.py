@@ -147,7 +147,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+# Sourced from the single canonical definition (globals/config.py) so the API
+# stores/interprets schedule times in the same zone the core localizes the
+# silent-phase window against. The `globals` package is already on sys.path
+# (set up above for globals.secrets). Was a hardcoded 'UTC' that diverged from
+# the core/web 'Europe/Stockholm' and broke the silent-phase window.
+from globals.config import TIME_ZONE
 
 USE_I18N = True
 
