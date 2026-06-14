@@ -72,6 +72,7 @@ ALLOWED_HOSTS += [h for h in EXTRA_ALLOWED_HOSTS if h]
 INSTALLED_APPS = [
     'tethys_api',
     'rest_framework',
+    'drf_spectacular',
     'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -107,6 +108,7 @@ CORS_ALLOW_HEADERS = list(default_headers) + ["x-api-key"]
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["tethys_api.permissions.ApiKeyRequired"],
     "DEFAULT_AUTHENTICATION_CLASSES": [],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 ROOT_URLCONF = 'tethys_api.urls'
@@ -188,3 +190,19 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# DRF Spectacular (OpenAPI schema + Swagger/ReDoc docs)
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Tethys IoT API',
+    'DESCRIPTION': 'REST API for the Tethys IoT system -- control and monitor channels, schedules, and sensor data.',
+    'VERSION': '2.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'CONTACT': {
+        'name': 'Tethys IoT System',
+    },
+    'LICENSE': {
+        'name': 'MIT License',
+    },
+    'COMPONENT_SPLIT_REQUEST': True,
+    'COMPONENT_NO_READ_ONLY_REQUIRED': True,
+}

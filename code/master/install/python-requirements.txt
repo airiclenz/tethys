@@ -3,6 +3,7 @@ gpiozero
 pyrf24
 django
 djangorestframework
+drf-spectacular
 django-filter
 django-cors-headers 
 channels
