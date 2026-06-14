@@ -197,10 +197,10 @@ The patterns, all on the sensor (TX) node LED:
 | **Config received** | one very short flash (15 ms) | The master answered the config request and the settings were applied. |
 | **No master reply** | two short flashes (15 ms) | Config request timed out (no answer within 500 ms); the node falls back to the settings stored in EEPROM. |
 | **Config rejected** | three short flashes (15 ms) | The master replied but the frame failed the protocol-version / type check. |
-| **Settings saved** | accelerating ramp — 150 → 100 → 75 → 50 → 25 → 15 ms — then one long 300 ms flash | New settings differed from EEPROM and were written. |
-| **Settings unchanged** | two medium flashes (50 ms) | Config was checked but nothing changed, so nothing was written. |
+| **Settings saved** | accelerating ramp — 150 → 100 → 75 → 50 → 25 → 15 ms — then one long 300 ms flash (ramps *up* to a strong finish) | New settings differed from EEPROM and were written. |
+| **Settings unchanged** | decelerating ramp — 15 → 25 → 50 → 75 → 100 → 150 ms — fading out with no final flash (the mirror of *saved*) | Config was checked but nothing changed, so nothing was written. |
 | **Heartbeat** | one very short flash (5 ms) each wake (~every 9 s) | Normal sleep/measure loop tick — the node is alive. |
-| **Transmit failed** | one short flash (10 ms) | The radio send failed; the node backs off (~15 min) before retrying. |
+| **Transmit failed** | four short flashes (15 ms) | The radio send failed; the node backs off (~15 min) before retrying. Same short-flash family as the config events (1/2/3/4 = ok / no reply / bad frame / send failed). |
 | **Calibration countdown** | 10 slow blinks (300 ms) → 20 fast blinks (100 ms) → one long blink (1 s) → LED off while it measures | Counts down to a calibration capture. Runs **twice**, once per measurement point. |
 | **Calibration rejected** | one very long flash (2 s) | The two calibration readings were too close together; calibration was discarded and the previous values kept. |
 

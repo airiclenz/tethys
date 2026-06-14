@@ -192,7 +192,12 @@ void loop()
 					// loop for about 15min, then try again...
 					_watchdog_loop_counter = 100; // random(5) + 1;
 
-					DoSimpleBlink(10, 100);
+					// Four short flashes: extends the radio-status family
+					// (1 = config ok, 2 = no reply, 3 = bad frame, 4 = send failed).
+					DoSimpleBlink(15, 150);
+					DoSimpleBlink(15, 150);
+					DoSimpleBlink(15, 150);
+					DoSimpleBlink(15, 0);
 				}
 				else
 				{

@@ -9,6 +9,7 @@
 	void MakeSettingsFlagDirty(void);
 	bool IsSettingsFlagDirty(void);
 	void BlinkEepromSaveSuccess(void);
+	void BlinkEepromNoChange(void);
 
 	void SaveSettingsToEeprom(void);
 	void ReadSettingsFromEeprom(void);

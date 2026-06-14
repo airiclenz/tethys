@@ -100,6 +100,34 @@ void BlinkEepromSaveSuccess()
 
 
 
+// =============================================================================
+// Mirror image of BlinkEepromSaveSuccess(): a decelerating ramp (fast -> slow)
+// that fades out WITHOUT the terminal long flash. "Ramp up to a strong finish"
+// = something was committed; "ramp down to nothing" = nothing changed.
+void BlinkEepromNoChange()
+{
+	#ifdef TX
+		DoSimpleBlink( 15,  50);
+		DoSimpleBlink( 25,  75);
+		DoSimpleBlink( 50, 100);
+		DoSimpleBlink( 75, 150);
+		DoSimpleBlink(100, 200);
+		DoSimpleBlink(150, 300);
+	#endif
+
+	#ifdef RX
+		AddBlinkToQueue( 15,  50);
+		AddBlinkToQueue( 25,  75);
+		AddBlinkToQueue( 50, 100);
+		AddBlinkToQueue( 75, 150);
+		AddBlinkToQueue(100, 200);
+		AddBlinkToQueue(150, 300);
+	#endif
+
+}
+
+
+
 #ifdef RX
 
 
@@ -228,8 +256,7 @@ void BlinkEepromSaveSuccess()
 			}
 			else
 			{
-				DoSimpleBlink(50, 100);
-				DoSimpleBlink(50, 100);
+				BlinkEepromNoChange();
 			}
 			
 
