@@ -360,7 +360,10 @@ void SetTransmissionPower()
 
 				MakeSettingsFlagDirty();
                 RadioPowerDown();
-                DoSimpleBlink(15, 0);
+
+                // Config successfully received and applied: a soft ~2 s glow
+                // (brightness ramps up then down) rather than a terse flash.
+                DoSoftPulse(2000);
 				return true;
 			}
 		}

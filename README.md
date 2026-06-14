@@ -167,8 +167,9 @@ pio run -t program -e TX     # via an AVR ISP programmer
 ### Sensor node LED — calibration & status blinks
 
 A sensor node has no screen; its single onboard LED is how it talks to you.
-Every blink is produced by `DoSimpleBlink(onMs, offMs)`
-([`code/sensor/src/wpw_Blinker.cpp`](code/sensor/src/wpw_Blinker.cpp)).
+Patterns are produced by `DoSimpleBlink(onMs, offMs)` and `DoSoftPulse(ms)`
+([`code/sensor/src/wpw_Blinker.cpp`](code/sensor/src/wpw_Blinker.cpp); the soft
+pulse is a software-PWM glow, since the LED pin has no free hardware PWM).
 
 **How calibration works.** Calibration maps the probe's raw reading onto a
 0–100 % moisture scale, and it is **two-point**: the node captures one reading in
@@ -178,8 +179,13 @@ a *wet* condition and one in a *dry* condition, then stores the lower value as
 Later readings become `100 − map(raw, min, max, 0, 100)` %.
 
 1. Trigger it from the web UI — set the channel's **calibrate** flag
-   (`sensorTriggerCalibration`). It is delivered on the node's next config
-   exchange, so calibration starts the next time that node wakes and checks in.
+   (`sensorTriggerCalibration`), then **power-cycle or reset the node**. By
+   design a node only requests its config at boot (in `setup()`), so calibration
+   runs as part of that boot-time config exchange — *not* on a normal measurement
+   wake. The master delivers the trigger once and immediately clears the flag
+   (`core/radio.py`), so if you set the flag while the node is already running,
+   nothing happens until you reset it. (This is the usual reason a calibration
+   "didn't start".)
 2. The node then takes **two** measurements, each announced by the *calibration
    countdown* below (slow blinks → fast blinks → one long blink → it measures
    while the LED is off). Put the probe in one condition for the first capture
@@ -194,13 +200,13 @@ The patterns, all on the sensor (TX) node LED:
 | Event | Blink pattern | Meaning |
 |-------|---------------|---------|
 | **Power-on / node ID** | `N` slow blinks (150 ms on, 300 ms off), where `N` = `SENSOR_NUMBER` | Node booted and is powered; the count identifies which node it is (1–6). |
-| **Config received** | one very short flash (15 ms) | The master answered the config request and the settings were applied. |
+| **Config received** | a soft ~2 s glow (brightness ramps up then down) | The master answered the config request (at boot) and the settings were applied. |
 | **No master reply** | two short flashes (15 ms) | Config request timed out (no answer within 500 ms); the node falls back to the settings stored in EEPROM. |
 | **Config rejected** | three short flashes (15 ms) | The master replied but the frame failed the protocol-version / type check. |
 | **Settings saved** | accelerating ramp — 150 → 100 → 75 → 50 → 25 → 15 ms — then one long 300 ms flash (ramps *up* to a strong finish) | New settings differed from EEPROM and were written. |
 | **Settings unchanged** | decelerating ramp — 15 → 25 → 50 → 75 → 100 → 150 ms — fading out with no final flash (the mirror of *saved*) | Config was checked but nothing changed, so nothing was written. |
 | **Heartbeat** | one very short flash (5 ms) each wake (~every 9 s) | Normal sleep/measure loop tick — the node is alive. |
-| **Transmit failed** | four short flashes (15 ms) | The radio send failed; the node backs off (~15 min) before retrying. Same short-flash family as the config events (1/2/3/4 = ok / no reply / bad frame / send failed). |
+| **Transmit failed** | four short flashes (15 ms) | The radio send failed; the node backs off (~15 min) before retrying. Part of the short-flash radio-error family, counted: 2 = no reply, 3 = bad frame, 4 = send failed (a *successful* config exchange is the soft glow above instead). |
 | **Calibration countdown** | 10 slow blinks (300 ms) → 20 fast blinks (100 ms) → one long blink (1 s) → LED off while it measures | Counts down to a calibration capture. Runs **twice**, once per measurement point. |
 | **Calibration rejected** | one very long flash (2 s) | The two calibration readings were too close together; calibration was discarded and the previous values kept. |
 

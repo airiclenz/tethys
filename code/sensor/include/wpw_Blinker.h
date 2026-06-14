@@ -21,6 +21,7 @@
 
 
 	void DoSimpleBlink(uint16_t, uint16_t);
+	void DoSoftPulse(uint16_t);
 
 
 	#ifdef RX
