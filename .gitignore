@@ -12,6 +12,10 @@ node_modules/
 .DS_Store
 db.sqlite3
 
+# Local secrets (single source of truth for the API key etc.) — never commit.
+# The committed secrets.example.py documents the expected variables.
+code/master/globals/secrets.py
+
 ### Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

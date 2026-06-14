@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from .common import *
-from .globals import LAST_DATA_UPDATE as lastUpdateTimestamp
+from .globals import setLastDataUpdate, getLastDataUpdate
 
 # Get the absolute path of the core directory
 root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
@@ -23,18 +23,18 @@ import globals.config as tethysConfig
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 def setLastDataUpdateNow():
-    global lastUpdateTimestamp
-    lastUpdateTimestamp = datetime.now()
+    setLastDataUpdate()
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-@api_view(['GET'])
+@api_view(['POST'])
 def initializeDatabase(request):
 
     print(f'{request.method} > ./api/initializeDatabase/')
 
-
-    if request.method == 'GET':
+    # POST + key-gated (the default ApiKeyRequired permission applies): this seeds
+    # the database, so it must not be triggerable by a bare GET.
+    if request.method == 'POST':
         actionLog = ModelHelper.initializeDatabase();
         return Response(actionLog)
     
@@ -47,8 +47,7 @@ def lastUpdate(request):
 
     if request.method == 'GET':
 
-        global lastUpdateTimestamp
-        return Response({'timestamp': lastUpdateTimestamp})
+        return Response({'timestamp': getLastDataUpdate()})
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -572,6 +573,13 @@ var tethys;
                         callString +
                         "d: " +
                         response.statusText);
+                    // Permission denied: the API key is missing or wrong.
+                    // Revert the toggle and point the user at Settings.
+                    if (response.status === 403) {
+                        elementTestChannel.checked = !value;
+                        alert("Not authorized to control the pump. Set the " +
+                            "correct API key in Settings (top menu).");
+                    }
                 }
             });
         }

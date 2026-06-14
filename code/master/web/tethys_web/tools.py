@@ -3,6 +3,7 @@ import json
 import logging
 import requests
 import platform
+import tzlocal as timeZoneLocal
 
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
@@ -40,7 +41,7 @@ def getApiPathFromRequest(request):
 
 # =============================================================================
 def getResponseForSensorSummary():
-    response = requests.get(settings.API_URL + "channelSummary/")
+    response = requests.get(settings.API_URL + "channelSummary/", headers=settings.API_AUTH_HEADERS)
 
     responseLoad = json.dumps({
         "responseType": "requestChannelSummary",
@@ -51,7 +52,7 @@ def getResponseForSensorSummary():
 
 # =============================================================================
 def getResponseForSchedules():
-    response = requests.get(settings.API_URL + "schedule/")
+    response = requests.get(settings.API_URL + "schedule/", headers=settings.API_AUTH_HEADERS)
 
     responseJson = response.json()
 
@@ -81,13 +82,34 @@ def getReponseForSystemStatus():
         "responseType": "requestSystemStatus",
         "coreTemperature": cpuTemperature,
         "coreServiceState": coreServiceState,
-        "silentPhaseStatus": {
-            "lastCalculationTime":"1900-01-01T00:00:00Z",
-            "startTime":"1900-01-01T00:00:00Z",
-            "endTime":"1900-01-01T00:00:00Z",
-            "inPhase":False
-        }
+        "silentPhaseStatus": getSilentPhaseStatus()
     })
+
+
+# =============================================================================
+def getSilentPhaseStatus():
+    fallback = {
+        "lastCalculationTime": "1900-01-01T00:00:00Z",
+        "startTime": "1900-01-01T00:00:00Z",
+        "endTime": "1900-01-01T00:00:00Z",
+        "inPhase": False
+    }
+
+    localTimeZone = timeZoneLocal.get_localzone()
+    localIanaString = str(localTimeZone).replace('/', '-')
+
+    try:
+        response = requests.get(
+            settings.API_URL + "silentPhaseStatus/" + localIanaString,
+            headers=settings.API_AUTH_HEADERS,
+        )
+    except requests.exceptions.RequestException:
+        return fallback
+
+    if response.status_code != 200:
+        return fallback
+
+    return response.json()
 
 
 # =============================================================================

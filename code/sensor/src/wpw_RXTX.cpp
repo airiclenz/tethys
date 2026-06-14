@@ -53,6 +53,13 @@ void InitializeRadio()
     radio.setPALevel(_powerLevel);
     radio.setDataRate(RF24_250KBPS);
 
+    // Fixed payload size on both ends: framing is explicit and the master never
+    // has to guess a length. Must match PAYLOAD_SIZE in protocol.py.
+    radio.setPayloadSize(PAYLOAD_SIZE);
+
+    // Deterministic auto-ACK retransmission: 15 retries, 1500us apart.
+    radio.setRetries(5, 15);
+
     //radio.enableAckPayload();
 	//radio.enableDynamicPayloads();
 
@@ -206,6 +213,7 @@ void SetTransmissionPower()
 	{
 		ConfigurationPackage configPackage =
 		{
+			PROTOCOL_VERSION,
 			DATATYPE_CONFIG,
 			measureFrequency,
 			_powerLevel,
@@ -279,6 +287,7 @@ void SetTransmissionPower()
 
 		Package package =
         {
+			PROTOCOL_VERSION,
             DATATYPE_CMD_GETCONFIG,
 		    0,
 			0.0
@@ -298,8 +307,10 @@ void SetTransmissionPower()
 
 			while (!radio.available())
 			{
-				// TIMEOUT --> Leave... 200ms
-				if (millis() > sendTime + 200)
+				// TIMEOUT --> Leave... the master answers from its config
+				// cache, so 500ms is comfortable headroom over the radio
+				// round-trip without burning much awake time.
+				if (millis() > sendTime + 500)
 				{
 					radio.stopListening();
                     RadioPowerDown();
@@ -314,6 +325,7 @@ void SetTransmissionPower()
 			// Define an empty package
 			ConfigurationPackage configPackage =
 			{
+				0,		// Protocol Version
 				0,		// Data Type
 				0,		// MeasureFrequency
 				0,		// TransmissionPowerLevel
@@ -329,7 +341,8 @@ void SetTransmissionPower()
 
 			radio.stopListening();
 
-			if (configPackage.PackageType == DATATYPE_CONFIG)
+			if (configPackage.ProtocolVersion == PROTOCOL_VERSION &&
+				configPackage.PackageType == DATATYPE_CONFIG)
 			{
 				uint16_t * watchdogLoopsPtr = GetWatchdogLoopPointer();
 
@@ -376,6 +389,7 @@ void SetTransmissionPower()
 
 		Package data =
 		{
+			PROTOCOL_VERSION,
 			packageType,
 			GetMoistureLevelPercent(),
 			GetBatteryVoltage()

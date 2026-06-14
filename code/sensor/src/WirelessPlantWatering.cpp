@@ -81,18 +81,23 @@ void setup()
 
 		delay(750);
 
-		uint32_t 	lastRequestTime = 0;
-		bool 		success 		= false;
-		uint16_t	retryCounter 	= 1000;
+		// Ask the master for fresh config, but don't camp here draining the
+		// battery if it never answers (it may be busy, or this is a first-ever
+		// boot with no master in range). A handful of bounded retries with
+		// linear backoff, then fall back to the settings already loaded from
+		// EEPROM and start measuring. The master answers from its config cache,
+		// so a reachable master replies on the first attempt.
+		const uint8_t	MAX_CONFIG_RETRIES = 5;
+		bool			success            = false;
 
-
-		while (!success && retryCounter != 0)
+		for (uint8_t attempt = 0; !success && attempt < MAX_CONFIG_RETRIES; attempt++)
 		{
-			if (millis() > lastRequestTime + 1000)
+			success = RequestConfiguration();
+
+			if (!success)
 			{
-				retryCounter--;
-                success = RequestConfiguration();
-                lastRequestTime = millis();
+				// linear backoff between attempts: 1s, 2s, 3s, ...
+				delay((uint32_t)(attempt + 1) * 1000);
 			}
 		}
 

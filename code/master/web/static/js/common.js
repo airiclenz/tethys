@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -35,8 +36,77 @@ var tethys;
         tethys.websocket.connect();
         updateSilentPhaseStatus();
         markActiveMenu();
+        loadApiKeyField();
     }
     tethys.afterPageLoad = afterPageLoad;
+    // ============================================================================
+    // API key (stored locally in the browser). The API requires this key as the
+    // `X-API-Key` header on every request, reads included (only the CORS preflight
+    // OPTIONS is exempt). The dashboard stays blank until the key is set here.
+    // ============================================================================
+    const API_KEY_STORAGE = "tethys_api_key";
+    function getApiKey() {
+        try {
+            return localStorage.getItem(API_KEY_STORAGE) || "";
+        }
+        catch (e) {
+            return "";
+        }
+    }
+    tethys.getApiKey = getApiKey;
+    function setApiKey(key) {
+        try {
+            localStorage.setItem(API_KEY_STORAGE, (key || "").trim());
+        }
+        catch (e) {
+            console.error("Could not store the API key:", e);
+        }
+    }
+    tethys.setApiKey = setApiKey;
+    // Header object merged into every request (reads and writes); empty when no
+    // key is set.
+    function authHeaders() {
+        const key = getApiKey();
+        return key ? { "X-API-Key": key } : {};
+    }
+    // Called from the Settings popup Save button.
+    function saveApiKeyFromField() {
+        var element = document.getElementById("idApiKey");
+        if (element) {
+            setApiKey(element.value);
+            console.log("API key saved locally.");
+        }
+    }
+    tethys.saveApiKeyFromField = saveApiKeyFromField;
+    // Populate the Settings field with the stored key on page load.
+    function loadApiKeyField() {
+        var element = document.getElementById("idApiKey");
+        if (element) {
+            element.value = getApiKey();
+        }
+    }
+    // Toggle the API key field between masked (password) and plain (text), so
+    // the user can verify what they pasted. Called from the Settings popup.
+    function toggleApiKeyVisibility() {
+        var field = document.getElementById("idApiKey");
+        var toggle = document.getElementById("idApiKeyToggle");
+        if (!field) {
+            return;
+        }
+        if (field.type === "password") {
+            field.type = "text";
+            if (toggle) {
+                toggle.innerHTML = "Hide";
+            }
+        }
+        else {
+            field.type = "password";
+            if (toggle) {
+                toggle.innerHTML = "Show";
+            }
+        }
+    }
+    tethys.toggleApiKeyVisibility = toggleApiKeyVisibility;
     // ============================================================================
     function deselectAll() {
         let location = getSiteLocation();
@@ -151,9 +221,7 @@ var tethys;
                 // mode: no-cors, *cors, same-origin
                 // *default, no-cache, reload, force-cache, only-if-cached
                 cache: "no-cache",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
                 // manual, *follow, error
                 //redirect: 'follow',
                 // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
@@ -173,9 +241,7 @@ var tethys;
                 // mode: no-cors, *cors, same-origin
                 // *default, no-cache, reload, force-cache, only-if-cached
                 cache: "no-cache",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
                 // manual, *follow, error
                 //redirect: 'follow',
                 // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
@@ -195,9 +261,7 @@ var tethys;
                 // mode: no-cors, *cors, same-origin
                 // *default, no-cache, reload, force-cache, only-if-cached
                 cache: "no-cache",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
                 // manual, *follow, error
                 //redirect: 'follow',
                 // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
@@ -216,8 +280,10 @@ var tethys;
                 method: "GET",
                 // mode: 'no-cors', '*cors', 'same-origin',
                 // *default, no-cache, reload, force-cache, only-if-cached
-                cache: "no-cache"
-                //headers: { 'Content-Type': 'application/json' },
+                cache: "no-cache",
+                // Reads now require the key too (only OPTIONS is exempt server-side),
+                // so the dashboard shows data only once the key is set in Settings.
+                headers: Object.assign({}, authHeaders()),
                 // manual, *follow, error
                 //redirect: 'follow',
                 // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,
@@ -236,8 +302,8 @@ var tethys;
                 method: "DELETE",
                 // mode: 'no-cors', '*cors', 'same-origin',
                 // *default, no-cache, reload, force-cache, only-if-cached
-                cache: "no-cache"
-                //headers: { 'Content-Type': 'application/json' },
+                cache: "no-cache",
+                headers: Object.assign({}, authHeaders()),
                 // manual, *follow, error
                 //redirect: 'follow',
                 // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin,

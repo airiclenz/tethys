@@ -42,7 +42,9 @@ def checkForUpdate():
     # -----------------------------------------
     # retrieve last Update
     try:
-        responseLastUpdate = requests.get(settings.API_URL + "lastUpdate/")
+        responseLastUpdate = requests.get(
+            settings.API_URL + "lastUpdate/", headers=settings.API_AUTH_HEADERS
+        )
         if responseLastUpdate.status_code != 200:
             return
     except requests.exceptions.RequestException:
@@ -69,7 +71,8 @@ def checkForUpdate():
 
     try:
         responseSilentPhaseStatus = requests.get(
-            settings.API_URL + "silentPhaseStatus/" + localIanaString
+            settings.API_URL + "silentPhaseStatus/" + localIanaString,
+            headers=settings.API_AUTH_HEADERS,
         )
     except requests.exceptions.RequestException:
         return
