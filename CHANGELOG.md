@@ -10,6 +10,39 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Remove the retired 6th sensor channel
+
+> Branch `remove-6th-sensor` (2026-06-14). Removes the leftover references to a
+> 6th sensor/channel. The nRF24L01 has 6 pipes but pipe 0 is reserved for the
+> writing/ACK address, so the link tops out at **5** sensor channels (also bounded
+> by the 5 pump GPIOs the master exposes). The 6th channel never worked — the RX
+> firmware opened reading pipe 5 twice instead of a (non-existent) pipe 6.
+
+#### Removed
+- **`sensor/include/wpw_Config.h`, `sensor/src/wpw_RXTX.cpp`** — the
+  `PIPE_ADDRESS_6` define and its entry in the firmware `pipes[]` table.
+- **`core/radio.py`** — the unused 6th entry (`0x5232443236`) from
+  `_pipeAddresses`; the reading-pipe loop already only used pipes 1..`CHANNEL_COUNT`.
+
+#### Changed
+- **`api/tethys_api/models.py`** — `initializeDatabase` now seeds `CHANNEL_COUNT`
+  (= 5) channels instead of a hardcoded 6, via a new module-level `CHANNEL_COUNT`
+  constant (mirrors `core.hardware.CHANNEL_COUNT`).
+- **`sensor/include/wpw_Config.h`** — `SENSOR_NUMBER` valid range corrected from
+  `1-6` to `1-5` (and the value reset from the now-invalid `6` to `1`; it is a
+  per-flash node identity — set it to the node being flashed).
+- **`README.md`** — `SENSOR_NUMBER` documented as `1–5` (was `1–6`).
+
+#### Fixed
+- **6th-sensor reading-pipe bug** — `SetupRadioForRx()` called
+  `openReadingPipe(5, pipes[6])` after `openReadingPipe(5, pipes[5])`, opening
+  pipe 5 twice and referencing a 7th address that the 6-pipe radio cannot use.
+  The duplicate/out-of-range call is removed; the receiver opens reading pipes
+  1..5 cleanly.
+- **Stray 6th channel in already-initialized databases** — `initializeDatabase`
+  now deletes any `Channel` with `number > CHANNEL_COUNT`, so systems seeded
+  before this change drop the orphaned channel 6 from the web UI.
+
 ### Remote-access hardening (prerequisite for safe VPN access)
 
 > Branch `fix/pump-control-safety-module` (2026-06-13). Hardens the app so it can

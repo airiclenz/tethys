@@ -2,6 +2,14 @@ from django.db import models
 import logging
 
 
+# Number of sensor/pump channels the system supports. Bounded by the hardware:
+# the master exposes 5 pump GPIOs and the nRF24L01 has 6 pipes, one of which
+# (pipe 0) is reserved for the writing/ACK address - leaving 5 sensor channels.
+# Mirrors core.hardware.CHANNEL_COUNT (kept as a literal here because the api
+# app does not import from core).
+CHANNEL_COUNT = 5
+
+
 WEEKDAYS = (
     ("Monday", "Monday"),
     ("Tuesday", "Tuesday"),
@@ -182,8 +190,8 @@ class ModelHelper():
             actionLog.append("New transmission-power-level 'max' was created.")
 
         # :::::::::::::::::::::
-        
-        for i in range(6):
+
+        for i in range(CHANNEL_COUNT):
             try:
                 channel = Channel.objects.get(number = i + 1)
                 actionLog.append("Existing channel with number " + str(i + 1) + " was found.")
@@ -200,5 +208,14 @@ class ModelHelper():
                 )
                 channel.save()
                 actionLog.append("New channel with number " + str(i + 1) + " was created.")
+
+        # Remove any channels left over above the supported count (e.g. the
+        # retired 6th channel) so databases initialized before the 5-channel
+        # limit get cleaned up too.
+        staleChannels = Channel.objects.filter(number__gt = CHANNEL_COUNT)
+        for channel in staleChannels:
+            number = channel.number
+            channel.delete()
+            actionLog.append("Removed unsupported channel with number " + str(number) + ".")
 
         return actionLog

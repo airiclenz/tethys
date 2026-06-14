@@ -20,7 +20,7 @@
 	//													//
 	//#define RX  	    								//
 	#define TX  										//
-    #define SENSOR_NUMBER       6 // 1-6    			//
+    #define SENSOR_NUMBER       1 // 1-5    			//
                                                         //
 	////////////////////////////////////                //
                                                         //
@@ -35,7 +35,6 @@
     #define PIPE_ADDRESS_3      0x5232443233  			//
     #define PIPE_ADDRESS_4      0x5232443234  			//
     #define PIPE_ADDRESS_5      0x5232443235  			//
-    #define PIPE_ADDRESS_6      0x5232443236  			//
                                                         //
     // ================================================ //
 

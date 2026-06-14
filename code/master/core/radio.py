@@ -46,8 +46,10 @@ DEFAULT_MEASURE_FREQUENCY_MIN = 60
 # =============================================================================
 class Radio:
 
-    # pipe 0 is the writing / auto-ACK address; pipes 1..N each carry one
-    # sensor channel (see protocol.pipe_for_channel for why pipe 0 is reserved).
+    # pipe 0 is the writing / auto-ACK address; pipes 1..CHANNEL_COUNT each
+    # carry one sensor channel (see protocol.pipe_for_channel for why pipe 0 is
+    # reserved). The nRF24L01 has 6 pipes total, so with pipe 0 reserved this
+    # tops out at 5 sensor channels.
     _pipeAddresses = [
         0x5232443230,
         0x5232443231,
@@ -55,7 +57,6 @@ class Radio:
         0x5232443233,
         0x5232443234,
         0x5232443235,
-        0x5232443236,
     ]
 
     _logger = Logger(Fore.GREEN)

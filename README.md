@@ -152,7 +152,7 @@ journal).
 
 Built with [PlatformIO](https://platformio.org/) from `code/sensor/`. Before
 building, set the node identity in [`code/sensor/include/wpw_Config.h`](code/sensor/include/wpw_Config.h):
-`SENSOR_NUMBER` (1–6) and keep `#define TX` selected. Flash with:
+`SENSOR_NUMBER` (1–5) and keep `#define TX` selected. Flash with:
 
 ```bash
 cd code/sensor
@@ -207,7 +207,7 @@ The patterns, all on the sensor (TX) node LED:
 
 | Event | Blink pattern | Meaning |
 |-------|---------------|---------|
-| **Power-on / node ID** | `N` slow blinks (150 ms on, 300 ms off), where `N` = `SENSOR_NUMBER` | Node booted and is powered; the count identifies which node it is (1–6). |
+| **Power-on / node ID** | `N` slow blinks (150 ms on, 300 ms off), where `N` = `SENSOR_NUMBER` | Node booted and is powered; the count identifies which node it is (1–5). |
 | **Config received** | a soft ~2 s glow (brightness ramps up then down) | The master answered the config request (at boot) and the settings were applied. |
 | **No master reply** | two short flashes (15 ms) | Config request timed out (no answer within 500 ms); the node falls back to the settings stored in EEPROM. |
 | **Config rejected** | three short flashes (15 ms) | The master replied but the frame failed the protocol-version / type check. |
