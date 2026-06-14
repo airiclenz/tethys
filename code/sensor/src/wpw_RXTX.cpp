@@ -364,10 +364,11 @@ void SetTransmissionPower()
                 // Config successfully received and applied: a soft ~2 s glow
                 // (brightness ramps up then down) rather than a terse flash.
                 DoSoftPulse(2000);
+				delay(400);
 				return true;
 			}
 		}
-
+		
         DoSimpleBlink(15,150);
         DoSimpleBlink(15,150);
         DoSimpleBlink(15,0);

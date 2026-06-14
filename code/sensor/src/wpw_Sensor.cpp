@@ -58,6 +58,7 @@
 	uint8_t _TCCR0A;
 	uint8_t _TCCR0B;
 	uint8_t _OCR0A;
+	uint8_t _TIMSK0;
 
 	uint16_t _sensorValue;
 
@@ -70,6 +71,7 @@
 		_TCCR0A = TCCR0A;	// 3 =	WGM01, WGM00 =	Fast PWM
 		_TCCR0B = TCCR0B;	// 3 =	CS01, CS00   =	prescaler 64
 		_OCR0A = OCR0A;		// 0 =
+		_TIMSK0 = TIMSK0;	// Timer0 interrupt mask (TOIE0 drives millis())
 
 		// CLOCK
         // make PORTB Bit 2 an output (PB2, Digital 2)
@@ -96,6 +98,13 @@
 		// TCCR0B   | FOC0A  | FOC0B  | –     | -      | WGM02  | CS02   | CS01   | CS00   |
 
 
+		// Detach Timer0's interrupts BEFORE reconfiguring it. On this ATtiny84
+		// core Timer0 also drives millis(); the PWM mode below (OCR0A = 0) makes
+		// TOV0 set continuously, so a still-enabled TIMER0_OVF ISR would fire
+		// back-to-back and starve the foreground _delay_ms() excitation busy-wait
+		// in ReadSensor() -> the node freezes. Restored in DisableSensorClock0Pin2().
+		TIMSK0 &= ~((1 << TOIE0) | (1 << OCIE0A) | (1 << OCIE0B));
+
 		DDRB 	|= (1 << PIN_SENSOR_CLOCK);
 
 		TCNT0 = 0;
@@ -120,6 +129,10 @@
 		TCCR0A = 	_TCCR0A;
 		TCCR0B = 	_TCCR0B;
 		OCR0A = 	_OCR0A;
+
+		// re-attach Timer0's interrupts (restores millis()); a single pending
+		// TOV0 may fire one harmless extra tick.
+		TIMSK0 = 	_TIMSK0;
 
 		// set the clock pin to low
 		PORTA 	&= ~(1 << PIN_SENSOR_CLOCK);
@@ -157,7 +170,11 @@
 	{
 		uint16_t vccMilliVolts = (uint16_t)(GetBatteryVoltage() * 1000.0f);
 
-		if (vccMilliVolts == 0)
+		// Fall back to the raw value if VCC is not yet known / implausibly low.
+		// A real supply reads ~2500..4200 mV; an un-measured battery reports only
+		// BATTERY_CALIBRATION_OFFSET (~20 mV), which would otherwise crush every
+		// reading to ~zero.
+		if (vccMilliVolts < 1000)
 		{
 			return rawValue;
 		}
@@ -259,6 +276,11 @@
 	// ============================================================================
 	void Calibrate()
 	{
+		// Boot calibration runs before loop() ever calls ReadBattery(), so take a
+		// fresh supply reading here -- otherwise NormaliseToNominalVcc() has no
+		// valid VCC and the measurements collapse toward zero.
+		ReadBattery();
+
 		// First Measurement
 		uint16_t value1 = DoCalibrationMeasurement();
 
