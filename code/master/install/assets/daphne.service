@@ -1,0 +1,13 @@
+[Unit]
+Description=Daphne Service
+After=network.target
+
+[Service]
+WorkingDirectory={TETHYS-PATH}/web/
+Environment="TETHYS_DEBUG={DEBUG-FLAG}"
+Environment="TETHYS_ALLOWED_HOSTS={ALLOWED-HOSTS}"
+ExecStart={TETHYS-PATH}/env_tethys/bin/daphne -b 0.0.0.0 -p 8001 tethys_web.asgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

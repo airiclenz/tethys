@@ -1,0 +1,195 @@
+{% load static cache_bust %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>{{ title }}</title>
+
+	<link rel="stylesheet" href="{% static_v 'css/main.css'%}" />
+
+	<link rel="stylesheet" href="{% static_v 'css/pop-up.css'%}" />
+
+	<link rel="stylesheet" href="{% static_v 'css/flipswitch.css'%}" />
+
+	<link rel="stylesheet" href="{% static_v 'css/optionset.css'%}" />
+
+	<link rel="stylesheet" href="{% static_v 'css/menu.css'%}" />
+
+	<link rel="icon" type="image/svg" href="{% static 'images/svg/icon_tethys.svg'%}" />
+
+	<script src="{% static_v 'js/common.js'%}"></script>
+	<script src="{% static_v 'js/tool.js'%}"></script>
+	<script src="{% static_v 'js/websocket.js'%}"></script>
+	<script src="{% static_v 'js/templatter.js'%}"></script>
+
+	<script src="{% static_v 'js/channel.js'%}"></script>
+	<script src="{% static_v 'js/schedule.js'%}"></script>
+	<script src="{% static_v 'js/measurements.js'%}"></script>
+	<script src="{% static_v 'js/actions.js'%}"></script>
+
+
+
+</head>
+
+<body onload="tethys.afterPageLoad()">
+	<div id="site-header">
+		<div class="site-frame">
+			<div class="div-column">
+				<div class="div-column">
+					<a href="/">
+						<img src="{% static 'images/svg/logo_tethys.svg'%}" class="site-header" />
+					</a>
+				</div>
+			</div>
+
+			<div class="div-column" style="width: 100%"></div>
+
+			<div class="div-column">
+				<div class="div-column no-wrap tooltip" id="idIsSilentPhase" style="visibility: hidden">
+					<img src="{% static 'images/svg/icon_sleep.svg'%}" width="25rem" heigth="25rem" />
+					<span id="idSilentPhaseTooltip" class="tooltiptext">Tooltip text</span>
+				</div>
+
+				<div class="div-column no-wrap" style="width: 1.5rem"></div>
+
+
+				<div class="div-column no-wrap" id="menu-sensor-channels">
+					<a href="../channels">Sensor Channels</a>
+				</div>
+
+				<div class="div-column no-wrap" id="menu-schedules">
+					<a href="../schedules">Schedules</a>
+				</div>
+
+				<div class="div-column no-wrap" id="menu-settings">
+					<a href="#popup_settings">Settings</a>
+				</div>
+
+				<div class="div-column no-wrap" id="menu-about">
+					<a href="#popup_info">About</a>
+				</div>
+
+				<div class="div-column no-wrap" id="menu-order66">
+					<a href="#popup_shutdown">Order 66</a>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<div id="popup_shutdown" class="overlay">
+		<div class="popup content-section">
+			<h2>Order 66</h2>
+			<a class="close" href="#">&times;</a>
+			<div class="content">Do you want to commence order 66?</div>
+			<div class="popup-button">
+				<a href="/shutdown">OK</a>
+			</div>
+		</div>
+	</div>
+
+	<div id="popup_settings" class="overlay">
+		<div class="popup content-section">
+			<h2>Settings</h2>
+			<a class="close" href="#">&times;</a>
+			<div class="content">
+				<p>
+				<h3>API key</h3>
+				Required to control pumps (activate / deactivate) and to change
+				channels and schedules. Stored locally in this browser only. Get
+				the <em>value</em> of <code>TETHYS_API_KEY</code> from the Pi
+				(printed by the installer, or inside
+				<code>globals/secrets.py</code>) &mdash; not the file path.
+				</p>
+				<div class="input-with-toggle">
+					<input type="password" class="text-field" id="idApiKey"
+						placeholder="Paste the API key" autocomplete="off" spellcheck="false" />
+					<button type="button" class="field-toggle" id="idApiKeyToggle"
+						onclick="tethys.toggleApiKeyVisibility()">Show</button>
+				</div>
+				<p/>
+			</div>
+			<div class="popup-button" onclick="tethys.saveApiKeyFromField()">
+				<a href="#">Save</a>
+			</div>
+		</div>
+	</div>
+
+	<div id="popup_delete_confirmation" class="overlay">
+		<div class="popup content-section">
+			<h2>Delete Confirmation</h2>
+			<a class="close" href="#">&times;</a>
+			<div class="content">Do you want to delete the selected Schedule?</div>
+			<div class="popup-button" onclick="tethys.schedule.deleteSelectedSchedule()">
+				<a href="#">OK</a>
+			</div>
+		</div>
+	</div>
+
+	<div id="popup_info" class="overlay">
+		<div class="popup content-section">
+			<h2>About</h2>
+			<a class="close" href="#">&times;</a>
+			<div class="content">
+				<p>
+				<h3>About Tethys</h3>
+				Lorem ipsum dolor sit amet, putant oblique referrentur
+				ex quo. Cu qui legere audiam propriae. Ad mel audiam
+				mediocrem. Vim vero mutat movet ad, ut libris quaerendum
+				per. Cu eos dicam eloquentiam suscipiantur, posse exerci
+				referrentur cu nam. Usu an periculis appellantur, odio
+				vivendo fuisset eu est.
+				</p>
+
+				<p>
+				<h3>System information</h3>
+				<div>Core temperature: XXX C°</div>
+				</p>
+			</div>
+			<div class="popup-button">
+				<a href="#">OK</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="site-frame bg-white">
+		<div class="container">
+			{% block content %}
+			{% endblock %}
+		</div>
+	</div>
+
+	<div class="site-frame site-footer">
+		<div class="div-row" style="margin: 1.5rem; width: 100%">
+			<div class="div-column col-30">
+				Tethys - Home Automation for Makers.
+			</div>
+
+			<div class="div-column col-10">
+				&nbsp;
+			</div>
+
+			<div class="div-column col-10" id="idCoreTemperature"">
+                    Core: --°C
+                </div>
+
+                <div class=" div-column col-5">
+				&nbsp;
+			</div>
+
+			<div class="div-column col-20" id="idCoreServiceState"">
+                    Core-Service: --
+                </div>
+
+				<div class=" div-column col-50"></div>
+			<div class="div-column col-10">
+				<img src="{% static 'images/svg/weloveOSH.svg'%}" style="height: 1.3rem" />
+			</div>
+		</div>
+	</div>
+
+	<div class="stars">* * *</div>
+</body>
+
+</html>

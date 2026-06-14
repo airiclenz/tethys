@@ -1,0 +1,15 @@
+[Unit]
+Description=Tethys Watchdog
+After=network.target
+
+[Service]
+ExecStart={TETHYS-PATH}/env_tethys/bin/python3 -u {TETHYS-PATH}/watchdog/tethys_watchdog.py
+WorkingDirectory={TETHYS-PATH}/watchdog/
+Environment="PATH={TETHYS-PATH}/env_tethys/bin"
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+#User=root
+
+[Install]
+WantedBy=multi-user.target

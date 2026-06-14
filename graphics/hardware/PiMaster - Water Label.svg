@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 567 119" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(0.586139,0,0,4,0,0)">
+        <rect x="0" y="0" width="596.457" height="29.528"/>
+    </g>
+    <g transform="matrix(1.2,0,0,1,0,0)">
+        <path d="M0,58.055L61.445,0L472.441,0L472.441,118.11L61.445,118.11L0,58.055Z" style="fill:white;"/>
+    </g>
+    <g transform="matrix(4,0,0,4,-47.8718,25.2138)">
+        <text x="27.685px" y="14.625px" style="font-family:'LucidaGrande-Bold', 'Lucida Grande', sans-serif;font-weight:600;font-size:18.75px;">WaterSensor</text>
+    </g>
+</svg>

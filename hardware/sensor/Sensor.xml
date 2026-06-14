@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="D">
+  <design>
+    <source>/Users/airic/Dropbox/KiCAD/Projects/WaterPlant/Hardware/Sensor/Sensor.sch</source>
+    <date>2020 May 25, Monday 21:29:59</date>
+    <tool>Eeschema (5.1.6-0-10_14)</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>WaterPlantWireless Sensor</title>
+        <company>Airic Lenz</company>
+        <rev>D</rev>
+        <date>2020-05-24</date>
+        <source>Sensor.sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="MOD1">
+      <value>nRF24L01</value>
+      <footprint>Airic_Lenz:Module_nRF24L01_SMD</footprint>
+      <libsource lib="Sensor-rescue" part="nRF24L01-AiricLenz" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E6B75C8</tstamp>
+    </comp>
+    <comp ref="J4">
+      <value>Conn_01x06_Female</value>
+      <footprint>Airic_Lenz:Connector_FlatHeader-06x1_SPI</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector" part="Conn_01x06_Female" description="Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E6C5784</tstamp>
+    </comp>
+    <comp ref="C6">
+      <value>1u</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C15849</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E6CA7C6</tstamp>
+    </comp>
+    <comp ref="C5">
+      <value>0.1u</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C14663</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E6CB10D</tstamp>
+    </comp>
+    <comp ref="U3">
+      <value>ATtiny84-20SSU</value>
+      <footprint>Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</footprint>
+      <datasheet>http://ww1.microchip.com/downloads/en/DeviceDoc/doc8006.pdf</datasheet>
+      <fields>
+        <field name="Basic Part">-</field>
+        <field name="LCSC">C144333</field>
+      </fields>
+      <libsource lib="MCU_Microchip_ATtiny" part="ATtiny84-20SSU" description="20MHz, 8kB Flash, 512B SRAM, 512B EEPROM, debugWIRE, SOIC-14"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E6DA79D</tstamp>
+    </comp>
+    <comp ref="R4">
+      <value>10k</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C25804</field>
+      </fields>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E7091AD</tstamp>
+    </comp>
+    <comp ref="C1">
+      <value>1u</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C15849</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E6FD435</tstamp>
+    </comp>
+    <comp ref="C2">
+      <value>1u</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C15849</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E6FE36A</tstamp>
+    </comp>
+    <comp ref="R6">
+      <value>510k</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C23192</field>
+      </fields>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E725591</tstamp>
+    </comp>
+    <comp ref="C7">
+      <value>1u</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C15849</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E7263E8</tstamp>
+    </comp>
+    <comp ref="R5">
+      <value>10k</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C25804</field>
+      </fields>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E727584</tstamp>
+    </comp>
+    <comp ref="D4">
+      <value>D_Small</value>
+      <footprint>Airic_Lenz:Diode_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">-</field>
+        <field name="LCSC">C283259</field>
+      </fields>
+      <libsource lib="Device" part="D_Small" description="Diode, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E72AD7F</tstamp>
+    </comp>
+    <comp ref="D3">
+      <value>LED</value>
+      <footprint>Airic_Lenz:LED_0805_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C84256</field>
+      </fields>
+      <libsource lib="Device" part="LED_Small" description="Light emitting diode, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E750095</tstamp>
+    </comp>
+    <comp ref="R3">
+      <value>2k</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C22975</field>
+      </fields>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E752333</tstamp>
+    </comp>
+    <comp ref="U1">
+      <value>MCP1700-3002E / XC6206P302</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23_Handsoldering</footprint>
+      <datasheet>http://ww1.microchip.com/downloads/en/DeviceDoc/20001826D.pdf</datasheet>
+      <fields>
+        <field name="Basic Part">-</field>
+        <field name="LCSC">C9972</field>
+      </fields>
+      <libsource lib="Regulator_Linear" part="MCP1700-3002E_SOT23" description="250mA Low Quiscent Current LDO, 3.0V output, SOT-23"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E78F458</tstamp>
+    </comp>
+    <comp ref="C8">
+      <value>C_Soil</value>
+      <footprint>Airic_Lenz:WaterPlant_C_Soil</footprint>
+      <libsource lib="Sensor-rescue" part="C_Soil-AiricLenz" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E6E598A</tstamp>
+    </comp>
+    <comp ref="Logo1">
+      <value>Logo_Airic_Lenz</value>
+      <footprint>Airic_Lenz:Logo_AiricLenz_Silk_15mm</footprint>
+      <libsource lib="Sensor-rescue" part="Logo_Airic_Lenz-AiricLenz" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E784BAE</tstamp>
+    </comp>
+    <comp ref="L1">
+      <value>Logo_OSH</value>
+      <footprint>Airic_Lenz:Logo_OSHW_Silk_10mm</footprint>
+      <libsource lib="Sensor-rescue" part="Logo_OSH-AiricLenz" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E786496</tstamp>
+    </comp>
+    <comp ref="J1">
+      <value>BatteryConnector</value>
+      <footprint>Airic_Lenz:Connector_PinHeader_02x1</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector" part="Conn_01x02_Male" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E71ED9F</tstamp>
+    </comp>
+    <comp ref="F1">
+      <value>JK-SMD0603-005</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">-</field>
+        <field name="LCSC">C70045</field>
+      </fields>
+      <libsource lib="Device" part="Polyfuse_Small" description="Resettable fuse, polymeric positive temperature coefficient, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E882F4C</tstamp>
+    </comp>
+    <comp ref="U2">
+      <value>MCP73831-2-OT</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23-5_HandSoldering</footprint>
+      <datasheet>http://ww1.microchip.com/downloads/en/DeviceDoc/20001984g.pdf</datasheet>
+      <fields>
+        <field name="Basic Part">-</field>
+        <field name="LCSC">C424093</field>
+      </fields>
+      <libsource lib="Battery_Management" part="MCP73831-2-OT" description="Single cell, Li-Ion/Li-Po charge management controller, 4.20V, Tri-State Status Output, in SOT23-5 package"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E882935</tstamp>
+    </comp>
+    <comp ref="J3">
+      <value>USB_B_Micro</value>
+      <footprint>Airic_Lenz:Connector_USB_Micro_B_C77238</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector" part="USB_B_Micro" description="USB Micro Type B connector"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E88464C</tstamp>
+    </comp>
+    <comp ref="R2">
+      <value>10k</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C25804</field>
+      </fields>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E899574</tstamp>
+    </comp>
+    <comp ref="C3">
+      <value>4.7uF</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C19666</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E8A8509</tstamp>
+    </comp>
+    <comp ref="C4">
+      <value>4.7uF</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C19666</field>
+      </fields>
+      <libsource lib="Device" part="C_Small" description="Unpolarized capacitor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E8A9524</tstamp>
+    </comp>
+    <comp ref="R1">
+      <value>2k</value>
+      <footprint>Airic_Lenz:Device_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C22975</field>
+      </fields>
+      <libsource lib="Device" part="R_Small" description="Resistor, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E8EC531</tstamp>
+    </comp>
+    <comp ref="D1">
+      <value>LED</value>
+      <footprint>Airic_Lenz:LED_0805_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">Yes</field>
+        <field name="LCSC">C84256</field>
+      </fields>
+      <libsource lib="Device" part="LED_Small" description="Light emitting diode, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E968622</tstamp>
+    </comp>
+    <comp ref="FID2">
+      <value>Fiducial</value>
+      <footprint>Airic_Lenz:Fiducial</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Mechanical" part="Fiducial" description="Fiducial Marker"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E879337</tstamp>
+    </comp>
+    <comp ref="FID1">
+      <value>Fiducial</value>
+      <footprint>Airic_Lenz:Fiducial</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Mechanical" part="Fiducial" description="Fiducial Marker"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E879B57</tstamp>
+    </comp>
+    <comp ref="DR1">
+      <value>Drill_Hole</value>
+      <footprint>Airic_Lenz:Hole_M2_NPTH</footprint>
+      <libsource lib="Sensor-rescue" part="Drill_Hole-AiricLenz" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E89EEA0</tstamp>
+    </comp>
+    <comp ref="J2">
+      <value>PowerSwitch</value>
+      <footprint>Airic_Lenz:Switch_SMD_K3-1296S-E2</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector" part="Conn_01x03_Male" description="Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E715CEF</tstamp>
+    </comp>
+    <comp ref="D2">
+      <value>D_Small</value>
+      <footprint>Airic_Lenz:Diode_0603_Handsoldering</footprint>
+      <datasheet>~</datasheet>
+      <fields>
+        <field name="Basic Part">-</field>
+        <field name="LCSC">C283259</field>
+      </fields>
+      <libsource lib="Device" part="D_Small" description="Diode, small symbol"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5E73E40F</tstamp>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Battery_Management" part="MCP73832-2-OT">
+      <aliases>
+        <alias>MCP73832-5-OT</alias>
+        <alias>MCP73832-4-OT</alias>
+        <alias>MCP73832-3-OT</alias>
+        <alias>MCP73831-2-OT</alias>
+        <alias>MCP73831-5-OT</alias>
+        <alias>MCP73831-4-OT</alias>
+        <alias>MCP73831-3-OT</alias>
+      </aliases>
+      <description>Single cell, Li-Ion/Li-Po charge management controller, 4.20V, Open-Drain Status Output, in SOT23-5 package</description>
+      <docs>http://ww1.microchip.com/downloads/en/DeviceDoc/20001984g.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">MCP73832-2-OT</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23-5</field>
+      </fields>
+      <pins>
+        <pin num="1" name="STAT" type="output"/>
+        <pin num="2" name="VSS" type="power_in"/>
+        <pin num="3" name="VBAT" type="power_out"/>
+        <pin num="4" name="VDD" type="power_in"/>
+        <pin num="5" name="PROG" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="Conn_01x02_Male">
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02_Male</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="Conn_01x03_Male">
+      <description>Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x03_Male</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="Conn_01x06_Female">
+      <description>Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x06_Female</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Connector" part="USB_B_Micro">
+      <aliases>
+        <alias>USB_B_Mini</alias>
+      </aliases>
+      <description>USB Micro Type B connector</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>USB*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">USB_B_Micro</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VBUS" type="power_out"/>
+        <pin num="2" name="D-" type="passive"/>
+        <pin num="3" name="D+" type="passive"/>
+        <pin num="4" name="ID" type="passive"/>
+        <pin num="5" name="GND" type="power_out"/>
+        <pin num="6" name="Shield" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="C_Small">
+      <description>Unpolarized capacitor, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>C_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C_Small</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="D_Small">
+      <description>Diode, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>TO-???*</fp>
+        <fp>*_Diode_*</fp>
+        <fp>*SingleDiode*</fp>
+        <fp>D_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">D_Small</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="LED_Small">
+      <description>Light emitting diode, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>LED*</fp>
+        <fp>LED_SMD:*</fp>
+        <fp>LED_THT:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">LED_Small</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="Polyfuse_Small">
+      <description>Resettable fuse, polymeric positive temperature coefficient, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>*polyfuse*</fp>
+        <fp>*PTC*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">F</field>
+        <field name="Value">Polyfuse_Small</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="R_Small">
+      <description>Resistor, small symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R_Small</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="MCU_Microchip_ATtiny" part="ATtiny24V-10SSU">
+      <aliases>
+        <alias>ATtiny24-20SSU</alias>
+        <alias>ATtiny24A-SSU</alias>
+        <alias>ATtiny44V-10SSU</alias>
+        <alias>ATtiny44-20SSU</alias>
+        <alias>ATtiny44A-SSU</alias>
+        <alias>ATtiny84V-10SSU</alias>
+        <alias>ATtiny84-20SSU</alias>
+        <alias>ATtiny84A-SSU</alias>
+      </aliases>
+      <description>10MHz, 2kB Flash, 128B SRAM, 128B EEPROM, debugWIRE, SOIC-14</description>
+      <docs>http://ww1.microchip.com/downloads/en/DeviceDoc/doc8006.pdf</docs>
+      <footprints>
+        <fp>SOIC*3.9x8.7mm*P1.27mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">ATtiny24V-10SSU</field>
+        <field name="Footprint">Package_SO:SOIC-14_3.9x8.7mm_P1.27mm</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VCC" type="power_in"/>
+        <pin num="2" name="XTAL1/PB0" type="BiDi"/>
+        <pin num="3" name="XTAL2/PB1" type="BiDi"/>
+        <pin num="4" name="~RESET~/PB3" type="BiDi"/>
+        <pin num="5" name="PB2" type="BiDi"/>
+        <pin num="6" name="PA7" type="BiDi"/>
+        <pin num="7" name="PA6" type="BiDi"/>
+        <pin num="8" name="PA5" type="BiDi"/>
+        <pin num="9" name="PA4" type="BiDi"/>
+        <pin num="10" name="PA3" type="BiDi"/>
+        <pin num="11" name="PA2" type="BiDi"/>
+        <pin num="12" name="PA1" type="BiDi"/>
+        <pin num="13" name="AREF/PA0" type="BiDi"/>
+        <pin num="14" name="GND" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="Mechanical" part="Fiducial">
+      <description>Fiducial Marker</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Fiducial*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">FID</field>
+        <field name="Value">Fiducial</field>
+      </fields>
+    </libpart>
+    <libpart lib="Regulator_Linear" part="MCP1700-3002E_SOT23">
+      <aliases>
+        <alias>MCP1700-1202E_SOT23</alias>
+        <alias>MCP1700-1802E_SOT23</alias>
+        <alias>MCP1700-2502E_SOT23</alias>
+        <alias>MCP1700-2802E_SOT23</alias>
+        <alias>MCP1700-3302E_SOT23</alias>
+        <alias>MCP1700-5002E_SOT23</alias>
+      </aliases>
+      <description>250mA Low Quiscent Current LDO, 3.0V output, SOT-23</description>
+      <docs>http://ww1.microchip.com/downloads/en/DeviceDoc/20001826D.pdf</docs>
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">MCP1700-3002E_SOT23</field>
+        <field name="Footprint">Package_TO_SOT_SMD:SOT-23</field>
+      </fields>
+      <pins>
+        <pin num="1" name="GND" type="power_in"/>
+        <pin num="2" name="VO" type="power_out"/>
+        <pin num="3" name="VI" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="Sensor-rescue" part="C_Soil-AiricLenz">
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C_Soil-AiricLenz</field>
+      </fields>
+      <pins>
+        <pin num="1" name="IN" type="BiDi"/>
+      </pins>
+    </libpart>
+    <libpart lib="Sensor-rescue" part="Drill_Hole-AiricLenz">
+      <fields>
+        <field name="Reference">DR</field>
+        <field name="Value">Drill_Hole-AiricLenz</field>
+      </fields>
+    </libpart>
+    <libpart lib="Sensor-rescue" part="Logo_Airic_Lenz-AiricLenz">
+      <fields>
+        <field name="Reference">Logo</field>
+        <field name="Value">Logo_Airic_Lenz-AiricLenz</field>
+        <field name="Footprint">Airic_Lenz:AiricLenz_LOGO_15mm</field>
+      </fields>
+    </libpart>
+    <libpart lib="Sensor-rescue" part="Logo_OSH-AiricLenz">
+      <fields>
+        <field name="Reference">L</field>
+        <field name="Value">Logo_OSH-AiricLenz</field>
+        <field name="Footprint">Airic_Lenz:OSHW_LOGO_10mm</field>
+      </fields>
+    </libpart>
+    <libpart lib="Sensor-rescue" part="nRF24L01-AiricLenz">
+      <fields>
+        <field name="Reference">MOD</field>
+        <field name="Value">nRF24L01-AiricLenz</field>
+      </fields>
+      <pins>
+        <pin num="1" name="VCC" type="input"/>
+        <pin num="2" name="GND" type="BiDi"/>
+        <pin num="3" name="CE" type="BiDi"/>
+        <pin num="4" name="CSN" type="BiDi"/>
+        <pin num="5" name="SCK" type="BiDi"/>
+        <pin num="6" name="MOSI" type="BiDi"/>
+        <pin num="7" name="MISO" type="BiDi"/>
+        <pin num="8" name="IRQ" type="BiDi"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Battery_Management">
+      <uri>/Library/Application Support/kicad/library/Battery_Management.lib</uri>
+    </library>
+    <library logical="Connector">
+      <uri>/Library/Application Support/kicad/library/Connector.lib</uri>
+    </library>
+    <library logical="Device">
+      <uri>/Library/Application Support/kicad/library/Device.lib</uri>
+    </library>
+    <library logical="MCU_Microchip_ATtiny">
+      <uri>/Library/Application Support/kicad/library/MCU_Microchip_ATtiny.lib</uri>
+    </library>
+    <library logical="Mechanical">
+      <uri>/Library/Application Support/kicad/library/Mechanical.lib</uri>
+    </library>
+    <library logical="Regulator_Linear">
+      <uri>/Library/Application Support/kicad/library/Regulator_Linear.lib</uri>
+    </library>
+    <library logical="Sensor-rescue">
+      <uri>/Users/airic/Dropbox/KiCAD/Projects/WaterPlant/Hardware/Sensor/Sensor-rescue.lib</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="GND">
+      <node ref="MOD1" pin="2"/>
+      <node ref="J1" pin="1"/>
+      <node ref="U1" pin="1"/>
+      <node ref="J4" pin="1"/>
+      <node ref="U2" pin="2"/>
+      <node ref="D3" pin="1"/>
+      <node ref="J3" pin="5"/>
+      <node ref="J3" pin="6"/>
+      <node ref="D2" pin="2"/>
+      <node ref="C6" pin="2"/>
+      <node ref="C5" pin="2"/>
+      <node ref="U3" pin="14"/>
+      <node ref="C7" pin="2"/>
+      <node ref="R6" pin="1"/>
+      <node ref="R2" pin="1"/>
+      <node ref="C2" pin="1"/>
+      <node ref="C1" pin="2"/>
+      <node ref="C3" pin="2"/>
+      <node ref="C4" pin="2"/>
+    </net>
+    <net code="2" name="Net-(MOD1-Pad8)">
+      <node ref="MOD1" pin="8"/>
+    </net>
+    <net code="3" name="RESET">
+      <node ref="J4" pin="5"/>
+      <node ref="U3" pin="4"/>
+      <node ref="R4" pin="2"/>
+    </net>
+    <net code="4" name="+3V0">
+      <node ref="MOD1" pin="1"/>
+      <node ref="U1" pin="2"/>
+      <node ref="C2" pin="2"/>
+    </net>
+    <net code="5" name="D7_A3_CAPACITANCE">
+      <node ref="D4" pin="1"/>
+      <node ref="C7" pin="1"/>
+      <node ref="R6" pin="2"/>
+      <node ref="U3" pin="10"/>
+    </net>
+    <net code="6" name="D8_A2">
+      <node ref="U3" pin="11"/>
+      <node ref="MOD1" pin="3"/>
+    </net>
+    <net code="7" name="D9_A1">
+      <node ref="MOD1" pin="4"/>
+      <node ref="U3" pin="12"/>
+    </net>
+    <net code="8" name="D0">
+      <node ref="U3" pin="2"/>
+    </net>
+    <net code="9" name="D1">
+      <node ref="U3" pin="3"/>
+    </net>
+    <net code="10" name="D2_CLKOUT">
+      <node ref="R5" pin="1"/>
+      <node ref="U3" pin="5"/>
+    </net>
+    <net code="11" name="D3_A7">
+      <node ref="U3" pin="6"/>
+    </net>
+    <net code="12" name="D4_A6_MOSI_SDA">
+      <node ref="U3" pin="7"/>
+      <node ref="J4" pin="3"/>
+      <node ref="MOD1" pin="7"/>
+    </net>
+    <net code="13" name="D5_A5_MISO">
+      <node ref="J4" pin="4"/>
+      <node ref="U3" pin="8"/>
+      <node ref="MOD1" pin="6"/>
+    </net>
+    <net code="14" name="D6_A4_SCK_SCL">
+      <node ref="U3" pin="9"/>
+      <node ref="J4" pin="2"/>
+      <node ref="MOD1" pin="5"/>
+    </net>
+    <net code="15" name="Net-(C8-Pad1)">
+      <node ref="C8" pin="1"/>
+      <node ref="D4" pin="2"/>
+      <node ref="R5" pin="2"/>
+    </net>
+    <net code="16" name="Net-(D3-Pad2)">
+      <node ref="R3" pin="1"/>
+      <node ref="D3" pin="2"/>
+    </net>
+    <net code="17" name="Net-(R3-Pad2)">
+      <node ref="U3" pin="13"/>
+      <node ref="R3" pin="2"/>
+    </net>
+    <net code="18" name="Net-(R2-Pad2)">
+      <node ref="U2" pin="5"/>
+      <node ref="R2" pin="2"/>
+    </net>
+    <net code="19" name="Net-(J3-Pad2)">
+      <node ref="J3" pin="2"/>
+    </net>
+    <net code="20" name="Net-(J3-Pad3)">
+      <node ref="J3" pin="3"/>
+    </net>
+    <net code="21" name="Net-(J3-Pad4)">
+      <node ref="J3" pin="4"/>
+    </net>
+    <net code="22" name="VBAT">
+      <node ref="J2" pin="2"/>
+      <node ref="U2" pin="3"/>
+      <node ref="C4" pin="1"/>
+      <node ref="J1" pin="2"/>
+    </net>
+    <net code="23" name="Net-(R1-Pad1)">
+      <node ref="U2" pin="1"/>
+      <node ref="R1" pin="1"/>
+    </net>
+    <net code="24" name="Net-(D1-Pad1)">
+      <node ref="D1" pin="1"/>
+      <node ref="R1" pin="2"/>
+    </net>
+    <net code="25" name="Net-(J2-Pad1)">
+      <node ref="J2" pin="1"/>
+    </net>
+    <net code="26" name="Net-(F1-Pad2)">
+      <node ref="F1" pin="2"/>
+      <node ref="J2" pin="3"/>
+    </net>
+    <net code="27" name="+5V">
+      <node ref="J3" pin="1"/>
+      <node ref="C3" pin="1"/>
+      <node ref="U2" pin="4"/>
+      <node ref="D1" pin="2"/>
+    </net>
+    <net code="29" name="VCC">
+      <node ref="C1" pin="1"/>
+      <node ref="U3" pin="1"/>
+      <node ref="R4" pin="1"/>
+      <node ref="C5" pin="1"/>
+      <node ref="C6" pin="1"/>
+      <node ref="D2" pin="1"/>
+      <node ref="F1" pin="1"/>
+      <node ref="U1" pin="3"/>
+      <node ref="J4" pin="6"/>
+    </net>
+  </nets>
+</export>

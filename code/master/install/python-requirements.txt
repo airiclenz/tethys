@@ -1,0 +1,17 @@
+rpi-lgpio
+gpiozero
+pyrf24
+django
+djangorestframework
+django-filter
+django-cors-headers 
+channels
+channels-redis
+daphne
+requests
+tzlocal
+numpy
+colorama
+gunicorn
+schedule
+simple-pid

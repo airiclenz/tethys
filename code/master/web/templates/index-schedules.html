@@ -1,0 +1,172 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<!-- ----------------- S C H E D U L E S ------------------- -->
+
+<div style="flex-direction: column; width: 100%;">
+
+	<div class="content-section">
+
+		<div class="div-row">
+			<div class="title div-column col-75">
+				Schedules
+			</div>
+
+			<div class="title div-column col-20">
+			</div>
+
+			<div class="title div-column col-3">
+				<a href="#popup_delete_confirmation">
+					<div class="button" id="button-delete" style="display:none;">
+						<img src="../static/images/svg/delete.svg" width="28" height="28" />
+					</div>
+				</a>
+			</div>
+
+			<div class="title div-column col-3">
+				<div class="button" id="button-add">
+					<img src="../static/images/svg/add.svg" width="28" height="28"
+						onclick="tethys.schedule.addNewSchedule()" />
+				</div>
+			</div>
+		</div>
+
+
+		<div class="div-row table-header">
+			<div class="div-column div-column-padding col-20">
+				Weekday
+			</div>
+			<div class="div-column div-column-padding col-25">
+				Start Time
+			</div>
+			<div class="div-column div-column-padding col-20">
+				Duration
+			</div>
+			<div class="div-column div-column-padding col-20">
+				Schedule Type
+			</div>
+		</div>
+
+		<div id="scheduleRows">
+			<!-- /////////////////// -->
+			<!-- FILLED BY FORMATTER -->
+			<!-- /////////////////// -->
+		</div>
+	</div>
+
+	<!-- ----------------- S E T T I N G S ------------------- -->
+
+	<div id="idSettings" class="content-section" style="display: none; margin-top: 0.5rem;">
+
+		<div id="idSettingsTitle" class="title">Settings Title</div>
+
+		<div class="div-row">
+
+			<div class="div-column div-column-padding col-50">
+				<h2>Schedule Settings</h2>
+			</div>
+
+			<div class="div-column div-column-padding col-50">
+			</div>
+
+		</div>
+
+		<!-- ------------------------------------- -->
+
+		<div class="div-row">
+
+			<div class="div-column div-column-padding col-20">
+				Enabled:
+			</div>
+			<div class="div-column div-column-padding col-30">
+				<label class="switch">
+					<input type="checkbox" id="idOptionEnabled" onchange="tethys.schedule.updateEnabled()">
+					<span class="slider round"></span>
+				</label>
+			</div>
+
+			<div class="div-column div-column-padding col-20">
+			</div>
+			<div class="div-column div-column-padding col-30">
+
+				<div style="width: 100%;">
+
+				</div>
+			</div>
+
+		</div>
+
+		<!-- ------------------------------------- -->
+
+		<div class="div-row">
+
+			<div class="div-column div-column-padding col-20">
+				Weekday:
+			</div>
+			<div class="div-column div-column-padding col-30">
+
+				<div style="width: 100%;">
+					<select class="custom-select" id="idSelectWeekday" onchange="tethys.schedule.updateWeekday()">
+						<option value="Monday">Monday</option>
+						<option value="Tuesday">Tuesday</option>
+						<option value="Wednesday">Wednesday</option>
+						<option value="Thursday">Thursday</option>
+						<option value="Friday">Friday</option>
+						<option value="Saturday">Saturday</option>
+						<option value="Sunday">Sunday</option>
+
+					</select>
+				</div>
+			</div>
+
+
+			<div class="div-column div-column-padding col-20">
+				Schedule Type:
+			</div>
+			<div class="div-column div-column-padding col-30">
+
+				<div style="width: 100%;">
+					<select class="custom-select" id="idSelectType" onchange="tethys.schedule.updateType()">
+						<option value="silent">silent</option>
+					</select>
+				</div>
+			</div>
+
+		</div>
+
+		<!-- ------------------------------------- -->
+
+		<div class="div-row">
+
+
+			<div class="div-column div-column-padding col-20">
+				Start Time:
+			</div>
+			<div class="div-column div-column-padding col-30">
+				<input type="time" class="text-field" id="idOptionStartTime" name="StartTime"
+					onfocusout="tethys.schedule.updateStartTime()">
+			</div>
+
+
+			<div class="div-column div-column-padding col-20">
+				Duration (min):
+			</div>
+			<div class="div-column div-column-padding col-30">
+				<input type="number" class="text-field" id="idOptionDurationMinutes" name="DurationMinutes"
+					onchange="tethys.tool.limitValue('idDurationMinutes', 1, 1440)"
+					onfocusout="tethys.schedule.updateDurationMinutes()">
+			</div>
+
+		</div>
+
+		<!-- ------------------------------------- -->
+
+	</div>
+
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,15 @@
+[Unit]
+Description=Tethys Core
+After=network.target
+
+[Service]
+ExecStart={TETHYS-PATH}/env_tethys/bin/python3 -u {TETHYS-PATH}/core/tethys_core.py
+WorkingDirectory={TETHYS-PATH}/core/
+Environment="PATH={TETHYS-PATH}/env_tethys/bin"
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+#User=root
+
+[Install]
+WantedBy=multi-user.target

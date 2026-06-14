@@ -1,0 +1,378 @@
+
+@font-face {
+	font-family: Roboto;
+	font-style: normal;
+	src: url("../fonts/roboto/Roboto-Regular.ttf");
+}
+
+@font-face {
+	font-family: Roboto;
+	font-weight: bold;
+	src: url("../fonts/roboto/Roboto-Bold.ttf");
+}
+
+@font-face {
+	font-family: Roboto;
+	font-style: italic;
+	src: url("../fonts/roboto/Roboto-Italic.ttf");
+}
+
+@font-face {
+	font-family: Roboto;
+	font-weight: 100;
+	src: url("../fonts/roboto/Roboto-Light.ttf");
+}
+
+:root {
+	--header-height: 3.3rem;
+	--footer-height: 4rem;
+}
+
+/* ////////////////////////////////////////////////////// */
+
+body {
+	font-size: 15px;
+	font-family: Roboto;
+	background-image: url("../images/png/bg.png");
+	color: #333333;
+	margin: 0px;
+}
+
+#site-header {
+	color: #a7a7a7;
+	background-color: #000000;
+    position: sticky;
+    top:0;
+}
+
+#site-header a {
+	color: #C0c0c0;
+	text-align: center;
+	text-decoration: none;
+	height: var(--header-height);
+	padding: 0px 1.1rem;
+	line-height: var(--header-height);
+	transition: all 0.5s ease-in-out;
+}
+
+#site-header a:hover {
+	color: white;
+	background-color: #004477;
+	transition: 0.2s ease-in-out;
+}
+
+#site-header a:active {
+	color: white;
+}
+
+
+input {
+	font-family: Roboto;
+	font-size: 15px;
+	padding: 2px 8px;
+	background-color: #d9e6f5;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 0.3rem;
+}
+
+h2 {
+	margin-block-start: 0.1em;
+	margin-block-end: 0.5em;
+}
+
+/* ////////////////////////////////////////////////////// */
+
+.site-header {
+	height: var(--header-height);
+}
+
+.site-footer {
+	height: var(--footer-height);
+	font-size: 0.8rem;
+	font-weight: 100;
+	color: rgba(255, 255, 255, 0.5);
+	background-color: rgba(0, 0, 0, 0.3);
+	border-radius: 0px 0px 0.4rem 0.4rem;
+}
+
+.stars {
+	text-align: center;
+	font-size: 1.7rem;
+	opacity: 0.15;
+	color: #000000;
+	text-shadow: #999999 0px 1px 1px;
+	padding-top: 17px;
+}
+
+.site-frame {
+	width: 1400px;
+	margin: auto;
+	display: flex;
+}
+
+.container {
+	padding: 0.25rem;
+	display: flex;
+	width: 100%;
+}
+
+.content-section {
+	margin: 0.25rem;
+	padding: 1.5rem;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 0.3rem;
+}
+
+.div-row {
+	display: flex;
+	justify-content: flex-start;
+}
+
+.div-column {
+	display: flex;
+	align-items: center;
+}
+
+.div-column-padding {
+	padding: 0.5rem 1rem;
+	border-radius: 0.25rem;
+}
+
+.div-column-padding-small {
+    padding: 0.5rem 0.1rem;
+	border-radius: 0.25rem;
+}
+
+.title {
+	font-size: 1.8rem;
+	font-weight: bold;
+	padding-bottom: 1rem;
+	color: #39337b;
+}
+
+.table-header {
+	border: 1px solid rgba(0, 0, 0, 0.5);
+	border-radius: 0.3rem;
+	color: #ffffff;
+	background-color: #444444;
+	margin-bottom: 0.6rem;
+}
+
+.table-row-even {
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 0.3rem;
+	font-weight: lighter;
+	background-color: #e0e0e0;
+	margin-bottom: 0.2rem;
+}
+
+.table-row-even:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+
+.table-row-odd {
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 0.3rem;
+	font-weight: lighter;
+	background-color: #efefef;
+	margin-bottom: 0.2rem;
+}
+
+.table-row-odd:hover {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+
+.table-row-active {
+	background-color: #447799;
+	color: #ffffff;
+}
+
+.no-wrap {
+	white-space: nowrap;
+}
+
+
+/* ////////////////////////////////////////////////////// */
+
+.tooltip {
+	position: relative;
+	display: inline-block;
+}
+
+.tooltip .tooltiptext {
+	visibility: hidden;
+	width: 270px;
+	background-color: white;
+	color: black;
+	text-align: center;
+	border-radius: 0.2rem;
+	padding: 0.2rem 0;
+
+	/* Position the tooltip */
+	position: absolute;
+	z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+	visibility: visible;
+}
+
+/* ////////////////////////////////////////////////////// */
+
+.status-success {
+	background-image: url("/static/images/svg/check.svg");
+}
+
+.input-status-span {
+	width: 1.7rem;
+	height: 100%;
+	display: block;
+	background-repeat: no-repeat;
+	background-position: right 0.45rem;
+	background-size: 1rem 1rem;
+	transition: all 2s;
+	opacity: 0;
+}
+
+.text-field {
+	width: 100%;
+	height: 1.35rem;
+	/* Include padding/border in the width so width:100% never overflows its
+	   container (which previously caused a horizontal scrollbar in popups). */
+	box-sizing: border-box;
+}
+
+/* Row holding a text field plus an inline action button (e.g. the API key
+   show/hide toggle). The field flexes to fill, the button keeps its size. */
+.input-with-toggle {
+	display: flex;
+	gap: 0.4rem;
+	align-items: stretch;
+}
+
+.input-with-toggle .text-field {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.field-toggle {
+	flex: 0 0 auto;
+	height: 1.35rem;
+	padding: 0 0.6rem;
+	font-family: inherit;
+	font-size: 0.8rem;
+	color: #333333;
+	background-color: #eeeeee;
+	border: 1px solid #cccccc;
+	border-radius: 0.3rem;
+	cursor: pointer;
+	transition: all 200ms;
+}
+
+.field-toggle:hover {
+	background-color: #dddddd;
+}
+
+
+.button {
+    margin-left: auto;
+    margin-right: 0.2rem;
+    padding-top: 0.4rem;
+    /* padding-left: 0.1rem; */
+    width: 2.2rem;
+    text-align: center;
+    background-color: #ffffff;
+    transition: all 0.5s ease-in-out;
+    cursor: pointer;
+    border-radius: 0.4rem;
+}
+
+.button:hover {
+    background-color: #ddddee;
+    transition: all 0.2s ease-in-out;
+}
+
+
+/* ////////////////////////////////////////////////////// */
+
+.col-2 {
+	flex-basis: 2%;
+}
+
+.col-3 {
+	flex-basis: 3%;
+}
+
+.col-5 {
+	flex-basis: 5%;
+}
+
+.col-6 {
+	flex-basis: 6%;
+}
+
+.col-7 {
+	flex-basis: 7.5%;
+}
+
+.col-8 {
+	flex-basis: 8%;
+}
+
+.col-10 {
+	flex-basis: 10%;
+}
+
+.col-15 {
+	flex-basis: 15%;
+}
+
+.col-17 {
+	flex-basis: 17.5%;
+}
+
+.col-20 {
+	flex-basis: 20%;
+}
+
+.col-25 {
+	flex-basis: 25%;
+}
+
+.col-30 {
+	flex-basis: 30%;
+}
+
+.col-35 {
+	flex-basis: 35%;
+}
+
+.col-40 {
+	flex-basis: 40%;
+}
+
+.col-50 {
+	flex-basis: 50%;
+}
+
+.col-75 {
+	flex-basis: 75%;
+}
+
+.col-100 {
+	flex-basis: 100%;
+}
+
+/* ////////////////////////////////////////////////////// */
+
+.bg-black {
+	background-color: #000000;
+}
+
+.bg-dark-gray {
+	background-color: #444444;
+}
+
+.bg-white {
+	background-color: #ffffff;
+}

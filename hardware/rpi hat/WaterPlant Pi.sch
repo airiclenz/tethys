@@ -1,0 +1,1911 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "Tethys Pi-Hat"
+Date "2020-07-27"
+Rev "B"
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Connector_Generic:Conn_02x20_Odd_Even J1
+U 1 1 5EF36BA4
+P 2250 6050
+F 0 "J1" H 2300 7167 50  0000 C CNN
+F 1 "Conn_02x20_Odd_Even" H 2300 7076 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_2x20_P2.54mm_Vertical" H 2250 6050 50  0001 C CNN
+F 3 "~" H 2250 6050 50  0001 C CNN
+	1    2250 6050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1350 1200 1500 1200
+$Comp
+L power:GND #PWR0101
+U 1 1 5EF4E4D7
+P 1500 1700
+F 0 "#PWR0101" H 1500 1450 50  0001 C CNN
+F 1 "GND" H 1505 1527 50  0000 C CNN
+F 2 "" H 1500 1700 50  0001 C CNN
+F 3 "" H 1500 1700 50  0001 C CNN
+	1    1500 1700
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+12V #PWR0102
+U 1 1 5EF4EDD8
+P 1500 900
+F 0 "#PWR0102" H 1500 750 50  0001 C CNN
+F 1 "+12V" H 1515 1073 50  0000 C CNN
+F 2 "" H 1500 900 50  0001 C CNN
+F 3 "" H 1500 900 50  0001 C CNN
+	1    1500 900 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1350 1000 1500 1000
+Wire Wire Line
+	1500 1000 1500 900 
+$Comp
+L Connector:Barrel_Jack J2
+U 1 1 5EF51852
+P 1050 1100
+F 0 "J2" H 1000 800 50  0000 C CNN
+F 1 "Barrel_Jack" H 1100 900 50  0000 C CNN
+F 2 "Airic_Lenz:POWER_JACK_2.1_SMD" H 1100 1060 50  0001 C CNN
+F 3 "~" H 1100 1060 50  0001 C CNN
+	1    1050 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L WaterPlant-Pi-rescue:Module_Pololu_D36V28F5-AiricLenz U1
+U 1 1 5F1B37BD
+P 2750 1000
+F 0 "U1" H 2750 1265 50  0000 C CNN
+F 1 "Module_Pololu_D36V28F5" H 2750 1174 50  0000 C CNN
+F 2 "Airic_Lenz:Module_Pololu_5V_D36V28F5" H 2750 800 50  0001 C CNN
+F 3 "" H 2750 800 50  0001 C CNN
+	1    2750 1000
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+5V #PWR0103
+U 1 1 5F1B4433
+P 3750 900
+F 0 "#PWR0103" H 3750 750 50  0001 C CNN
+F 1 "+5V" H 3765 1073 50  0000 C CNN
+F 2 "" H 3750 900 50  0001 C CNN
+F 3 "" H 3750 900 50  0001 C CNN
+	1    3750 900 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3150 1000 3750 1000
+Wire Wire Line
+	3750 1000 3750 900 
+Wire Wire Line
+	2750 1450 2750 1550
+Wire Wire Line
+	2850 1450 2850 1550
+Wire Wire Line
+	2850 1550 2750 1550
+NoConn ~ 2350 1150
+NoConn ~ 2350 1250
+$Comp
+L WaterPlant-Pi-rescue:Drill_Hole-AiricLenz DR1
+U 1 1 5F1B83B4
+P 650 7650
+F 0 "DR1" H 728 7650 60  0000 L CNN
+F 1 "Drill_Hole" H 650 7550 60  0001 C CNN
+F 2 "Airic_Lenz:Hole_M3_NPTH_Mounting" H 650 7650 60  0001 C CNN
+F 3 "" H 650 7650 60  0000 C CNN
+	1    650  7650
+	1    0    0    -1  
+$EndComp
+$Comp
+L WaterPlant-Pi-rescue:Drill_Hole-AiricLenz DR2
+U 1 1 5F1B8EC1
+P 1150 7650
+F 0 "DR2" H 1228 7650 60  0000 L CNN
+F 1 "Drill_Hole" H 1150 7550 60  0001 C CNN
+F 2 "Airic_Lenz:Hole_M3_NPTH_Mounting" H 1150 7650 60  0001 C CNN
+F 3 "" H 1150 7650 60  0000 C CNN
+	1    1150 7650
+	1    0    0    -1  
+$EndComp
+$Comp
+L WaterPlant-Pi-rescue:Drill_Hole-AiricLenz DR3
+U 1 1 5F1B9523
+P 1650 7650
+F 0 "DR3" H 1728 7650 60  0000 L CNN
+F 1 "Drill_Hole" H 1650 7550 60  0001 C CNN
+F 2 "Airic_Lenz:Hole_M3_NPTH_Mounting" H 1650 7650 60  0001 C CNN
+F 3 "" H 1650 7650 60  0000 C CNN
+	1    1650 7650
+	1    0    0    -1  
+$EndComp
+$Comp
+L WaterPlant-Pi-rescue:Drill_Hole-AiricLenz DR4
+U 1 1 5F1B9B6C
+P 2150 7650
+F 0 "DR4" H 2228 7650 60  0000 L CNN
+F 1 "Drill_Hole" H 2150 7550 60  0001 C CNN
+F 2 "Airic_Lenz:Hole_M3_NPTH_Mounting" H 2150 7650 60  0001 C CNN
+F 3 "" H 2150 7650 60  0000 C CNN
+	1    2150 7650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2750 1550 2100 1550
+Connection ~ 2750 1550
+$Comp
+L Device:R_Small R5
+U 1 1 5F28EE79
+P 9450 1800
+F 0 "R5" V 9250 1800 50  0000 C CNN
+F 1 "470Ω" V 9345 1800 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9450 1800 50  0001 C CNN
+F 3 "~" H 9450 1800 50  0001 C CNN
+	1    9450 1800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9350 1800 9250 1800
+Wire Wire Line
+	9450 1200 9450 1250
+$Comp
+L power:+5V #PWR0104
+U 1 1 5F2A8E9A
+P 3300 5050
+F 0 "#PWR0104" H 3300 4900 50  0001 C CNN
+F 1 "+5V" H 3315 5223 50  0000 C CNN
+F 2 "" H 3300 5050 50  0001 C CNN
+F 3 "" H 3300 5050 50  0001 C CNN
+	1    3300 5050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2550 5150 3300 5150
+Wire Wire Line
+	3300 5150 3300 5050
+Wire Wire Line
+	2550 5250 3300 5250
+Wire Wire Line
+	3300 5250 3300 5150
+Connection ~ 3300 5150
+$Comp
+L power:GND #PWR0105
+U 1 1 5F2AEA94
+P 3250 6750
+F 0 "#PWR0105" H 3250 6500 50  0001 C CNN
+F 1 "GND" V 3250 6550 50  0000 C CNN
+F 2 "" H 3250 6750 50  0001 C CNN
+F 3 "" H 3250 6750 50  0001 C CNN
+	1    3250 6750
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	2550 6750 3250 6750
+Wire Wire Line
+	2550 6550 3250 6550
+Wire Wire Line
+	2550 6050 3250 6050
+Wire Wire Line
+	2550 5750 3250 5750
+Wire Wire Line
+	2550 5350 3250 5350
+Wire Wire Line
+	2050 5550 1350 5550
+Wire Wire Line
+	2050 6350 1350 6350
+Wire Wire Line
+	2050 7050 1350 7050
+$Comp
+L power:GND #PWR0106
+U 1 1 5F2D0063
+P 1350 5550
+F 0 "#PWR0106" H 1350 5300 50  0001 C CNN
+F 1 "GND" V 1350 5350 50  0000 C CNN
+F 2 "" H 1350 5550 50  0001 C CNN
+F 3 "" H 1350 5550 50  0001 C CNN
+	1    1350 5550
+	0    1    1    0   
+$EndComp
+$Comp
+L Airic_Lenz:Module_nRF24L01 MOD1
+U 1 1 5F2D66C0
+P 2050 2800
+F 0 "MOD1" H 2050 3215 50  0000 C CNN
+F 1 "Module_nRF24L01" H 2050 3124 50  0000 C CNN
+F 2 "Airic_Lenz:Module_nRF24L01_SMD" H 2050 2800 50  0001 C CNN
+F 3 "" H 2050 2800 50  0001 C CNN
+	1    2050 2800
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0107
+U 1 1 5F2E2B5E
+P 3250 6550
+F 0 "#PWR0107" H 3250 6300 50  0001 C CNN
+F 1 "GND" V 3250 6350 50  0000 C CNN
+F 2 "" H 3250 6550 50  0001 C CNN
+F 3 "" H 3250 6550 50  0001 C CNN
+	1    3250 6550
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0108
+U 1 1 5F2E2F60
+P 3250 6050
+F 0 "#PWR0108" H 3250 5800 50  0001 C CNN
+F 1 "GND" V 3250 5850 50  0000 C CNN
+F 2 "" H 3250 6050 50  0001 C CNN
+F 3 "" H 3250 6050 50  0001 C CNN
+	1    3250 6050
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0109
+U 1 1 5F2E3230
+P 3250 5750
+F 0 "#PWR0109" H 3250 5500 50  0001 C CNN
+F 1 "GND" V 3250 5550 50  0000 C CNN
+F 2 "" H 3250 5750 50  0001 C CNN
+F 3 "" H 3250 5750 50  0001 C CNN
+	1    3250 5750
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0110
+U 1 1 5F2FCBD1
+P 1350 6350
+F 0 "#PWR0110" H 1350 6100 50  0001 C CNN
+F 1 "GND" V 1350 6150 50  0000 C CNN
+F 2 "" H 1350 6350 50  0001 C CNN
+F 3 "" H 1350 6350 50  0001 C CNN
+	1    1350 6350
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0111
+U 1 1 5F2FD36B
+P 1350 7050
+F 0 "#PWR0111" H 1350 6800 50  0001 C CNN
+F 1 "GND" V 1350 6850 50  0000 C CNN
+F 2 "" H 1350 7050 50  0001 C CNN
+F 3 "" H 1350 7050 50  0001 C CNN
+	1    1350 7050
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0112
+U 1 1 5F30BBD7
+P 3250 5350
+F 0 "#PWR0112" H 3250 5100 50  0001 C CNN
+F 1 "GND" V 3250 5150 50  0000 C CNN
+F 2 "" H 3250 5350 50  0001 C CNN
+F 3 "" H 3250 5350 50  0001 C CNN
+	1    3250 5350
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3V3 #PWR0113
+U 1 1 5F30F9A1
+P 2550 2550
+F 0 "#PWR0113" H 2550 2400 50  0001 C CNN
+F 1 "+3V3" H 2565 2723 50  0000 C CNN
+F 2 "" H 2550 2550 50  0001 C CNN
+F 3 "" H 2550 2550 50  0001 C CNN
+	1    2550 2550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0114
+U 1 1 5F3102D1
+P 2550 3050
+F 0 "#PWR0114" H 2550 2800 50  0001 C CNN
+F 1 "GND" H 2555 2877 50  0000 C CNN
+F 2 "" H 2550 3050 50  0001 C CNN
+F 3 "" H 2550 3050 50  0001 C CNN
+	1    2550 3050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2400 2650 2550 2650
+Wire Wire Line
+	2550 2650 2550 2550
+Wire Wire Line
+	2400 2950 2550 2950
+Wire Wire Line
+	2550 2950 2550 3050
+$Comp
+L Device:C_Small C2
+U 1 1 5F3182EF
+P 3200 2800
+F 0 "C2" H 3000 2800 50  0000 L CNN
+F 1 "0.1uF 16V" H 3000 2550 50  0000 L CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 3200 2800 50  0001 C CNN
+F 3 "~" H 3200 2800 50  0001 C CNN
+	1    3200 2800
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:C_Small C3
+U 1 1 5F3195BA
+P 3600 2800
+F 0 "C3" H 3400 2800 50  0000 L CNN
+F 1 "1uF 16V" H 3350 2550 50  0000 L CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 3600 2800 50  0001 C CNN
+F 3 "~" H 3600 2800 50  0001 C CNN
+	1    3600 2800
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	2550 2650 3200 2650
+Wire Wire Line
+	3200 2650 3200 2700
+Connection ~ 2550 2650
+Wire Wire Line
+	3200 2900 3200 2950
+Wire Wire Line
+	3200 2950 2550 2950
+Connection ~ 2550 2950
+Wire Wire Line
+	3200 2650 3600 2650
+Wire Wire Line
+	3600 2650 3600 2700
+Connection ~ 3200 2650
+Wire Wire Line
+	3600 2900 3600 2950
+Wire Wire Line
+	3600 2950 3200 2950
+Connection ~ 3200 2950
+Wire Wire Line
+	2050 6050 1950 6050
+Wire Wire Line
+	1950 6150 2050 6150
+Wire Wire Line
+	2050 6250 1950 6250
+Text GLabel 1950 6050 0    50   Input ~ 0
+GPIO_10_MOSI
+Text GLabel 1950 6150 0    50   Input ~ 0
+GPIO_09_MISO
+Text GLabel 1950 6250 0    50   Input ~ 0
+GPIO_11_SCK
+Text GLabel 2650 6250 2    50   Input ~ 0
+GPIO_08_CSN
+Wire Wire Line
+	2550 6250 2650 6250
+Text GLabel 1950 5850 0    50   Input ~ 0
+GPIO_22_CE
+Wire Wire Line
+	1950 5850 2050 5850
+Text GLabel 2500 2850 2    50   Input ~ 0
+GPIO_08_CSN
+Text GLabel 2500 2750 2    50   Input ~ 0
+GPIO_22_CE
+Text GLabel 1600 2750 0    50   Input ~ 0
+GPIO_10_MOSI
+Text GLabel 1600 2850 0    50   Input ~ 0
+GPIO_09_MISO
+Text GLabel 1600 2650 0    50   Input ~ 0
+GPIO_11_SCK
+Text GLabel 1950 5650 0    50   Input ~ 0
+GPIO_17_IRQ
+$Comp
+L power:+3V3 #PWR0115
+U 1 1 5F2D88C7
+P 1300 5050
+F 0 "#PWR0115" H 1300 4900 50  0001 C CNN
+F 1 "+3V3" H 1315 5223 50  0000 C CNN
+F 2 "" H 1300 5050 50  0001 C CNN
+F 3 "" H 1300 5050 50  0001 C CNN
+	1    1300 5050
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1300 5150 1300 5050
+Wire Wire Line
+	2050 5150 1300 5150
+Wire Wire Line
+	2050 5950 1350 5950
+$Comp
+L power:+3V3 #PWR0116
+U 1 1 5F3E5724
+P 1350 5950
+F 0 "#PWR0116" H 1350 5800 50  0001 C CNN
+F 1 "+3V3" V 1365 6078 50  0000 L CNN
+F 2 "" H 1350 5950 50  0001 C CNN
+F 3 "" H 1350 5950 50  0001 C CNN
+	1    1350 5950
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1950 5650 2050 5650
+Text GLabel 1600 2950 0    50   Input ~ 0
+GPIO_17_IRQ
+Wire Wire Line
+	2400 2750 2500 2750
+Wire Wire Line
+	2400 2850 2500 2850
+Wire Wire Line
+	1600 2650 1700 2650
+Wire Wire Line
+	1600 2750 1700 2750
+Wire Wire Line
+	1600 2850 1700 2850
+Wire Wire Line
+	1600 2950 1700 2950
+$Comp
+L power:GND #PWR0117
+U 1 1 5F28EE8B
+P 10000 2200
+F 0 "#PWR0117" H 10000 1950 50  0001 C CNN
+F 1 "GND" H 10005 2027 50  0000 C CNN
+F 2 "" H 10000 2200 50  0001 C CNN
+F 3 "" H 10000 2200 50  0001 C CNN
+	1    10000 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Airic_Lenz:MOSFET_N-CHANNEL Q3
+U 1 1 5F460E5A
+P 10000 1800
+F 0 "Q3" H 10150 1850 50  0000 L CNN
+F 1 "DMG3418L" H 10150 1750 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 10950 1700 50  0001 C CNN
+F 3 "" H 10100 1700 50  0001 C CNN
+	1    10000 1800
+	1    0    0    -1  
+$EndComp
+Connection ~ 10000 1500
+Wire Wire Line
+	10000 1600 10000 1500
+Wire Wire Line
+	9450 1000 10000 1000
+Wire Wire Line
+	10000 1000 10000 1200
+Connection ~ 10000 1000
+$Comp
+L power:GND #PWR0118
+U 1 1 5F28EEB2
+P 9450 1250
+F 0 "#PWR0118" H 9450 1000 50  0001 C CNN
+F 1 "GND" H 9455 1077 50  0000 C CNN
+F 2 "" H 9450 1250 50  0001 C CNN
+F 3 "" H 9450 1250 50  0001 C CNN
+	1    9450 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C7
+U 1 1 5F28EEAC
+P 9450 1100
+F 0 "C7" H 9250 1150 50  0000 L CNN
+F 1 "10uF 50V" H 8950 1050 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 9450 1100 50  0001 C CNN
+F 3 "~" H 9450 1100 50  0001 C CNN
+	1    9450 1100
+	1    0    0    -1  
+$EndComp
+Connection ~ 10000 1200
+Wire Wire Line
+	10000 900  10000 1000
+$Comp
+L Connector:Conn_01x02_Female J5
+U 1 1 5F28EE9F
+P 10500 1400
+F 0 "J5" H 10200 1450 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 10100 1150 50  0000 L CNN
+F 2 "Airic_Lenz:Connector_JST_XH_02x01_angeled" H 10500 1400 50  0001 C CNN
+F 3 "~" H 10500 1400 50  0001 C CNN
+	1    10500 1400
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	10000 1300 10300 1300
+Wire Wire Line
+	10300 1400 10000 1400
+Wire Wire Line
+	10000 1400 10000 1500
+Wire Wire Line
+	10000 1200 10000 1300
+Wire Wire Line
+	9850 1200 10000 1200
+$Comp
+L power:+12V #PWR0119
+U 1 1 5F28EE7F
+P 10000 900
+F 0 "#PWR0119" H 10000 750 50  0001 C CNN
+F 1 "+12V" H 10015 1073 50  0000 C CNN
+F 2 "" H 10000 900 50  0001 C CNN
+F 3 "" H 10000 900 50  0001 C CNN
+	1    10000 900 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 1800 9650 1800
+Wire Wire Line
+	10000 2000 10000 2150
+$Comp
+L Device:R_Small R8
+U 1 1 5F4A1EF2
+P 9650 2000
+F 0 "R8" H 9500 1900 50  0000 C CNN
+F 1 "10kΩ" H 9500 2000 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9650 2000 50  0001 C CNN
+F 3 "~" H 9650 2000 50  0001 C CNN
+	1    9650 2000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9850 1500 10000 1500
+Wire Wire Line
+	9850 1500 9850 1450
+Wire Wire Line
+	9850 1200 9850 1250
+$Comp
+L Device:D_Small D3
+U 1 1 5F28EE96
+P 9850 1350
+F 0 "D3" V 9650 1400 50  0000 C CNN
+F 1 "Schottky 2A" H 9850 1250 50  0000 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 9850 1350 50  0001 C CNN
+F 3 "~" V 9850 1350 50  0001 C CNN
+	1    9850 1350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9650 1800 9650 1900
+Connection ~ 9650 1800
+Wire Wire Line
+	9650 1800 9550 1800
+Wire Wire Line
+	9650 2100 9650 2150
+Wire Wire Line
+	9650 2150 10000 2150
+Connection ~ 10000 2150
+Wire Wire Line
+	10000 2150 10000 2200
+Text Notes 4150 2000 0    50   ~ 0
+DMG3418L:\n———————————————\n30V, 3A, 150mΩ, 90°C/W, 5.5nC\n\n@3A:\nP = I² * R = 3A² * 0.15Ω = 1.35W\n(90°C/W * 1.35W) + 25°C = 146.5°C\n\n@2A:\nP = I² * R = 2A² * 0.15Ω = 0.6W\n(90°C/W * 0.6W) + 25°C = 79°C\n\nI = U / R \nI = 3.3V / 470Ω = 0.007 = 7mA\n\nt = Q / I\nt = 5.5nC / 0.007A = 783nSec
+$Comp
+L Device:R_Small R6
+U 1 1 5F50648B
+P 9450 3800
+F 0 "R6" V 9250 3800 50  0000 C CNN
+F 1 "470Ω" V 9345 3800 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9450 3800 50  0001 C CNN
+F 3 "~" H 9450 3800 50  0001 C CNN
+	1    9450 3800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9350 3800 9250 3800
+Wire Wire Line
+	9450 3200 9450 3250
+$Comp
+L power:GND #PWR0120
+U 1 1 5F506494
+P 10000 4200
+F 0 "#PWR0120" H 10000 3950 50  0001 C CNN
+F 1 "GND" H 10005 4027 50  0000 C CNN
+F 2 "" H 10000 4200 50  0001 C CNN
+F 3 "" H 10000 4200 50  0001 C CNN
+	1    10000 4200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Airic_Lenz:MOSFET_N-CHANNEL Q4
+U 1 1 5F50649A
+P 10000 3800
+F 0 "Q4" H 10150 3850 50  0000 L CNN
+F 1 "DMG3418L" H 10150 3750 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 10950 3700 50  0001 C CNN
+F 3 "" H 10100 3700 50  0001 C CNN
+	1    10000 3800
+	1    0    0    -1  
+$EndComp
+Connection ~ 10000 3500
+Wire Wire Line
+	10000 3600 10000 3500
+Wire Wire Line
+	9450 3000 10000 3000
+Wire Wire Line
+	10000 3000 10000 3200
+Connection ~ 10000 3000
+$Comp
+L power:GND #PWR0121
+U 1 1 5F5064A5
+P 9450 3250
+F 0 "#PWR0121" H 9450 3000 50  0001 C CNN
+F 1 "GND" H 9455 3077 50  0000 C CNN
+F 2 "" H 9450 3250 50  0001 C CNN
+F 3 "" H 9450 3250 50  0001 C CNN
+	1    9450 3250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C8
+U 1 1 5F5064AB
+P 9450 3100
+F 0 "C8" H 9250 3150 50  0000 L CNN
+F 1 "10uF 50V" H 8950 3050 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 9450 3100 50  0001 C CNN
+F 3 "~" H 9450 3100 50  0001 C CNN
+	1    9450 3100
+	1    0    0    -1  
+$EndComp
+Connection ~ 10000 3200
+Wire Wire Line
+	10000 2900 10000 3000
+$Comp
+L Connector:Conn_01x02_Female J6
+U 1 1 5F5064B3
+P 10500 3400
+F 0 "J6" H 10200 3450 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 10100 3150 50  0000 L CNN
+F 2 "Airic_Lenz:Connector_JST_XH_02x01_angeled" H 10500 3400 50  0001 C CNN
+F 3 "~" H 10500 3400 50  0001 C CNN
+	1    10500 3400
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	10000 3300 10300 3300
+Wire Wire Line
+	10300 3400 10000 3400
+Wire Wire Line
+	10000 3400 10000 3500
+Wire Wire Line
+	10000 3200 10000 3300
+Wire Wire Line
+	9850 3200 10000 3200
+$Comp
+L power:+12V #PWR0122
+U 1 1 5F5064BE
+P 10000 2900
+F 0 "#PWR0122" H 10000 2750 50  0001 C CNN
+F 1 "+12V" H 10015 3073 50  0000 C CNN
+F 2 "" H 10000 2900 50  0001 C CNN
+F 3 "" H 10000 2900 50  0001 C CNN
+	1    10000 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 3800 9650 3800
+Wire Wire Line
+	10000 4000 10000 4150
+$Comp
+L Device:R_Small R9
+U 1 1 5F5064C6
+P 9650 4000
+F 0 "R9" H 9500 3900 50  0000 C CNN
+F 1 "10kΩ" H 9500 4000 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9650 4000 50  0001 C CNN
+F 3 "~" H 9650 4000 50  0001 C CNN
+	1    9650 4000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9850 3500 10000 3500
+Wire Wire Line
+	9850 3500 9850 3450
+Wire Wire Line
+	9850 3200 9850 3250
+$Comp
+L Device:D_Small D4
+U 1 1 5F5064CF
+P 9850 3350
+F 0 "D4" V 9650 3400 50  0000 C CNN
+F 1 "Schottky 2A" H 9850 3250 50  0000 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 9850 3350 50  0001 C CNN
+F 3 "~" V 9850 3350 50  0001 C CNN
+	1    9850 3350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9650 3800 9650 3900
+Connection ~ 9650 3800
+Wire Wire Line
+	9650 3800 9550 3800
+Wire Wire Line
+	9650 4100 9650 4150
+Wire Wire Line
+	9650 4150 10000 4150
+Connection ~ 10000 4150
+Wire Wire Line
+	10000 4150 10000 4200
+$Comp
+L Device:R_Small R7
+U 1 1 5F50D1D3
+P 9450 5800
+F 0 "R7" V 9250 5800 50  0000 C CNN
+F 1 "470Ω" V 9345 5800 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9450 5800 50  0001 C CNN
+F 3 "~" H 9450 5800 50  0001 C CNN
+	1    9450 5800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9350 5800 9250 5800
+Wire Wire Line
+	9450 5200 9450 5250
+$Comp
+L power:GND #PWR0123
+U 1 1 5F50D1DC
+P 10000 6200
+F 0 "#PWR0123" H 10000 5950 50  0001 C CNN
+F 1 "GND" H 10005 6027 50  0000 C CNN
+F 2 "" H 10000 6200 50  0001 C CNN
+F 3 "" H 10000 6200 50  0001 C CNN
+	1    10000 6200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Airic_Lenz:MOSFET_N-CHANNEL Q5
+U 1 1 5F50D1E2
+P 10000 5800
+F 0 "Q5" H 10150 5850 50  0000 L CNN
+F 1 "DMG3418L" H 10150 5750 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 10950 5700 50  0001 C CNN
+F 3 "" H 10100 5700 50  0001 C CNN
+	1    10000 5800
+	1    0    0    -1  
+$EndComp
+Connection ~ 10000 5500
+Wire Wire Line
+	10000 5600 10000 5500
+Wire Wire Line
+	9450 5000 10000 5000
+Wire Wire Line
+	10000 5000 10000 5200
+Connection ~ 10000 5000
+$Comp
+L power:GND #PWR0124
+U 1 1 5F50D1ED
+P 9450 5250
+F 0 "#PWR0124" H 9450 5000 50  0001 C CNN
+F 1 "GND" H 9455 5077 50  0000 C CNN
+F 2 "" H 9450 5250 50  0001 C CNN
+F 3 "" H 9450 5250 50  0001 C CNN
+	1    9450 5250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C9
+U 1 1 5F50D1F3
+P 9450 5100
+F 0 "C9" H 9250 5150 50  0000 L CNN
+F 1 "10uF 50V" H 8950 5050 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 9450 5100 50  0001 C CNN
+F 3 "~" H 9450 5100 50  0001 C CNN
+	1    9450 5100
+	1    0    0    -1  
+$EndComp
+Connection ~ 10000 5200
+Wire Wire Line
+	10000 4900 10000 5000
+$Comp
+L Connector:Conn_01x02_Female J7
+U 1 1 5F50D1FB
+P 10500 5400
+F 0 "J7" H 10200 5450 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 10100 5150 50  0000 L CNN
+F 2 "Airic_Lenz:Connector_JST_XH_02x01_angeled" H 10500 5400 50  0001 C CNN
+F 3 "~" H 10500 5400 50  0001 C CNN
+	1    10500 5400
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	10000 5300 10300 5300
+Wire Wire Line
+	10300 5400 10000 5400
+Wire Wire Line
+	10000 5400 10000 5500
+Wire Wire Line
+	10000 5200 10000 5300
+Wire Wire Line
+	9850 5200 10000 5200
+$Comp
+L power:+12V #PWR0125
+U 1 1 5F50D206
+P 10000 4900
+F 0 "#PWR0125" H 10000 4750 50  0001 C CNN
+F 1 "+12V" H 10015 5073 50  0000 C CNN
+F 2 "" H 10000 4900 50  0001 C CNN
+F 3 "" H 10000 4900 50  0001 C CNN
+	1    10000 4900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 5800 9650 5800
+Wire Wire Line
+	10000 6000 10000 6150
+$Comp
+L Device:R_Small R10
+U 1 1 5F50D20E
+P 9650 6000
+F 0 "R10" H 9500 5900 50  0000 C CNN
+F 1 "10kΩ" H 9500 6000 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9650 6000 50  0001 C CNN
+F 3 "~" H 9650 6000 50  0001 C CNN
+	1    9650 6000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9850 5500 10000 5500
+Wire Wire Line
+	9850 5500 9850 5450
+Wire Wire Line
+	9850 5200 9850 5250
+$Comp
+L Device:D_Small D5
+U 1 1 5F50D217
+P 9850 5350
+F 0 "D5" V 9650 5400 50  0000 C CNN
+F 1 "Schottky 2A" H 9850 5250 50  0000 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 9850 5350 50  0001 C CNN
+F 3 "~" V 9850 5350 50  0001 C CNN
+	1    9850 5350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9650 5800 9650 5900
+Connection ~ 9650 5800
+Wire Wire Line
+	9650 5800 9550 5800
+Wire Wire Line
+	9650 6100 9650 6150
+Wire Wire Line
+	9650 6150 10000 6150
+Connection ~ 10000 6150
+Wire Wire Line
+	10000 6150 10000 6200
+$Comp
+L Device:R_Small R1
+U 1 1 5F519DAC
+P 6950 3800
+F 0 "R1" V 6750 3800 50  0000 C CNN
+F 1 "470Ω" V 6845 3800 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 6950 3800 50  0001 C CNN
+F 3 "~" H 6950 3800 50  0001 C CNN
+	1    6950 3800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6850 3800 6750 3800
+Wire Wire Line
+	6950 3200 6950 3250
+$Comp
+L power:GND #PWR0126
+U 1 1 5F519DB5
+P 7500 4200
+F 0 "#PWR0126" H 7500 3950 50  0001 C CNN
+F 1 "GND" H 7505 4027 50  0000 C CNN
+F 2 "" H 7500 4200 50  0001 C CNN
+F 3 "" H 7500 4200 50  0001 C CNN
+	1    7500 4200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Airic_Lenz:MOSFET_N-CHANNEL Q1
+U 1 1 5F519DBB
+P 7500 3800
+F 0 "Q1" H 7650 3850 50  0000 L CNN
+F 1 "DMG3418L" H 7650 3750 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 8450 3700 50  0001 C CNN
+F 3 "" H 7600 3700 50  0001 C CNN
+	1    7500 3800
+	1    0    0    -1  
+$EndComp
+Connection ~ 7500 3500
+Wire Wire Line
+	7500 3600 7500 3500
+Wire Wire Line
+	6950 3000 7500 3000
+Wire Wire Line
+	7500 3000 7500 3200
+Connection ~ 7500 3000
+$Comp
+L power:GND #PWR0127
+U 1 1 5F519DC6
+P 6950 3250
+F 0 "#PWR0127" H 6950 3000 50  0001 C CNN
+F 1 "GND" H 6955 3077 50  0000 C CNN
+F 2 "" H 6950 3250 50  0001 C CNN
+F 3 "" H 6950 3250 50  0001 C CNN
+	1    6950 3250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C5
+U 1 1 5F519DCC
+P 6950 3100
+F 0 "C5" H 6750 3150 50  0000 L CNN
+F 1 "10uF 50V" H 6450 3050 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 6950 3100 50  0001 C CNN
+F 3 "~" H 6950 3100 50  0001 C CNN
+	1    6950 3100
+	1    0    0    -1  
+$EndComp
+Connection ~ 7500 3200
+Wire Wire Line
+	7500 2900 7500 3000
+$Comp
+L Connector:Conn_01x02_Female J3
+U 1 1 5F519DD4
+P 8000 3400
+F 0 "J3" H 7700 3450 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 7600 3150 50  0000 L CNN
+F 2 "Airic_Lenz:Connector_JST_XH_02x01_angeled" H 8000 3400 50  0001 C CNN
+F 3 "~" H 8000 3400 50  0001 C CNN
+	1    8000 3400
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	7500 3300 7800 3300
+Wire Wire Line
+	7800 3400 7500 3400
+Wire Wire Line
+	7500 3400 7500 3500
+Wire Wire Line
+	7500 3200 7500 3300
+Wire Wire Line
+	7350 3200 7500 3200
+$Comp
+L power:+12V #PWR0128
+U 1 1 5F519DDF
+P 7500 2900
+F 0 "#PWR0128" H 7500 2750 50  0001 C CNN
+F 1 "+12V" H 7515 3073 50  0000 C CNN
+F 2 "" H 7500 2900 50  0001 C CNN
+F 3 "" H 7500 2900 50  0001 C CNN
+	1    7500 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7250 3800 7150 3800
+Wire Wire Line
+	7500 4000 7500 4150
+$Comp
+L Device:R_Small R3
+U 1 1 5F519DE7
+P 7150 4000
+F 0 "R3" H 7000 3900 50  0000 C CNN
+F 1 "10kΩ" H 7000 4000 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 7150 4000 50  0001 C CNN
+F 3 "~" H 7150 4000 50  0001 C CNN
+	1    7150 4000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7350 3500 7500 3500
+Wire Wire Line
+	7350 3500 7350 3450
+Wire Wire Line
+	7350 3200 7350 3250
+$Comp
+L Device:D_Small D1
+U 1 1 5F519DF0
+P 7350 3350
+F 0 "D1" V 7150 3400 50  0000 C CNN
+F 1 "Schottky 2A" H 7350 3250 50  0000 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 7350 3350 50  0001 C CNN
+F 3 "~" V 7350 3350 50  0001 C CNN
+	1    7350 3350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7150 3800 7150 3900
+Connection ~ 7150 3800
+Wire Wire Line
+	7150 3800 7050 3800
+Wire Wire Line
+	7150 4100 7150 4150
+Wire Wire Line
+	7150 4150 7500 4150
+Connection ~ 7500 4150
+Wire Wire Line
+	7500 4150 7500 4200
+$Comp
+L Device:R_Small R2
+U 1 1 5F52321A
+P 6950 5800
+F 0 "R2" V 6750 5800 50  0000 C CNN
+F 1 "470Ω" V 6845 5800 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 6950 5800 50  0001 C CNN
+F 3 "~" H 6950 5800 50  0001 C CNN
+	1    6950 5800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6850 5800 6750 5800
+Wire Wire Line
+	6950 5200 6950 5250
+$Comp
+L power:GND #PWR0129
+U 1 1 5F523223
+P 7500 6200
+F 0 "#PWR0129" H 7500 5950 50  0001 C CNN
+F 1 "GND" H 7505 6027 50  0000 C CNN
+F 2 "" H 7500 6200 50  0001 C CNN
+F 3 "" H 7500 6200 50  0001 C CNN
+	1    7500 6200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Airic_Lenz:MOSFET_N-CHANNEL Q2
+U 1 1 5F523229
+P 7500 5800
+F 0 "Q2" H 7650 5850 50  0000 L CNN
+F 1 "DMG3418L" H 7650 5750 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 8450 5700 50  0001 C CNN
+F 3 "" H 7600 5700 50  0001 C CNN
+	1    7500 5800
+	1    0    0    -1  
+$EndComp
+Connection ~ 7500 5500
+Wire Wire Line
+	7500 5600 7500 5500
+Wire Wire Line
+	6950 5000 7500 5000
+Wire Wire Line
+	7500 5000 7500 5200
+Connection ~ 7500 5000
+$Comp
+L power:GND #PWR0130
+U 1 1 5F523234
+P 6950 5250
+F 0 "#PWR0130" H 6950 5000 50  0001 C CNN
+F 1 "GND" H 6955 5077 50  0000 C CNN
+F 2 "" H 6950 5250 50  0001 C CNN
+F 3 "" H 6950 5250 50  0001 C CNN
+	1    6950 5250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C6
+U 1 1 5F52323A
+P 6950 5100
+F 0 "C6" H 6750 5150 50  0000 L CNN
+F 1 "10uF 50V" H 6450 5050 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 6950 5100 50  0001 C CNN
+F 3 "~" H 6950 5100 50  0001 C CNN
+	1    6950 5100
+	1    0    0    -1  
+$EndComp
+Connection ~ 7500 5200
+Wire Wire Line
+	7500 4900 7500 5000
+$Comp
+L Connector:Conn_01x02_Female J4
+U 1 1 5F523242
+P 8000 5400
+F 0 "J4" H 7700 5450 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 7600 5150 50  0000 L CNN
+F 2 "Airic_Lenz:Connector_JST_XH_02x01_angeled" H 8000 5400 50  0001 C CNN
+F 3 "~" H 8000 5400 50  0001 C CNN
+	1    8000 5400
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	7500 5300 7800 5300
+Wire Wire Line
+	7800 5400 7500 5400
+Wire Wire Line
+	7500 5400 7500 5500
+Wire Wire Line
+	7500 5200 7500 5300
+Wire Wire Line
+	7350 5200 7500 5200
+$Comp
+L power:+12V #PWR0131
+U 1 1 5F52324D
+P 7500 4900
+F 0 "#PWR0131" H 7500 4750 50  0001 C CNN
+F 1 "+12V" H 7515 5073 50  0000 C CNN
+F 2 "" H 7500 4900 50  0001 C CNN
+F 3 "" H 7500 4900 50  0001 C CNN
+	1    7500 4900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7250 5800 7150 5800
+Wire Wire Line
+	7500 6000 7500 6150
+$Comp
+L Device:R_Small R4
+U 1 1 5F523255
+P 7150 6000
+F 0 "R4" H 7000 5900 50  0000 C CNN
+F 1 "10kΩ" H 7000 6000 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 7150 6000 50  0001 C CNN
+F 3 "~" H 7150 6000 50  0001 C CNN
+	1    7150 6000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7350 5500 7500 5500
+Wire Wire Line
+	7350 5500 7350 5450
+Wire Wire Line
+	7350 5200 7350 5250
+$Comp
+L Device:D_Small D2
+U 1 1 5F52325E
+P 7350 5350
+F 0 "D2" V 7150 5400 50  0000 C CNN
+F 1 "Schottky 2A" H 7350 5250 50  0000 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 7350 5350 50  0001 C CNN
+F 3 "~" V 7350 5350 50  0001 C CNN
+	1    7350 5350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7150 5800 7150 5900
+Connection ~ 7150 5800
+Wire Wire Line
+	7150 5800 7050 5800
+Wire Wire Line
+	7150 6100 7150 6150
+Wire Wire Line
+	7150 6150 7500 6150
+Connection ~ 7500 6150
+Wire Wire Line
+	7500 6150 7500 6200
+$Comp
+L Device:C_Small C1
+U 1 1 5F529B7D
+P 2100 1200
+F 0 "C1" H 1900 1250 50  0000 L CNN
+F 1 "10uF 50V" H 1600 1150 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 2100 1200 50  0001 C CNN
+F 3 "~" H 2100 1200 50  0001 C CNN
+	1    2100 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C_Small C4
+U 1 1 5F52A8E6
+P 3750 1200
+F 0 "C4" H 3550 1250 50  0000 L CNN
+F 1 "10uF 50V" H 3250 1150 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 3750 1200 50  0001 C CNN
+F 3 "~" H 3750 1200 50  0001 C CNN
+	1    3750 1200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2850 1550 3750 1550
+Wire Wire Line
+	3750 1550 3750 1300
+Connection ~ 2850 1550
+Wire Wire Line
+	2100 1300 2100 1550
+Connection ~ 2100 1550
+Wire Wire Line
+	2100 1100 2100 1000
+Connection ~ 2100 1000
+Wire Wire Line
+	2100 1000 2350 1000
+Wire Wire Line
+	3750 1100 3750 1000
+Connection ~ 3750 1000
+Wire Wire Line
+	1500 1200 1500 1550
+Wire Wire Line
+	1500 1000 2100 1000
+Connection ~ 1500 1000
+Wire Wire Line
+	1500 1550 2100 1550
+Connection ~ 1500 1550
+Wire Wire Line
+	1500 1550 1500 1700
+Text GLabel 1950 6950 0    50   Input ~ 0
+GPIO_26_CH4
+Text GLabel 6650 3800 0    50   Input ~ 0
+GPIO_21_CH5
+Text GLabel 2650 7050 2    50   Input ~ 0
+GPIO_21_CH5
+Text GLabel 6650 5800 0    50   Input ~ 0
+GPIO_26_CH4
+Text GLabel 9150 1800 0    50   Input ~ 0
+GPIO_20_CH3
+Text GLabel 9150 3800 0    50   Input ~ 0
+GPIO_19_CH2
+Text GLabel 9150 5800 0    50   Input ~ 0
+GPIO_16_CH1
+Text GLabel 2650 6850 2    50   Input ~ 0
+GPIO_16_CH1
+Wire Wire Line
+	2650 6850 2550 6850
+Wire Wire Line
+	2050 6950 1950 6950
+Wire Wire Line
+	2050 6550 1950 6550
+Wire Wire Line
+	2050 6650 1950 6650
+Wire Wire Line
+	2550 6650 2650 6650
+Text GLabel 2650 6950 2    50   Input ~ 0
+GPIO_20_CH3
+Wire Wire Line
+	2550 7050 2650 7050
+Wire Wire Line
+	2550 6950 2650 6950
+Text GLabel 1950 6850 0    50   Input ~ 0
+GPIO_19_CH2
+Wire Wire Line
+	1950 6850 2050 6850
+$Comp
+L Device:R_Small R11
+U 1 1 5F776824
+P 6950 1800
+F 0 "R11" V 6750 1800 50  0000 C CNN
+F 1 "470Ω" V 6845 1800 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 6950 1800 50  0001 C CNN
+F 3 "~" H 6950 1800 50  0001 C CNN
+	1    6950 1800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6850 1800 6750 1800
+Wire Wire Line
+	6950 1200 6950 1250
+$Comp
+L power:GND #PWR0132
+U 1 1 5F77682C
+P 7500 2200
+F 0 "#PWR0132" H 7500 1950 50  0001 C CNN
+F 1 "GND" H 7505 2027 50  0000 C CNN
+F 2 "" H 7500 2200 50  0001 C CNN
+F 3 "" H 7500 2200 50  0001 C CNN
+	1    7500 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Airic_Lenz:MOSFET_N-CHANNEL Q6
+U 1 1 5F776832
+P 7500 1800
+F 0 "Q6" H 7650 1850 50  0000 L CNN
+F 1 "DMG3418L" H 7650 1750 50  0000 L CNN
+F 2 "Package_TO_SOT_SMD:TSOT-23_HandSoldering" H 8450 1700 50  0001 C CNN
+F 3 "" H 7600 1700 50  0001 C CNN
+	1    7500 1800
+	1    0    0    -1  
+$EndComp
+Connection ~ 7500 1500
+Wire Wire Line
+	7500 1600 7500 1500
+Wire Wire Line
+	6950 1000 7500 1000
+Wire Wire Line
+	7500 1000 7500 1200
+Connection ~ 7500 1000
+$Comp
+L power:GND #PWR0133
+U 1 1 5F77683D
+P 6950 1250
+F 0 "#PWR0133" H 6950 1000 50  0001 C CNN
+F 1 "GND" H 6955 1077 50  0000 C CNN
+F 2 "" H 6950 1250 50  0001 C CNN
+F 3 "" H 6950 1250 50  0001 C CNN
+	1    6950 1250
+	1    0    0    -1  
+$EndComp
+Connection ~ 7500 1200
+Wire Wire Line
+	7500 900  7500 1000
+$Comp
+L Connector:Conn_01x02_Female J8
+U 1 1 5F77684B
+P 8000 1400
+F 0 "J8" H 7700 1450 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 7600 1150 50  0000 L CNN
+F 2 "Airic_Lenz:Connector_JST_XH_02x01_angeled" H 8000 1400 50  0001 C CNN
+F 3 "~" H 8000 1400 50  0001 C CNN
+	1    8000 1400
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	7500 1300 7800 1300
+Wire Wire Line
+	7800 1400 7500 1400
+Wire Wire Line
+	7500 1400 7500 1500
+Wire Wire Line
+	7500 1200 7500 1300
+Wire Wire Line
+	7350 1200 7500 1200
+$Comp
+L power:+12V #PWR0134
+U 1 1 5F776856
+P 7500 900
+F 0 "#PWR0134" H 7500 750 50  0001 C CNN
+F 1 "+12V" H 7515 1073 50  0000 C CNN
+F 2 "" H 7500 900 50  0001 C CNN
+F 3 "" H 7500 900 50  0001 C CNN
+	1    7500 900 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7250 1800 7150 1800
+Wire Wire Line
+	7500 2000 7500 2150
+$Comp
+L Device:R_Small R12
+U 1 1 5F77685E
+P 7150 2000
+F 0 "R12" H 7000 1900 50  0000 C CNN
+F 1 "10kΩ" H 7000 2000 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 7150 2000 50  0001 C CNN
+F 3 "~" H 7150 2000 50  0001 C CNN
+	1    7150 2000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7350 1500 7500 1500
+Wire Wire Line
+	7350 1500 7350 1450
+Wire Wire Line
+	7350 1200 7350 1250
+$Comp
+L Device:D_Small D6
+U 1 1 5F776867
+P 7350 1350
+F 0 "D6" V 7150 1400 50  0000 C CNN
+F 1 "Schottky 2A" H 7350 1250 50  0000 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 7350 1350 50  0001 C CNN
+F 3 "~" V 7350 1350 50  0001 C CNN
+	1    7350 1350
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7150 1800 7150 1900
+Connection ~ 7150 1800
+Wire Wire Line
+	7150 1800 7050 1800
+Wire Wire Line
+	7150 2100 7150 2150
+Wire Wire Line
+	7150 2150 7500 2150
+Connection ~ 7500 2150
+Wire Wire Line
+	7500 2150 7500 2200
+Text GLabel 6650 1800 0    50   Input ~ 0
+GPIO_06_PUMP
+Text Notes 8050 1400 0    50   ~ 0
+MOTOR
+Text Notes 8100 3400 0    50   ~ 0
+CHANNEL 5
+Text Notes 8050 5400 0    50   ~ 0
+CHANNEL 4
+Text Notes 10600 1400 0    50   ~ 0
+CHANNEL 3
+Text Notes 10600 3400 0    50   ~ 0
+CHANNEL 2
+Text Notes 10600 5400 0    50   ~ 0
+CHANNEL 1
+Text GLabel 1950 6650 0    50   Input ~ 0
+GPIO_06_PUMP
+$Comp
+L Airic_Lenz:Logo_Airic_Lenz Logo1
+U 1 1 5F967044
+P 5250 7650
+F 0 "Logo1" H 5250 7600 60  0001 C CNN
+F 1 "Logo_Airic_Lenz" H 5275 7703 60  0000 L CNN
+F 2 "Airic_Lenz:Logo_AiricLenz_Silk_15mm" H 5275 7597 60  0000 L CNN
+F 3 "" H 5250 7650 60  0000 C CNN
+	1    5250 7650
+	1    0    0    -1  
+$EndComp
+$Comp
+L Airic_Lenz:Logo_OSH L1
+U 1 1 5F96825C
+P 4500 7650
+F 0 "L1" H 4525 7696 50  0000 L CNN
+F 1 "Logo_OSH" H 4525 7605 50  0000 L CNN
+F 2 "Airic_Lenz:Logo_OSHW_Silk_10mm" H 4500 7800 50  0001 C CNN
+F 3 "" H 4500 7650 50  0001 C CNN
+	1    4500 7650
+	1    0    0    -1  
+$EndComp
+Wire Notes Line
+	5800 600  11100 600 
+Wire Notes Line
+	11100 600  11100 6450
+Wire Notes Line
+	11100 6450 5800 6450
+Wire Notes Line
+	5800 6450 5800 600 
+Wire Notes Line
+	600  600  4050 600 
+Wire Notes Line
+	4050 600  4050 2000
+Wire Notes Line
+	4050 2000 600  2000
+Wire Notes Line
+	600  2000 600  600 
+Wire Notes Line
+	600  2100 4050 2100
+Wire Notes Line
+	4050 2100 4050 3400
+Wire Notes Line
+	4050 3400 600  3400
+Wire Notes Line
+	600  3400 600  2100
+Wire Notes Line
+	600  4550 4050 4550
+Wire Notes Line
+	4050 4550 4050 7350
+Wire Notes Line
+	4050 7350 600  7350
+Wire Notes Line
+	600  7350 600  4550
+Text Notes 650  4650 0    50   ~ 0
+Raspberry Pi GPIO Header
+Text Notes 650  700  0    50   ~ 0
+Power Input
+Text Notes 650  2200 0    50   ~ 0
+nRF24 Module
+Text Notes 5850 700  0    50   ~ 0
+Motor / Valve Outputs
+Wire Notes Line
+	600  3500 4050 3500
+Wire Notes Line
+	4050 3500 4050 4450
+Wire Notes Line
+	4050 4450 600  4450
+Wire Notes Line
+	600  4450 600  3500
+Text Notes 650  4350 0    50   ~ 0
+Water Sensor\n\nSet the pin high for \n250 microSec to\ncharge the Cap.\nWait for 30 milliSec\nto discharge \nthrough the water.\nRead the pin\n(>50% = no water)
+$Comp
+L Connector:Conn_01x02_Female J9
+U 1 1 5F2A1EA6
+P 3600 3850
+F 0 "J9" H 3700 3800 50  0000 L CNN
+F 1 "Conn_01x02_Female" H 3200 3600 50  0000 L CNN
+F 2 "Airic_Lenz:Connector_JST_XH_02x01_angeled" H 3600 3850 50  0001 C CNN
+F 3 "~" H 3600 3850 50  0001 C CNN
+	1    3600 3850
+	1    0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR0135
+U 1 1 5F2A42ED
+P 2650 4150
+F 0 "#PWR0135" H 2650 3900 50  0001 C CNN
+F 1 "GND" H 2655 3977 50  0000 C CNN
+F 2 "" H 2650 4150 50  0001 C CNN
+F 3 "" H 2650 4150 50  0001 C CNN
+	1    2650 4150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2650 4050 2650 4150
+$Comp
+L power:GND #PWR0136
+U 1 1 5F2D3103
+P 3300 4150
+F 0 "#PWR0136" H 3300 3900 50  0001 C CNN
+F 1 "GND" H 3305 3977 50  0000 C CNN
+F 2 "" H 3300 4150 50  0001 C CNN
+F 3 "" H 3300 4150 50  0001 C CNN
+	1    3300 4150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3400 3850 3300 3850
+Wire Wire Line
+	3300 3850 3300 4150
+Text GLabel 2650 5450 2    50   Input ~ 0
+GPIO_14_LED
+Wire Wire Line
+	2550 5450 2650 5450
+$Comp
+L Device:C_Small C10
+U 1 1 5F776843
+P 6950 1100
+F 0 "C10" H 6750 1150 50  0000 L CNN
+F 1 "10uF 25V" H 6450 1050 50  0000 L CNN
+F 2 "Capacitor_SMD:C_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 6950 1100 50  0001 C CNN
+F 3 "~" H 6950 1100 50  0001 C CNN
+	1    6950 1100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:LED_Small D7
+U 1 1 5F210044
+P 6300 2150
+F 0 "D7" H 6300 2293 50  0000 C CNN
+F 1 "LED_Small" H 6300 2294 50  0001 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 6300 2150 50  0001 C CNN
+F 3 "~" V 6300 2150 50  0001 C CNN
+	1    6300 2150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R14
+U 1 1 5F211552
+P 6600 2150
+F 0 "R14" V 6400 2150 50  0000 C CNN
+F 1 "1kΩ" V 6495 2150 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 6600 2150 50  0001 C CNN
+F 3 "~" H 6600 2150 50  0001 C CNN
+	1    6600 2150
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0137
+U 1 1 5F212093
+P 6100 2200
+F 0 "#PWR0137" H 6100 1950 50  0001 C CNN
+F 1 "GND" H 6105 2027 50  0000 C CNN
+F 2 "" H 6100 2200 50  0001 C CNN
+F 3 "" H 6100 2200 50  0001 C CNN
+	1    6100 2200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3100 3750 3400 3750
+Text GLabel 2350 3750 0    50   Input ~ 0
+GPIO_4_WATER
+Connection ~ 2650 3750
+Wire Wire Line
+	2650 3750 2350 3750
+Wire Wire Line
+	2650 3750 2650 3850
+Wire Wire Line
+	2900 3750 2650 3750
+$Comp
+L Device:R_Small R13
+U 1 1 5F2A3EB7
+P 3000 3750
+F 0 "R13" V 3100 3750 50  0000 C CNN
+F 1 "1kΩ" V 3200 3750 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 3000 3750 50  0001 C CNN
+F 3 "~" H 3000 3750 50  0001 C CNN
+	1    3000 3750
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C_Small C11
+U 1 1 5F2A0813
+P 2650 3950
+F 0 "C11" H 2800 4050 50  0000 L CNN
+F 1 "1uF 16V" H 2750 3950 50  0000 L CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 2650 3950 50  0001 C CNN
+F 3 "~" H 2650 3950 50  0001 C CNN
+	1    2650 3950
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6750 1800 6750 2150
+Wire Wire Line
+	6750 2150 6700 2150
+Connection ~ 6750 1800
+Wire Wire Line
+	6750 1800 6650 1800
+Wire Wire Line
+	6500 2150 6400 2150
+Wire Wire Line
+	6200 2150 6100 2150
+Wire Wire Line
+	6100 2150 6100 2200
+$Comp
+L Device:LED_Small D8
+U 1 1 5F20EFD8
+P 6300 4150
+F 0 "D8" H 6300 4293 50  0000 C CNN
+F 1 "LED_Small" H 6300 4294 50  0001 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 6300 4150 50  0001 C CNN
+F 3 "~" V 6300 4150 50  0001 C CNN
+	1    6300 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R15
+U 1 1 5F20EFDE
+P 6600 4150
+F 0 "R15" V 6400 4150 50  0000 C CNN
+F 1 "1kΩ" V 6495 4150 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 6600 4150 50  0001 C CNN
+F 3 "~" H 6600 4150 50  0001 C CNN
+	1    6600 4150
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0138
+U 1 1 5F20EFE4
+P 6100 4200
+F 0 "#PWR0138" H 6100 3950 50  0001 C CNN
+F 1 "GND" H 6105 4027 50  0000 C CNN
+F 2 "" H 6100 4200 50  0001 C CNN
+F 3 "" H 6100 4200 50  0001 C CNN
+	1    6100 4200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6750 3800 6750 4150
+Wire Wire Line
+	6750 4150 6700 4150
+Wire Wire Line
+	6500 4150 6400 4150
+Wire Wire Line
+	6200 4150 6100 4150
+Wire Wire Line
+	6100 4150 6100 4200
+Connection ~ 6750 3800
+Wire Wire Line
+	6750 3800 6650 3800
+$Comp
+L Device:LED_Small D9
+U 1 1 5F21F1C3
+P 6300 6150
+F 0 "D9" H 6300 6293 50  0000 C CNN
+F 1 "LED_Small" H 6300 6294 50  0001 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 6300 6150 50  0001 C CNN
+F 3 "~" V 6300 6150 50  0001 C CNN
+	1    6300 6150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R16
+U 1 1 5F21F1C9
+P 6600 6150
+F 0 "R16" V 6400 6150 50  0000 C CNN
+F 1 "1kΩ" V 6495 6150 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 6600 6150 50  0001 C CNN
+F 3 "~" H 6600 6150 50  0001 C CNN
+	1    6600 6150
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0139
+U 1 1 5F21F1CF
+P 6100 6200
+F 0 "#PWR0139" H 6100 5950 50  0001 C CNN
+F 1 "GND" H 6105 6027 50  0000 C CNN
+F 2 "" H 6100 6200 50  0001 C CNN
+F 3 "" H 6100 6200 50  0001 C CNN
+	1    6100 6200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6750 5800 6750 6150
+Wire Wire Line
+	6750 6150 6700 6150
+Wire Wire Line
+	6500 6150 6400 6150
+Wire Wire Line
+	6200 6150 6100 6150
+Wire Wire Line
+	6100 6150 6100 6200
+$Comp
+L Device:LED_Small D12
+U 1 1 5F22E2DA
+P 8800 6150
+F 0 "D12" H 8800 6293 50  0000 C CNN
+F 1 "LED_Small" H 8800 6294 50  0001 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 8800 6150 50  0001 C CNN
+F 3 "~" V 8800 6150 50  0001 C CNN
+	1    8800 6150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R19
+U 1 1 5F22E2E0
+P 9100 6150
+F 0 "R19" V 8900 6150 50  0000 C CNN
+F 1 "1kΩ" V 8995 6150 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9100 6150 50  0001 C CNN
+F 3 "~" H 9100 6150 50  0001 C CNN
+	1    9100 6150
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0140
+U 1 1 5F22E2E6
+P 8600 6200
+F 0 "#PWR0140" H 8600 5950 50  0001 C CNN
+F 1 "GND" H 8605 6027 50  0000 C CNN
+F 2 "" H 8600 6200 50  0001 C CNN
+F 3 "" H 8600 6200 50  0001 C CNN
+	1    8600 6200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9250 5800 9250 6150
+Wire Wire Line
+	9250 6150 9200 6150
+Wire Wire Line
+	9000 6150 8900 6150
+Wire Wire Line
+	8700 6150 8600 6150
+Wire Wire Line
+	8600 6150 8600 6200
+$Comp
+L Device:LED_Small D11
+U 1 1 5F23DF23
+P 8800 4150
+F 0 "D11" H 8800 4293 50  0000 C CNN
+F 1 "LED_Small" H 8800 4294 50  0001 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 8800 4150 50  0001 C CNN
+F 3 "~" V 8800 4150 50  0001 C CNN
+	1    8800 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R18
+U 1 1 5F23DF29
+P 9100 4150
+F 0 "R18" V 8900 4150 50  0000 C CNN
+F 1 "1kΩ" V 8995 4150 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9100 4150 50  0001 C CNN
+F 3 "~" H 9100 4150 50  0001 C CNN
+	1    9100 4150
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0141
+U 1 1 5F23DF2F
+P 8600 4200
+F 0 "#PWR0141" H 8600 3950 50  0001 C CNN
+F 1 "GND" H 8605 4027 50  0000 C CNN
+F 2 "" H 8600 4200 50  0001 C CNN
+F 3 "" H 8600 4200 50  0001 C CNN
+	1    8600 4200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9250 3800 9250 4150
+Wire Wire Line
+	9250 4150 9200 4150
+Wire Wire Line
+	9000 4150 8900 4150
+Wire Wire Line
+	8700 4150 8600 4150
+Wire Wire Line
+	8600 4150 8600 4200
+$Comp
+L Device:LED_Small D10
+U 1 1 5F24E858
+P 8800 2150
+F 0 "D10" H 8800 2293 50  0000 C CNN
+F 1 "LED_Small" H 8800 2294 50  0001 C CNN
+F 2 "Airic_Lenz:Diode_0805_HandSoldering" V 8800 2150 50  0001 C CNN
+F 3 "~" V 8800 2150 50  0001 C CNN
+	1    8800 2150
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R_Small R17
+U 1 1 5F24E85E
+P 9100 2150
+F 0 "R17" V 8900 2150 50  0000 C CNN
+F 1 "1kΩ" V 8995 2150 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 9100 2150 50  0001 C CNN
+F 3 "~" H 9100 2150 50  0001 C CNN
+	1    9100 2150
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0142
+U 1 1 5F24E864
+P 8600 2200
+F 0 "#PWR0142" H 8600 1950 50  0001 C CNN
+F 1 "GND" H 8605 2027 50  0000 C CNN
+F 2 "" H 8600 2200 50  0001 C CNN
+F 3 "" H 8600 2200 50  0001 C CNN
+	1    8600 2200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9250 1800 9250 2150
+Wire Wire Line
+	9250 2150 9200 2150
+Wire Wire Line
+	9000 2150 8900 2150
+Wire Wire Line
+	8700 2150 8600 2150
+Wire Wire Line
+	8600 2150 8600 2200
+Connection ~ 9250 1800
+Wire Wire Line
+	9250 1800 9150 1800
+Connection ~ 9250 3800
+Wire Wire Line
+	9250 3800 9150 3800
+Connection ~ 9250 5800
+Wire Wire Line
+	9250 5800 9150 5800
+Connection ~ 6750 5800
+Wire Wire Line
+	6750 5800 6650 5800
+Text Notes 4150 3750 0    50   ~ 0
+DMN2058U:\n———————————————\n40V, 4A, 60mΩ, 172°C/W, 4nC\n\n@3A:\nP = I² * R = 3A² * 0.06Ω = 0.54W\n(172°C/W * 0.468W) + 25°C = 118°C\n\n@2A:\nP = I² * R = 2A² * 0.06Ω = 0.24W\n(171°C/W * 0.468W) + 25°C = 66°C\n\nI = U / R \nI = 3.3V / 470Ω = 0.007 = 7mA\n\nt = Q / I\nt = 4nC / 0.007A = 571nSec
+Text Notes 4150 5550 0    50   ~ 0
+DMG3414UQ:\n———————————————\n20V, 5.5A, 29mΩ, 162°C/W, 9.6nC\n\n@3A:\nP = I² * R = 3A² * 0.029Ω = 0.261W\n(162°C/W * 0.261W) + 25°C = 68°C\n\n@2A:\nP = I² * R = 2A² * 0.029Ω = 0.116W\n(162°C/W * 0.116W) + 25°C = 44°C\n\nI = U / R \nI = 3.3V / 470Ω = 0.007 = 7mA\n\nt = Q / I\nt = 9.6nC / 0.007A = 1371ns \n= 0.001371ms
+$Comp
+L Device:R_Small R20
+U 1 1 5F24CC46
+P 6100 6900
+F 0 "R20" V 5900 6900 50  0000 C CNN
+F 1 "1kΩ" V 5995 6900 50  0000 C CNN
+F 2 "Airic_Lenz:Device_0603_Handsoldering" H 6100 6900 50  0001 C CNN
+F 3 "~" H 6100 6900 50  0001 C CNN
+	1    6100 6900
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6200 6900 6300 6900
+$Comp
+L power:GND #PWR0143
+U 1 1 5F25D485
+P 6600 7000
+F 0 "#PWR0143" H 6600 6750 50  0001 C CNN
+F 1 "GND" H 6605 6827 50  0000 C CNN
+F 2 "" H 6600 7000 50  0001 C CNN
+F 3 "" H 6600 7000 50  0001 C CNN
+	1    6600 7000
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6500 6900 6600 6900
+Wire Wire Line
+	6600 6900 6600 7000
+$Comp
+L Device:LED_Small D13
+U 1 1 5F24BD4F
+P 6400 6900
+F 0 "D13" H 6400 7043 50  0000 C CNN
+F 1 "LED_Small" H 6400 7044 50  0001 C CNN
+F 2 "Airic_Lenz:Diode_0603_Handsoldering" V 6400 6900 50  0001 C CNN
+F 3 "~" V 6400 6900 50  0001 C CNN
+	1    6400 6900
+	-1   0    0    -1  
+$EndComp
+Wire Notes Line
+	6850 6550 6850 7350
+Wire Notes Line
+	6850 7350 4150 7350
+Wire Notes Line
+	4150 7350 4150 6550
+Wire Notes Line
+	4150 6550 6850 6550
+Text Notes 4200 6650 0    50   ~ 0
+DEBUG
+Text GLabel 6000 6900 0    50   Input ~ 0
+GPIO_14_LED
+Text GLabel 2050 5450 0    50   Input ~ 0
+GPIO_4_WATER
+$Comp
+L Airic_Lenz:TESTPOINT TP1
+U 1 1 5F2E9C7C
+P 4600 7100
+F 0 "TP1" V 4767 7022 39  0000 R CNN
+F 1 "TESTPOINT" H 4600 7250 60  0001 C CNN
+F 2 "Airic_Lenz:Testpoint_GND" H 4600 7100 60  0001 C CNN
+F 3 "" H 4600 7100 60  0000 C CNN
+	1    4600 7100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:GND #PWR0144
+U 1 1 5F2EC477
+P 4600 7200
+F 0 "#PWR0144" H 4600 6950 50  0001 C CNN
+F 1 "GND" H 4500 7200 50  0000 C CNN
+F 2 "" H 4600 7200 50  0001 C CNN
+F 3 "" H 4600 7200 50  0001 C CNN
+	1    4600 7200
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC

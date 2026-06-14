@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<!-- ----------------- S E N S O R   R E A D I N G S ------------------- -->
+
+<div style="flex-direction: column; width: 100%;">
+
+	<div class="content-section">
+
+		<div class="div-row">
+			<div class="title div-column col-30">
+				Sensor Readings
+			</div>
+
+			<div class="div-column col-10" style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+				Channel:
+			</div>
+			<div class="div-column col-30" style="padding-bottom: 1rem;">
+				<div style="width: 100%;">
+					<select class="custom-select" id="idChannelSelect"
+						onchange="tethys.measurements.onChannelChange()">
+					</select>
+				</div>
+			</div>
+
+			<div class="title div-column col-3" style="margin-left: auto;">
+				<a href="#popup_delete_confirmation_measurements"
+					onclick="tethys.measurements.requestDeleteAll()">
+					<div class="button" id="idDeleteAllButton"
+						title="Delete all readings for this channel">
+						<img src="../static/images/svg/delete.svg" width="28" height="28" />
+					</div>
+				</a>
+			</div>
+		</div>
+
+
+		<div class="div-row table-header">
+			<div class="div-column div-column-padding col-10" style="cursor: pointer;"
+				onclick="tethys.measurements.sortBy('id')">
+				ID <span id="idSortIndicator_id"></span>
+			</div>
+			<div class="div-column div-column-padding col-30" style="cursor: pointer;"
+				onclick="tethys.measurements.sortBy('timestamp')">
+				Timestamp <span id="idSortIndicator_timestamp"></span>
+			</div>
+			<div class="div-column div-column-padding col-20" style="cursor: pointer;"
+				onclick="tethys.measurements.sortBy('moisturePercent')">
+				Moisture <span id="idSortIndicator_moisturePercent"></span>
+			</div>
+			<div class="div-column div-column-padding col-20" style="cursor: pointer;"
+				onclick="tethys.measurements.sortBy('batteryVoltage')">
+				Battery <span id="idSortIndicator_batteryVoltage"></span>
+			</div>
+			<div class="div-column div-column-padding col-15">
+			</div>
+		</div>
+
+		<div id="measurementRows">
+			<!-- /////////////////// -->
+			<!-- FILLED BY FORMATTER -->
+			<!-- /////////////////// -->
+		</div>
+	</div>
+
+</div>
+
+
+<!-- ----------------- D E L E T E   C O N F I R M A T I O N ------------------- -->
+
+<div id="popup_delete_confirmation_measurements" class="overlay">
+	<div class="popup content-section">
+		<h2>Delete Confirmation</h2>
+		<a class="close" href="#">&times;</a>
+		<div class="content" id="idMeasurementsDeleteMessage">
+			Do you want to delete the selected reading?
+		</div>
+		<div class="popup-button" onclick="tethys.measurements.confirmDelete()">
+			<a href="#">OK</a>
+		</div>
+	</div>
+</div>
+
+
+{% endblock %}

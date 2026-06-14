@@ -1,0 +1,276 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+	<!-- ----------------- C H A N N E L S ------------------- -->
+
+	<div style="flex-direction: column; width: 100%;">
+
+		<div class="content-section">
+
+
+			<div class="div-row">
+			    <div class="title div-column col-75">
+                    Channels
+                </div>
+
+                <div class="title div-column col-25">
+				</div>
+
+                <div class="title div-column col-3">
+                    <div class="button" id="button-add">
+                        <img
+						    src="../static/images/svg/add.svg"
+                            width="28"
+                            height="28"
+                            onclick="tethys.channel.addNewChannel()"
+                        />
+                    </div>
+				</div>
+            </div>
+
+
+			<div class="div-row table-header">
+				<div class="div-column div-column-padding col-15">
+					Channel
+				</div>
+				<div class="div-column div-column-padding col-7">
+					Channel<br>Type
+				</div>
+				<div class="div-column div-column-padding col-15">
+					Moisture
+				</div>
+				<div class="div-column div-column-padding col-7">
+					Sensor<br>Battery
+				</div>
+				<div class="div-column div-column-padding col-10">
+					Measurement<br>Count
+				</div>
+				<div class="div-column div-column-padding col-15">
+					Last Sensor<br>Measurement
+				</div>
+				<div class="div-column div-column-padding col-10">
+					Action Count
+				</div>
+				<div class="div-column div-column-padding col-15">
+					Last Action
+				</div>
+			</div>
+
+
+            <div id="channelRows">
+                <!-- /////////////////// -->
+                <!-- FILLED BY FORMATTER -->
+                <!-- /////////////////// -->
+            </div>
+		</div>
+
+		<!-- ----------------- S E T T I N G S ------------------- -->
+
+
+		<div id="idSettings" class="content-section" style="display: none; margin-top: 0.5rem;">
+
+			<!-- set in channels.js -->
+			<div class="div-row">
+				<div id="idSettingsTitle" class="title div-column col-75">Settings Title</div>
+				<div class="title div-column col-25"></div>
+				<div class="title div-column col-3">
+					<a href="#popup_delete_confirmation_channels">
+						<div class="button" title="Delete this channel and all its data">
+							<img
+								src="../static/images/svg/delete.svg"
+								width="28"
+								height="28"
+							/>
+						</div>
+					</a>
+				</div>
+			</div>
+
+			<div class="div-row">
+
+				<div class="div-column div-column-padding col-50">
+					<h2>Channel Settings</h2>
+				</div>
+
+				<div class="div-column div-column-padding col-50">
+					<h2>Sensor Settings</h2>
+				</div>
+
+			</div>
+
+            <!-- ------------------------------------- -->
+
+			<div class="div-row">
+
+				<div class="div-column div-column-padding col-20">
+					Enabled:
+				</div>
+				<div class="div-column div-column-padding col-30">
+					<label class="switch">
+						<input
+							type="checkbox"
+							id="idOptionEnabled"
+							onchange="tethys.channel.updateEnabled()">
+  						<span class="slider round"></span>
+					</label>
+				</div>
+
+				<div class="div-column div-column-padding col-20">
+					Trigger Calibration:
+				</div>
+				<div class="div-column div-column-padding col-30">
+					<label class="switch">
+						<input
+							type="checkbox"
+							id="idOptionCalibrate"
+							onchange="tethys.channel.updateTriggerCalibration()">
+  						<span class="slider round"></span>
+					</label>
+				</div>
+
+			</div>
+
+            <!-- ------------------------------------- -->
+
+			<div class="div-row">
+
+				<div class="div-column div-column-padding col-20">
+					Nickname:
+				</div>
+				<div class="div-column div-column-padding col-30">
+					<input
+						type="text"
+						class="text-field"
+						id="idOptionNickName"
+						name="optionNickName"
+						onfocusout="tethys.channel.updateNickName()">
+				</div>
+
+				<div class="div-column div-column-padding col-20">
+					Measure Frequency (min):
+				</div>
+				<div class="div-column div-column-padding col-30">
+					<input
+						type="number"
+						class="text-field"
+						id="idOptionFrequency"
+						name="optionFrequency"
+						onchange="tethys.tool.limitValue('idOptionFrequency', 1, 10080)"
+						onfocusout="tethys.channel.updateFrequency()">
+				</div>
+			</div>
+
+            <!-- ------------------------------------- -->
+
+			<div class="div-row">
+
+				<div class="div-column div-column-padding col-20">
+					Channel Type:
+				</div>
+				<div class="div-column div-column-padding col-30">
+
+					<div style="width: 100%;">
+						<select class="custom-select" id="idSelectChannelType" onchange="tethys.channel.updateType()">
+							<!--<option value="0">Select an option...</option>-->
+							<option value="1">pump</option>
+							<option value="2">valve</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="div-column div-column-padding col-20">
+					Transmission Power:
+				</div>
+				<div class="div-column div-column-padding col-30">
+					<div style="width: 100%;">
+						<select class="custom-select" id="idSelectTransmissionPower" onchange="tethys.channel.updateTransmissionPower()">
+							<!--<option value="0">Select an option...</option>-->
+							<option value="0">min</option>
+							<option value="1">low</option>
+							<option value="2">high</option>
+							<option value="3">max</option>
+						</select>
+					</div>
+				</div>
+
+			</div>
+
+            <!-- ------------------------------------- -->
+
+			<div class="div-row">
+
+				<div class="div-column div-column-padding col-20">
+					Pump Duration (sec):
+				</div>
+				<div class="div-column div-column-padding col-30">
+					<input
+						type="number"
+						class="text-field"
+						id="idOptionPumpDuration"
+						name="optionPumpDuration"
+						onchange="tethys.tool.limitValue('idOptionPumpDuration', 1, 120)"
+						onfocusout="tethys.channel.updatePumpDuration()">
+				</div>
+
+				<div id="idTestChannelLabel" class="div-column div-column-padding col-20">
+					Test Channel:
+				</div>
+				<div id="idTestChannelCheckBoxContainer" class="div-column div-column-padding col-30">
+					<label class="switch">
+						<input type="checkbox" id="idTestChannel" onchange="tethys.channel.triggerChannel()">
+  						<span class="slider round"></span>
+					</label>
+				</div>
+
+			</div>
+
+            <!-- ------------------------------------- -->
+
+			<div class="div-row">
+
+				<div class="div-column div-column-padding col-20">
+					Action Trigger Level (%):
+				</div>
+				<div class="div-column div-column-padding col-30">
+					<input
+						type="number"
+						class="text-field"
+						id="idOptionActionTriggerPercent"
+						name="optionActionTriggerPercent"
+						min="0" max="100"
+						onchange="tethys.tool.limitValue('idOptionActionTriggerPercent', 0, 100)"
+						onfocusout="tethys.channel.updateActionTriggerPercent()">
+				</div>
+
+				<div class="div-column div-column-padding col-20">
+				</div>
+				<div class="div-column div-column-padding col-30">
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+
+
+	<!-- ----------------- D E L E T E   C O N F I R M A T I O N ------------------- -->
+
+	<div id="popup_delete_confirmation_channels" class="overlay">
+		<div class="popup content-section">
+			<h2>Delete Confirmation</h2>
+			<a class="close" href="#">&times;</a>
+			<div class="content">
+				Delete this channel and all of its data (measurements and action logs)?
+				This cannot be undone.
+			</div>
+			<div class="popup-button" onclick="tethys.channel.deleteSelectedChannel()">
+				<a href="#">OK</a>
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
