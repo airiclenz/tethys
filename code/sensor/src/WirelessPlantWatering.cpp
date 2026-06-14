@@ -25,7 +25,13 @@
 	// one loop ~ 9 sec --> 15min = 104.4 loops
 
 	uint16_t	_watchdog_loops				= 60 * LOOPS_PER_MINUTE; // 60min / 1h
-	uint16_t    _watchdog_loop_counter		= 0;
+
+	// Start the down-counter at the settle window so the first measurement is
+	// deferred ~STARTUP_SETTLE_SECONDS after boot (the node sleeps through it via
+	// the normal loop/Sleep cycle; each loop is ~9 s, so the value rounds down to a
+	// whole loop count). After the first capture the counter is reloaded with the
+	// configured measure interval, so this only affects the first reading.
+	uint16_t    _watchdog_loop_counter		= STARTUP_SETTLE_SECONDS * LOOPS_PER_MINUTE / 60;
 
 
 

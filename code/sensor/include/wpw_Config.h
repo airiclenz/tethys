@@ -42,6 +42,13 @@
 
 	#define		LOOPS_PER_MINUTE		6.667		// 9 sec per loop
 
+	// Settle time (in seconds) after boot/calibration before the FIRST measurement
+	// is taken and transmitted. The node sleeps through this window one ~9 s
+	// watchdog loop at a time (it does NOT block), so it costs almost no power and
+	// the effective resolution is ~9 s. Gives the probe time to reach its final
+	// monitoring position before the first reported reading.
+	#define		STARTUP_SETTLE_SECONDS	60
+
 
 	// ------------------------------------------------
 	// Wire protocol (MUST stay in sync with code/master/core/protocol.py)

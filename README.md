@@ -195,6 +195,14 @@ Later readings become `100 − map(raw, min, max, 0, 100)` %.
    readings are too close, the calibration is **rejected** and the previous
    values are kept (signalled by the long 2 s blink).
 
+**First reading after boot.** On every boot — including right after calibration —
+the node waits ~1 minute (`STARTUP_SETTLE_SECONDS`, default 60, in
+[`wpw_Config.h`](code/sensor/include/wpw_Config.h)) before taking and transmitting
+its first reading. It *sleeps* through the wait (you'll see the heartbeat flash
+each ~9 s), so it costs almost no power. Put the probe in its final monitoring
+position before this window ends — the first reported value reflects wherever the
+probe is at that moment, **not** the calibration captures.
+
 The patterns, all on the sensor (TX) node LED:
 
 | Event | Blink pattern | Meaning |
