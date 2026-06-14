@@ -306,14 +306,22 @@ class Radio:
             self._logger.log(
                 f"Config cache miss for channel {channelNo}; sent safe default.")
 
-        # hardware ACK confirms delivery
-        self.radio.write(payload)
-        self._logger.log("Config was sent.")
+        # The write returns True only if the node hardware-ACKed the frame, i.e.
+        # actually received the config. Capture that: a calibration trigger is a
+        # one-shot, so we must NOT clear it unless we know it was delivered --
+        # otherwise an unacked reply (the node's 500ms listen window closed, RF
+        # glitch, ...) silently consumes the request and calibration never runs.
+        delivered = bool(self.radio.write(payload))
+        self._logger.log(
+            "Config was sent." if delivered
+            else "Config send was NOT acknowledged (will retry next handshake).")
 
-        # If this config carried a calibration trigger, clear it now -- this is
-        # out of the sensor's listen window, so the blocking HTTP PUT is fine.
+        # If this config carried a calibration trigger AND it was delivered, clear
+        # it now -- this is out of the sensor's listen window, so the blocking HTTP
+        # PUT is fine. If it was not delivered, leave the flag set so the next
+        # handshake re-delivers it.
         values = protocol.parse_config_payload(payload)
-        if values is not None and values.triggerCalibration:
+        if delivered and values is not None and values.triggerCalibration:
             self.clearCalibrationFlag(channelNo, values)
 
     # =============================================================================
