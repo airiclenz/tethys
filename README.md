@@ -164,6 +164,46 @@ pio run -t program -e TX     # via an AVR ISP programmer
 > check and goes silent (cleanly — it never corrupts data). See the
 > *Known limitations / coordinated flash* note in [`CHANGELOG.md`](CHANGELOG.md).
 
+### Sensor node LED — calibration & status blinks
+
+A sensor node has no screen; its single onboard LED is how it talks to you.
+Every blink is produced by `DoSimpleBlink(onMs, offMs)`
+([`code/sensor/src/wpw_Blinker.cpp`](code/sensor/src/wpw_Blinker.cpp)).
+
+**How calibration works.** Calibration maps the probe's raw reading onto a
+0–100 % moisture scale, and it is **two-point**: the node captures one reading in
+a *wet* condition and one in a *dry* condition, then stores the lower value as
+`MinimumValue` (wettest) and the higher as `MaximumValue` (driest) in EEPROM
+(`Calibrate()` in [`code/sensor/src/wpw_Sensor.cpp`](code/sensor/src/wpw_Sensor.cpp)).
+Later readings become `100 − map(raw, min, max, 0, 100)` %.
+
+1. Trigger it from the web UI — set the channel's **calibrate** flag
+   (`sensorTriggerCalibration`). It is delivered on the node's next config
+   exchange, so calibration starts the next time that node wakes and checks in.
+2. The node then takes **two** measurements, each announced by the *calibration
+   countdown* below (slow blinks → fast blinks → one long blink → it measures
+   while the LED is off). Put the probe in one condition for the first capture
+   and the other condition for the second.
+3. **Order doesn't matter** — the firmware sorts the two readings into min/max.
+   What matters is that the two conditions are genuinely different: if the two
+   readings are too close, the calibration is **rejected** and the previous
+   values are kept (signalled by the long 2 s blink).
+
+The patterns, all on the sensor (TX) node LED:
+
+| Event | Blink pattern | Meaning |
+|-------|---------------|---------|
+| **Power-on / node ID** | `N` slow blinks (150 ms on, 300 ms off), where `N` = `SENSOR_NUMBER` | Node booted and is powered; the count identifies which node it is (1–6). |
+| **Config received** | one very short flash (15 ms) | The master answered the config request and the settings were applied. |
+| **No master reply** | two short flashes (15 ms) | Config request timed out (no answer within 500 ms); the node falls back to the settings stored in EEPROM. |
+| **Config rejected** | three short flashes (15 ms) | The master replied but the frame failed the protocol-version / type check. |
+| **Settings saved** | accelerating ramp — 150 → 100 → 75 → 50 → 25 → 15 ms — then one long 300 ms flash | New settings differed from EEPROM and were written. |
+| **Settings unchanged** | two medium flashes (50 ms) | Config was checked but nothing changed, so nothing was written. |
+| **Heartbeat** | one very short flash (5 ms) each wake (~every 9 s) | Normal sleep/measure loop tick — the node is alive. |
+| **Transmit failed** | one short flash (10 ms) | The radio send failed; the node backs off (~15 min) before retrying. |
+| **Calibration countdown** | 10 slow blinks (300 ms) → 20 fast blinks (100 ms) → one long blink (1 s) → LED off while it measures | Counts down to a calibration capture. Runs **twice**, once per measurement point. |
+| **Calibration rejected** | one very long flash (2 s) | The two calibration readings were too close together; calibration was discarded and the previous values kept. |
+
 ---
 
 ## Part 2 — Orientation for a contributor or coding agent
