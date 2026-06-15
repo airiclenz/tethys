@@ -106,3 +106,6 @@ pins_arduino.h
 # Claude Code local worktrees — never commit
 /.claude/worktrees/
 
+
+# Local-only docs (handoffs, audits, plans) — not tracked
+docs/
