@@ -85,6 +85,7 @@ sudo cp -r $ROOTPATH/web/static/fonts $WWWPATH/tethys/staticcollect/fonts
 sudo cp -r $ROOTPATH/web/static/images $WWWPATH/tethys/staticcollect/images
 sudo cp -r $ROOTPATH/web/static/js $WWWPATH/tethys/staticcollect/js
 sudo cp -r $ROOTPATH/web/static/templatter $WWWPATH/tethys/staticcollect/templatter
+sudo cp -r $ROOTPATH/web/static/vendor $WWWPATH/tethys/staticcollect/vendor
 
 if [ $DEBUG == "true" ]; then
     sudo cp -r $ROOTPATH/web/static/ts $WWWPATH/tethys/staticcollect/ts

@@ -10,6 +10,29 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Sensor Readings: moisture & battery-voltage trend charts
+
+> (2026-06-15). The Sensor Readings page only listed raw readings in a table, so
+> trends over time were hard to see at a glance. It now shows two time-series line
+> charts — moisture % and battery voltage — side by side above the table, drawn
+> entirely from data the page already loads.
+
+#### Added
+- `code/master/web/static/ts/charts.ts` (`tethys.charts`) — renders the moisture
+  and battery-voltage line charts for the selected channel from the readings
+  `measurements.ts` already fetches. Charts update in place on channel change /
+  delete and clear when a channel has no data.
+- `code/master/web/static/vendor/chart.umd.min.js` — Chart.js v4.4.6 (UMD),
+  self-hosted so the dashboard keeps working offline (no CDN). `installServices.sh`
+  and `deploy-static.sh` now publish the `vendor/` folder to `staticcollect`, and
+  `layout.html` loads it before the app scripts.
+
+#### Changed
+- **`web/templates/index-measurements.html`** — two chart cards (moisture /
+  battery voltage) added above the readings table.
+- **`web/static/ts/measurements.ts`** — `render()` now also refreshes the charts.
+- **`web/static/css/main.css`** — chart card / canvas styling.
+
 ### Remote access: nginx catch-all + git-ignored extra `ALLOWED_HOSTS`
 
 > (2026-06-15). Reaching the Pi by a name other than `tethys.local` (e.g. its

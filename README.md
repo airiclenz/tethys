@@ -120,6 +120,9 @@ editing config require it.
 
 ### Daily use
 
+- **Sensor Readings page** (`/`) — per-channel reading history: two trend charts
+  (moisture % and battery voltage over time) sit above a sortable table of the
+  individual readings.
 - **Channels page** (`/channels/`) — live moisture %, battery, last action per
   channel; enable a channel, set its nickname, type (pump/valve), pump duration,
   and the moisture trigger %; manually test a pump.

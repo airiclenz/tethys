@@ -151,6 +151,8 @@ var tethys;
                 applySort();
                 updateSortIndicators();
                 updateDeleteAllButton();
+                // Keep the moisture / voltage charts in sync with the current data.
+                tethys.charts.render(rows);
                 const container = document.getElementById("measurementRows");
                 if (rows.length === 0) {
                     container.innerHTML =
