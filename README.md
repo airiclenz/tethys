@@ -95,7 +95,7 @@ only drops once the last valve closes.
 
 ```bash
 sudo apt install git -y
-git clone https://github.com/airiclenz/tethys-v2.git tethys
+git clone https://github.com/airiclenz/tethys.git tethys
 cd tethys/code/master/install
 ./install.sh
 ```

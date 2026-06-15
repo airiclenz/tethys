@@ -6,7 +6,7 @@ For installing Tehys the first time, you need to install git:
 
 Then you can download the code with:
 
-`git clone https://github.com/airiclenz/tethys-v2.git tethys`
+`git clone https://github.com/airiclenz/tethys.git tethys`
 
 Change into the installation directory:
 
