@@ -17,6 +17,10 @@ var tethys;
     (function (channel_1) {
         let channels = [];
         let selectedChannelNumber = null;
+        // Channel number whose settings panel should be opened automatically
+        // once the next summary refresh has rendered the rows (set right after
+        // a new channel is created). null when there is nothing pending.
+        let pendingOpenChannelNumber = null;
         // ============================================================================
         function getIndexOfchannelWithNumber(channelNumber) {
             return channelNumber - 1;
@@ -62,7 +66,7 @@ var tethys;
                 number: nextNumber,
                 enabled: false,
                 channelType: "pump",
-                triggerLevel: 50,
+                actionTriggerPercent: 50,
                 pumpDurationSeconds: 10,
                 sensorMeasureFrequencyMinutes: 60,
                 sensorTransmissionPowerLevel: "low",
@@ -73,13 +77,16 @@ var tethys;
                 if (!response.ok) {
                     return;
                 }
-                const reader = response.body.getReader();
-                reader.read()
-                    .then((readerResult) => {
-                    const resultBody = new TextDecoder().decode(readerResult.value);
-                    selectedChannelNumber = parseInt(resultBody, 10);
-                    tethys.websocket.requestChannelSummary();
-                });
+                // Clear the current selection and arrange for the new
+                // channel's settings panel to open once the refreshed list
+                // has rendered its row (see updateChannels). The summary
+                // arrives asynchronously over the websocket, so the row does
+                // not exist in the DOM yet. (The POST response carries the
+                // full channel JSON, not a bare number, so it must not be
+                // fed to parseInt - that yielded NaN and wedged the toggle.)
+                selectedChannelNumber = null;
+                pendingOpenChannelNumber = nextNumber;
+                tethys.websocket.requestChannelSummary();
             });
         }
         channel_1.addNewChannel = addNewChannel;
@@ -162,6 +169,18 @@ var tethys;
                     }
                     formatData(channel);
                 });
+                // Auto-open the settings panel for a just-created channel, now that
+                // its row exists in the DOM. Consumed once so later refreshes do not
+                // re-open it. Reuses the normal click handler so the behavior is
+                // identical to selecting the row by hand.
+                if (pendingOpenChannelNumber !== null) {
+                    const numberToOpen = pendingOpenChannelNumber;
+                    pendingOpenChannelNumber = null;
+                    const channelExists = channels.some(channel => channel.number === numberToOpen);
+                    if (selectedChannelNumber === null && channelExists) {
+                        toggleSettingsVisibility(numberToOpen);
+                    }
+                }
             });
         }
         channel_1.updateChannels = updateChannels;
