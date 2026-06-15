@@ -1,18 +1,17 @@
 from django.contrib import admin
 from django.urls import path
-from rest_framework.permissions import AllowAny
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from tethys_api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # API documentation. The default DRF permission requires an API key; the
-    # docs are public so the schema and the Swagger/ReDoc UIs that fetch it are
-    # reachable without one.
-    path('api/schema/', SpectacularAPIView.as_view(permission_classes=[AllowAny]), name='schema'),
-    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema', permission_classes=[AllowAny]), name='swagger-ui'),
-    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema', permission_classes=[AllowAny]), name='redoc'),
+    # API documentation (OpenAPI schema + Swagger/ReDoc UIs). These are gated by
+    # the default ApiKeyRequired permission like every other endpoint, so a valid
+    # X-API-Key header is required to fetch the schema or load the UIs.
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
     path('api/lastUpdate/', views.lastUpdate),
 

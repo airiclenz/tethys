@@ -2,8 +2,11 @@ import os
 import sys
 from django.db.models import OuterRef, Subquery, F, Count
 from rest_framework import status
+from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, inline_serializer
 
 from .models import *
 from .serializers import *
@@ -28,6 +31,11 @@ def setLastDataUpdateNow():
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    request=None,
+    responses={200: OpenApiTypes.OBJECT},
+    description='Seed the database with default reference data; returns an action-log summary.',
+)
 @api_view(['POST'])
 def initializeDatabase(request):
 
@@ -41,6 +49,12 @@ def initializeDatabase(request):
     
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    responses=inline_serializer(
+        name='LastUpdateResponse',
+        fields={'timestamp': serializers.DateTimeField()}),
+    description='Timestamp of the most recent data change (used by clients to poll for updates).',
+)
 @api_view(['GET'])
 def lastUpdate(request):
 
@@ -52,6 +66,12 @@ def lastUpdate(request):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    responses=inline_serializer(
+        name='VersionResponse',
+        fields={'version': serializers.CharField()}),
+    description='Master software version string.',
+)
 @api_view(['GET'])
 def version(request):
 
@@ -65,6 +85,17 @@ def version(request):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    responses=inline_serializer(
+        name='SilentPhaseStatusResponse',
+        fields={
+            'lastCalculationTime': serializers.CharField(),
+            'startTime': serializers.CharField(),
+            'endTime': serializers.CharField(),
+            'inPhase': serializers.BooleanField(),
+        }),
+    description='Current silent-phase status for the given IANA time zone identifier.',
+)
 @api_view(['GET'])
 def silentPhaseStatus(request, timeZoneIdentifier):
 
@@ -79,6 +110,17 @@ def silentPhaseStatus(request, timeZoneIdentifier):
                 'inPhase': SILENT_PHASE.inPhase
             })
 
+@extend_schema(
+    responses=inline_serializer(
+        name='SilentPhaseStatusForceResponse',
+        fields={
+            'lastCalculationTime': serializers.CharField(),
+            'startTime': serializers.CharField(),
+            'endTime': serializers.CharField(),
+            'inPhase': serializers.BooleanField(),
+        }),
+    description='Force a recalculation and return the silent-phase status for the given time zone.',
+)
 @api_view(['GET'])
 def silentPhaseStatusForce(request, timeZoneIdentifier):
 
@@ -95,6 +137,17 @@ def silentPhaseStatusForce(request, timeZoneIdentifier):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='ActionLogList',
+        fields={'actionLogs': ActionLogSerializer(many=True)}),
+)
+@extend_schema(
+    methods=['POST'],
+    request=ActionLogSerializer,
+    responses={201: ActionLogSerializer},
+)
 @api_view(['GET', 'POST'])
 def actionLog(request):
     
@@ -118,6 +171,18 @@ def actionLog(request):
         setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='ActionLogSingleList',
+        fields={'actionLogs': ActionLogSerializer(many=True)}),
+    description='Action-log entries for a single channel.',
+)
+@extend_schema(
+    methods=['DELETE'],
+    responses={204: None},
+    description='Delete all action-log entries for a single channel.',
+)
 @api_view(['GET', 'DELETE'])
 def actionLog_single(request, number):
     
@@ -138,6 +203,8 @@ def actionLog_single(request, number):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@extend_schema(methods=['GET'], responses=ActionLogSerializer)
+@extend_schema(methods=['DELETE'], responses={204: None})
 @api_view(['GET', 'DELETE'])
 def actionLog_entry(request, id):
 
@@ -159,6 +226,17 @@ def actionLog_entry(request, id):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='ActionTypeList',
+        fields={'actionTypes': ActionTypeSerializer(many=True)}),
+)
+@extend_schema(
+    methods=['POST'],
+    request=ActionTypeSerializer,
+    responses={201: ActionTypeSerializer},
+)
 @api_view(['GET', 'POST'])
 def actionType(request):
     
@@ -178,6 +256,9 @@ def actionType(request):
         setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+@extend_schema(methods=['GET'], responses=ActionTypeSerializer)
+@extend_schema(methods=['PUT'], request=ActionTypeSerializer, responses=ActionTypeSerializer)
+@extend_schema(methods=['DELETE'], responses={204: None})
 @api_view(['GET', 'PUT', 'DELETE'])
 def actionType_single(request, id):
     
@@ -208,6 +289,17 @@ def actionType_single(request, id):
     
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='ChannelList',
+        fields={'channels': ChannelSerializer(many=True)}),
+)
+@extend_schema(
+    methods=['POST'],
+    request=ChannelSerializer,
+    responses={201: ChannelSerializer},
+)
 @api_view(['GET', 'POST'])
 def channel(request):
     
@@ -227,6 +319,9 @@ def channel(request):
         setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+@extend_schema(methods=['GET'], responses=ChannelSerializer)
+@extend_schema(methods=['PUT'], request=ChannelSerializer, responses=ChannelSerializer)
+@extend_schema(methods=['DELETE'], responses={202: None})
 @api_view(['GET', 'PUT', 'DELETE'])
 def channel_single(request, number):
 
@@ -255,6 +350,12 @@ def channel_single(request, number):
         setLastDataUpdateNow()
         return Response(status=status.HTTP_202_ACCEPTED)
 
+@extend_schema(
+    request=None,
+    responses={202: None, 400: None, 404: None, 406: None},
+    description="Activate or deactivate a channel's hardware output. "
+                "`action` must be `activate` or `deactivate`; returns 406 if the channel is disabled.",
+)
 @api_view(['PATCH'])
 def channel_single_action(request, number, action):
 
@@ -290,6 +391,12 @@ def channel_single_action(request, number, action):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    responses=inline_serializer(
+        name='ChannelSummaryList',
+        fields={'channelSummaries': ChannelSummarySerializer(many=True)}),
+    description='Per-channel summary: latest sensor reading, last action, counts, and firmware status.',
+)
 @api_view(['GET'])
 def channelSummary(request):
     
@@ -331,6 +438,10 @@ def channelSummary(request):
         return Response({'channelSummaries': serializer.data})
 
 
+@extend_schema(
+    responses=ChannelSummarySerializer,
+    description='Summary for a single channel (see channelSummary).',
+)
 @api_view(['GET'])
 def channelSummary_single(request, number):
     
@@ -378,6 +489,17 @@ def channelSummary_single(request, number):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='ChannelTypeList',
+        fields={'channelTypes': ChannelTypeSerializer(many=True)}),
+)
+@extend_schema(
+    methods=['POST'],
+    request=ChannelTypeSerializer,
+    responses={201: ChannelTypeSerializer},
+)
 @api_view(['GET', 'POST'])
 def channelType(request):
     
@@ -397,6 +519,9 @@ def channelType(request):
         setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+@extend_schema(methods=['GET'], responses=ChannelTypeSerializer)
+@extend_schema(methods=['PUT'], request=ChannelTypeSerializer, responses=ChannelTypeSerializer)
+@extend_schema(methods=['DELETE'], responses={202: None})
 @api_view(['GET', 'PUT', 'DELETE'])
 def channelType_single(request, id):
 
@@ -427,6 +552,17 @@ def channelType_single(request, id):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='SensorDataList',
+        fields={'sensorData': SensorDataSerializer(many=True)}),
+)
+@extend_schema(
+    methods=['POST'],
+    request=SensorDataSerializer,
+    responses={201: SensorDataSerializer},
+)
 @api_view(['GET', 'POST'])
 def sensorData(request):
 
@@ -447,6 +583,18 @@ def sensorData(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='SensorDataSingleList',
+        fields={'sensorData': SensorDataSerializer(many=True)}),
+    description='Sensor-data entries for a single channel.',
+)
+@extend_schema(
+    methods=['DELETE'],
+    responses={204: None},
+    description='Delete all sensor-data entries for a single channel.',
+)
 @api_view(['GET', 'DELETE'])
 def sensorData_single(request, number):
 
@@ -467,6 +615,8 @@ def sensorData_single(request, number):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@extend_schema(methods=['GET'], responses=SensorDataSerializer)
+@extend_schema(methods=['DELETE'], responses={204: None})
 @api_view(['GET', 'DELETE'])
 def sensorData_entry(request, id):
 
@@ -488,6 +638,17 @@ def sensorData_entry(request, id):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='ScheduleList',
+        fields={'schedules': ScheduleSerializer(many=True)}),
+)
+@extend_schema(
+    methods=['POST'],
+    request=ScheduleSerializer,
+    responses={201: ScheduleSerializer},
+)
 @api_view(['GET', 'POST'])
 def schedule(request):
     
@@ -508,6 +669,9 @@ def schedule(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(methods=['GET'], responses=ScheduleSerializer)
+@extend_schema(methods=['PUT'], request=ScheduleSerializer, responses=ScheduleSerializer)
+@extend_schema(methods=['DELETE'], responses={204: None})
 @api_view(['GET', 'PUT', 'DELETE'])
 def schedule_single(request, id):
 
@@ -538,6 +702,17 @@ def schedule_single(request, id):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='ScheduleTypeList',
+        fields={'scheduleTypes': ScheduleTypeSerializer(many=True)}),
+)
+@extend_schema(
+    methods=['POST'],
+    request=ScheduleTypeSerializer,
+    responses={201: ScheduleTypeSerializer},
+)
 @api_view(['GET', 'POST'])
 def scheduleType(request):
     
@@ -557,6 +732,9 @@ def scheduleType(request):
         setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+@extend_schema(methods=['GET'], responses=ScheduleTypeSerializer)
+@extend_schema(methods=['PUT'], request=ScheduleTypeSerializer, responses=ScheduleTypeSerializer)
+@extend_schema(methods=['DELETE'], responses={202: None})
 @api_view(['GET', 'PUT', 'DELETE'])
 def scheduleType_single(request, id):
 
@@ -587,6 +765,17 @@ def scheduleType_single(request, id):
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses=inline_serializer(
+        name='TransmissionPowerLevelList',
+        fields={'transmissionPowerLevels': TransmissionPowerLevelSerializer(many=True)}),
+)
+@extend_schema(
+    methods=['POST'],
+    request=TransmissionPowerLevelSerializer,
+    responses={201: TransmissionPowerLevelSerializer},
+)
 @api_view(['GET', 'POST'])
 def transmissionPowerLevel(request):
     
@@ -606,6 +795,9 @@ def transmissionPowerLevel(request):
         setLastDataUpdateNow()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+@extend_schema(methods=['GET'], responses=TransmissionPowerLevelSerializer)
+@extend_schema(methods=['PUT'], request=TransmissionPowerLevelSerializer, responses=TransmissionPowerLevelSerializer)
+@extend_schema(methods=['DELETE'], responses={202: None})
 @api_view(['GET', 'PUT', 'DELETE'])
 def transmissionPowerLevel_single(request, id):
 
