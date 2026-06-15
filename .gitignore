@@ -16,6 +16,10 @@ db.sqlite3
 # The committed secrets.example.py documents the expected variables.
 code/master/globals/secrets.py
 
+# Per-install extra ALLOWED_HOSTS (e.g. a Tailscale name) — never commit.
+# The committed allowed_hosts.example.py documents the expected variable.
+code/master/globals/allowed_hosts.py
+
 ### Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

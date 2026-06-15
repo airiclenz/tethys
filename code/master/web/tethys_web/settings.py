@@ -58,6 +58,15 @@ ALLOWED_HOSTS = [
     "localhost"]
 ALLOWED_HOSTS += [h for h in os.environ.get("TETHYS_ALLOWED_HOSTS", "").split(",") if h]
 
+# Plus any hostnames from the optional git-ignored globals/allowed_hosts.py (e.g. a
+# Tailscale name). Mirrors globals/secrets.py but is NON-FATAL when missing: an absent
+# file just means no extra hosts. See globals/allowed_hosts.example.py.
+try:
+    from globals.allowed_hosts import EXTRA_ALLOWED_HOSTS
+except ImportError:
+    EXTRA_ALLOWED_HOSTS = []
+ALLOWED_HOSTS += [h for h in EXTRA_ALLOWED_HOSTS if h]
+
 
 # Application definition
 

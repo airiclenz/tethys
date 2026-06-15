@@ -28,6 +28,11 @@ application-level hardening described here. This document covers the hardening
    the transport encryption.
 5. **`/api/initializeDatabase/` is a key-gated `POST`** (was an open `GET` that
    seeded the database).
+6. **nginx serves Tethys for any hostname.** The web site is the catch-all
+   `default_server` (IPv4 + IPv6), and the installer removes the stock nginx
+   default site (`/etc/nginx/sites-enabled/default`). So reaching the Pi by a new
+   name (e.g. its Tailscale name) hits the app, not the "Welcome to nginx!" page —
+   and Django's `ALLOWED_HOSTS` is the sole host allow-list.
 
 ### Consequence: the dashboard needs the key set
 
@@ -40,12 +45,28 @@ local storage). The key is printed by the installer; you can also read it from
 
 ## Configuration reference
 
+### Extra hostnames (`code/master/globals/allowed_hosts.py`, git-ignored) — preferred
+
+The per-install way to accept a new name (e.g. this Pi's Tailscale name). Copy
+`allowed_hosts.example.py` to `allowed_hosts.py` (same dir, git-ignored) and list
+hostnames — **no scheme, no port**:
+
+```python
+EXTRA_ALLOWED_HOSTS = [
+    "tethys.<tailnet>.ts.net",
+]
+```
+
+Both Django apps read it at runtime and append it to `ALLOWED_HOSTS`. The file is
+optional: if absent, the services start normally with no extra hosts. Apply edits
+with `sudo systemctl restart tethys-api tethys-web daphne` — **no reinstall**.
+
 ### Environment variables (read by both Django settings)
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `TETHYS_DEBUG` | unset (off) | `"1"` runs Django with `DEBUG=True`. Dev only. |
-| `TETHYS_ALLOWED_HOSTS` | empty | Comma-separated extra hostnames appended to `ALLOWED_HOSTS`, e.g. `tethys.<tailnet>.ts.net`. |
+| `TETHYS_ALLOWED_HOSTS` | empty | Comma-separated extra hostnames appended to `ALLOWED_HOSTS`, e.g. `tethys.<tailnet>.ts.net`. An alternative to the file above (the installer's `--allowed-hosts` flag sets this); both are unioned with the base list. |
 
 The base `ALLOWED_HOSTS` is always `tethys.local`, `localhost`, `127.0.0.1`.
 
@@ -92,10 +113,13 @@ To change them on an existing box, edit the `Environment=` lines in
    then `sudo tailscale up`. Authenticate in the browser link it prints.
 2. Install Tailscale on your laptop/phone and sign into the **same** tailnet.
 3. Note the Pi's tailnet name (`tailscale status`), e.g.
-   `tethys.<tailnet>.ts.net`, and add it via `--allowed-hosts=` (re-run the
-   service install) or the `Environment=` edit above.
-4. From a tailnet device, browse to `http://tethys.<tailnet>.ts.net:8000` and set
-   the API key in Settings.
+   `tethys.<tailnet>.ts.net`, and add it to `code/master/globals/allowed_hosts.py`
+   (`EXTRA_ALLOWED_HOSTS`), then
+   `sudo systemctl restart tethys-api tethys-web daphne`. (Equivalently: the
+   `--allowed-hosts=` flag on a service re-install, or the `Environment=` edit above.)
+4. From a tailnet device, browse to `http://tethys.<tailnet>.ts.net` and set
+   the API key in Settings. (Port 80 via nginx — the `:8000`/`:5001` gunicorn ports
+   are loopback-only and not reachable across the tailnet.)
 
 No router ports are opened: Tailscale makes outbound connections and NAT-punches.
 Self-hosted WireGuard is the equivalent zero-third-party alternative (it forwards

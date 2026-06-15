@@ -94,6 +94,11 @@ cd /etc/nginx/sites-enabled/
 sudo rm tethys-api
 sudo rm tethys-web
 
+# Disable the stock nginx default site: it ships with `listen 80 default_server`
+# and would both win the welcome page for unknown Host headers (e.g. the Tailscale
+# name) and clash with tethys-web's own default_server. -f: it may already be gone.
+sudo rm -f /etc/nginx/sites-enabled/default
+
 sudo ln -s /etc/nginx/sites-available/tethys-api
 sudo ln -s /etc/nginx/sites-available/tethys-web
 

@@ -109,7 +109,10 @@ git-ignored `code/master/globals/secrets.py` and **prints it** — copy it.
 Useful flags:
 - `--debug=true` — developer install (also installs the TypeScript toolchain).
 - `--allowed-hosts=tethys.<tailnet>.ts.net` — extra `ALLOWED_HOSTS` for remote
-  (VPN) access. See [`docs/remote-access-hardening.md`](docs/remote-access-hardening.md).
+  (VPN) access. Alternatively (and preferred per-install), list the name in the
+  git-ignored `code/master/globals/allowed_hosts.py` (copy `allowed_hosts.example.py`)
+  — no reinstall needed, just restart the services. See
+  [`docs/remote-access-hardening.md`](docs/remote-access-hardening.md).
 
 After it's up: open `http://<pi-host>/` in a browser → **Settings** (top menu) →
 paste the API key → Save. Read-only views work without it; controlling pumps and

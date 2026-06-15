@@ -10,6 +10,32 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Remote access: nginx catch-all + git-ignored extra `ALLOWED_HOSTS`
+
+> (2026-06-15). Reaching the Pi by a name other than `tethys.local` (e.g. its
+> Tailscale name) used to fall through to the stock "Welcome to nginx!" default
+> site, and required baking the hostname into the systemd units at install time.
+> The web vhost is now the catch-all `default_server` and the host allow-list can
+> be set per-install in a git-ignored file with only a service restart.
+
+#### Added
+- `code/master/globals/allowed_hosts.py` (git-ignored, with committed
+  `allowed_hosts.example.py`) defining `EXTRA_ALLOWED_HOSTS`. Both Django settings
+  read it at runtime and append it to `ALLOWED_HOSTS`; the import is non-fatal, so
+  an absent file just means no extra hosts. The existing `--allowed-hosts` flag /
+  `TETHYS_ALLOWED_HOSTS` env var still work and are unioned in.
+
+#### Changed
+- **`install/assets/tethys-web.nginx`** — the web site is now
+  `listen 80 default_server` on IPv4 **and** `[::]:80` (dual-stack), so it serves
+  Tethys for any Host header / IP.
+- **`install/installServices.sh`** — removes the stock nginx default site
+  (`/etc/nginx/sites-enabled/default`) so it can't own `default_server` or shadow
+  the app.
+- Docs (`docs/remote-access-hardening.md`, `README.md`) updated for the file-based
+  host list and the catch-all vhost; fixed the remote-access URL to port 80 (the
+  `:8000` gunicorn port is loopback-only).
+
 ### Remove the legacy Arduino `#ifdef RX` receiver firmware
 
 > (2026-06-14). The firmware in `code/sensor/` used to compile into two roles
