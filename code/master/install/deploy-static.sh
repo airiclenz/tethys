@@ -97,11 +97,13 @@ sudo chmod -R u=rwX,g=rX,o=rX "$WWWPATH/tethys/staticcollect"
 
 echo ""
 echo "================================================================================"
-echo -e "${YELLOW}Restarting the tethys-web service${NOCOLOR}"
-echo ""
-
+echo -e "${YELLOW}Restarting the services${NOCOLOR}"
+sudo systemctl restart tethys-api.service
+echo -e "${GREEN}API service restarted${NOCOLOR}"
+sudo systemctl restart tethys-core.service
+echo -e "${GREEN}CORE service restarted${NOCOLOR}"
 sudo systemctl restart tethys-web.service
-echo -e "${GREEN}tethys-web.service restarted${NOCOLOR}"
+echo -e "${GREEN}WEB service restarted${NOCOLOR}"
 
 echo ""
 echo "================================================================================"
