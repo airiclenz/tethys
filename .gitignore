@@ -102,10 +102,8 @@ Temporary Items
 # Custom
 pins_arduino.h
 *.db
-
-# Claude Code local worktrees — never commit
 /.claude/worktrees/
-
-
 # Local-only docs (handoffs, audits, plans) — not tracked
 docs/
+
+pull-changes-from-pi.sh
