@@ -197,6 +197,10 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'REST API for the Tethys IoT system -- control and monitor channels, schedules, and sensor data.',
     'VERSION': '2.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    # drf-spectacular's schema/Swagger/ReDoc views take their permissions from
+    # SERVE_PERMISSIONS (default AllowAny), NOT REST_FRAMEWORK's
+    # DEFAULT_PERMISSION_CLASSES. Without this they are publicly accessible.
+    'SERVE_PERMISSIONS': ['tethys_api.permissions.ApiKeyRequired'],
     'CONTACT': {
         'name': 'Tethys IoT System',
     },
