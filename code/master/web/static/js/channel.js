@@ -410,6 +410,35 @@ var tethys;
                     break;
                 }
             }
+            // Firmware Version (read-only; reported by the sensor on boot). The
+            // version is followed by a colored hint comparing it to the latest
+            // firmware the master reads from the sensor source (wpw_Version.h):
+            // green "up to date", amber "latest is vX.Y.Z", grey if the sensor
+            // is somehow ahead of this checkout. Nothing extra is shown until a
+            // sensor has actually reported a version.
+            var elementFirmwareVersion = document.getElementById("idFirmwareVersion");
+            var reportedVersion = channels[index].sensorFirmwareVersion;
+            var firmwareStatus = channels[index].firmwareStatus;
+            var latestVersion = channels[index].latestFirmwareVersion;
+            elementFirmwareVersion.textContent =
+                reportedVersion || tethys.nullString;
+            if (reportedVersion && firmwareStatus && firmwareStatus !== "unknown") {
+                var firmwareHint = document.createElement("span");
+                firmwareHint.classList.add("firmware-status");
+                if (firmwareStatus === "up_to_date") {
+                    firmwareHint.classList.add("firmware-up-to-date");
+                    firmwareHint.textContent = "(up to date)";
+                }
+                else if (firmwareStatus === "outdated") {
+                    firmwareHint.classList.add("firmware-outdated");
+                    firmwareHint.textContent = "(latest is v" + latestVersion + ")";
+                }
+                else if (firmwareStatus === "ahead") {
+                    firmwareHint.classList.add("firmware-ahead");
+                    firmwareHint.textContent = "(ahead of repo v" + latestVersion + ")";
+                }
+                elementFirmwareVersion.appendChild(firmwareHint);
+            }
             // Test Channel
             var elementTestChannelLabel = document.getElementById("idTestChannelLabel");
             var elementTestChannelCheckBoxContainer = document.getElementById("idTestChannelCheckBoxContainer");

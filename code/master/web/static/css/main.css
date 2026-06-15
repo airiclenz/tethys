@@ -223,6 +223,27 @@ h2 {
 	background-image: url("/static/images/svg/check.svg");
 }
 
+/* Up-to-date / outdated hint shown next to the reported sensor firmware
+   version on the channel settings panel (set in channel.js). */
+.firmware-status {
+	font-size: 0.85em;
+	/* The firmware line is a flex row (.div-column), which trims a leading space
+	   inside this span, so separate it from the version with a margin instead. */
+	margin-left: 0.35em;
+}
+
+.firmware-up-to-date {
+	color: #2e8b57;		/* sea green: matches the latest firmware in the repo */
+}
+
+.firmware-outdated {
+	color: #c77700;		/* amber: a newer firmware is available */
+}
+
+.firmware-ahead {
+	color: #888888;		/* muted: sensor is newer than this checkout */
+}
+
 .input-status-span {
 	width: 1.7rem;
 	height: 100%;

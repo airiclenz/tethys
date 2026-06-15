@@ -68,6 +68,10 @@ class Channel(models.Model):
     sensorMeasureFrequencyMinutes = models.IntegerField()
     sensorTriggerCalibration = models.BooleanField(default=False)
     sensorTransmissionPowerLevel = models.ForeignKey(TransmissionPowerLevel, on_delete=models.DO_NOTHING)
+    # Latest firmware version (VERSION.SUBVERSION.BUILDNUMBER) the sensor
+    # reported on its last boot. Written by the master on the boot-time GETCONFIG
+    # handshake; blank until a sensor has booted at least once.
+    sensorFirmwareVersion = models.CharField(max_length=20, blank=True, default="")
 
     def __str__(self) -> str:
         return str(self.number) + ' - ' + self.nickName

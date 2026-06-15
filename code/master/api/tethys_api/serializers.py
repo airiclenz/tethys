@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from . import firmware
 
 
 # /////////////////////////////////////////////////////////////////////////////
@@ -48,7 +49,8 @@ class ChannelSerializer(serializers.ModelSerializer):
             'pumpDurationSeconds',
             'sensorMeasureFrequencyMinutes',
             'sensorTriggerCalibration',
-            'sensorTransmissionPowerLevel'
+            'sensorTransmissionPowerLevel',
+            'sensorFirmwareVersion'
         ]
 
 
@@ -65,6 +67,14 @@ class ChannelSummarySerializer(serializers.Serializer):
     sensorTriggerCalibration = serializers.BooleanField()
     sensorTransmissionPowerLevel = serializers.CharField()
     sensorTransmissionPowerLevelValue = serializers.IntegerField()
+    sensorFirmwareVersion = serializers.CharField(allow_blank=True, allow_null=True)
+    # Derived (not stored): the latest firmware version the master reads from the
+    # sensor source (wpw_Version.h) and how this channel's reported version
+    # compares to it, so the UI can show an up-to-date / outdated hint. The
+    # latest value is read once per request and passed in via the serializer
+    # context (see the channelSummary views).
+    latestFirmwareVersion = serializers.SerializerMethodField()
+    firmwareStatus = serializers.SerializerMethodField()
 
     sensorData_lastBatteryVoltage = serializers.FloatField()
     sensorData_lastMoisturePercent = serializers.IntegerField()
@@ -75,6 +85,16 @@ class ChannelSummarySerializer(serializers.Serializer):
     actionLog_lastStartTime = serializers.DateTimeField()
     actionLog_lastEndTime = serializers.DateTimeField()
     actionLog_count = serializers.IntegerField()
+
+    def get_latestFirmwareVersion(self, obj):
+        return self.context.get("latestFirmwareVersion") or ""
+
+    def get_firmwareStatus(self, obj):
+        reported = getattr(obj, "sensorFirmwareVersion", "") or ""
+        if not reported:
+            return "unknown"
+        return firmware.firmware_status(
+            reported, self.context.get("latestFirmwareVersion"))
 
 
 # /////////////////////////////////////////////////////////////////////////////

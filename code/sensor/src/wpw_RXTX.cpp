@@ -9,6 +9,7 @@
 #include <wpw_EEPROM.h>
 #include <wpw_RXTX.h>
 #include <wpw_Sensor.h>
+#include <wpw_Version.h>
 #include <wpw_WirelessPlantWatering.h>
 
 
@@ -123,20 +124,24 @@ bool RequestConfiguration(
 	delay(5);
 	SetupRadioForTx();
 
-	Package package =
+	// Report the firmware version on every config request; the master persists
+	// it only on the boot-time opcode. The data-carrying moisture/battery bytes
+	// of a Package are meaningless here, so the request gets its own struct.
+	ConfigRequestPackage package =
 	{
 		PROTOCOL_VERSION,
 		periodic ? DATATYPE_CMD_GETCONFIG_PERIODIC : DATATYPE_CMD_GETCONFIG,
-		0,
-		0.0
+		VERSION,
+		SUBVERSION,
+		BUILDNUMBER
 	};
 
 	// stop listening so we can talk
 	radio.stopListening();
 
-	//radio.write(&package, sizeof(Package));
+	//radio.write(&package, sizeof(ConfigRequestPackage));
 
-	if (radio.write(&package, sizeof(Package)))
+	if (radio.write(&package, sizeof(ConfigRequestPackage)))
 	{
 
 		radio.startListening();

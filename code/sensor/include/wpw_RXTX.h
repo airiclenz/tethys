@@ -55,10 +55,28 @@
 		float       BatteryVoltage;
 	};
 
+	// Sensor --> Master, config request (boot-time DATATYPE_CMD_GETCONFIG or the
+	// periodic DATATYPE_CMD_GETCONFIG_PERIODIC). Carries the firmware version
+	// (VERSION.SUBVERSION.BUILDNUMBER from wpw_Version.h) where a data Package
+	// carries moisture+battery -- those bytes are meaningless on a request, so
+	// the master reads the version here and persists it once per boot.
+	// The first two bytes match Package, so the master dispatches on PackageType
+	// the same way and only this parser reads the version.   (matches Python "<BBBBB")
+	struct __attribute__((packed)) ConfigRequestPackage
+	{
+		uint8_t		ProtocolVersion;
+		uint8_t     PackageType;
+		uint8_t		FirmwareVersion;
+		uint8_t		FirmwareSubVersion;
+		uint8_t		FirmwareBuildNumber;
+	};
+
 	static_assert(sizeof(ConfigurationPackage) == 6,
 		"ConfigurationPackage must be 6 packed bytes (matches master <BBHB?)");
 	static_assert(sizeof(Package) == 7,
 		"Package must be 7 packed bytes (matches master <BBBf)");
+	static_assert(sizeof(ConfigRequestPackage) == 5,
+		"ConfigRequestPackage must be 5 packed bytes (matches master <BBBBB)");
 
 
 

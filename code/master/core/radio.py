@@ -72,6 +72,10 @@ class Radio:
         # the sensor's short listen window.
         self._configCache = protocol.ConfigCache()
 
+        # Last firmware version persisted per channel, so a sensor's reboot loop
+        # doesn't re-PUT (and trigger a web refresh) the same value every boot.
+        self._lastFirmwareVersion = {}
+
     # =============================================================================
     def initializeRadio(self):
 
@@ -203,6 +207,10 @@ class Radio:
             if messageType == DATATYPE_CMD_GETCONFIG:
                 self._logger.log("Config was requested.")
                 self.sendConfig(channelNo)
+                # Boot-only: record the firmware version the sensor just
+                # reported. Done AFTER the reply so the config still goes out
+                # inside the sensor's listen window (the PUT can block safely).
+                self.saveFirmwareVersion(channelNo, payload)
 
             # a running node's periodic, settings-only pull. Answer with the
             # current measure-frequency / TX-power but NOT the calibration
@@ -350,6 +358,42 @@ class Radio:
         values = protocol.parse_config_payload(payload)
         if delivered and values is not None and values.triggerCalibration:
             self.clearCalibrationFlag(channelNo, values)
+
+    # =============================================================================
+    def saveFirmwareVersion(self, channelNo, payload):
+        '''Persist the firmware version a sensor reports on boot to its channel.
+
+        Called from the boot-time GETCONFIG path AFTER sendConfig, so the config
+        reply already went out within the sensor's short listen window and the
+        blocking HTTP PUT here is out of that window (same ordering as
+        clearCalibrationFlag). Best-effort: only writes when the reported version
+        changed, so a sensor stuck in a reboot loop doesn't re-PUT the same value
+        (and trigger a web refresh) on every boot.'''
+
+        version = protocol.parse_firmware_version(payload)
+        if version is None:
+            self._logger.log("Config request carried no readable firmware version.")
+            return
+
+        if self._lastFirmwareVersion.get(channelNo) == version:
+            return
+
+        url = BASE_API_URL + "channel/" + str(channelNo)
+
+        try:
+            response = requests.put(
+                url, json={"sensorFirmwareVersion": version},
+                headers=_AUTH_HEADERS, timeout=REQUEST_TIMEOUT)
+
+            if response.ok:
+                self._lastFirmwareVersion[channelNo] = version
+                self._logger.log(f'Channel firmware version updated to {version}.')
+            else:
+                self._logger.log(
+                    f'There was an error updating the firmware version! {response.reason} {response.status_code}')
+
+        except (ConnectionError, Timeout):
+            self._logger.log(f'ERROR: The API is not reachable! {url}')
 
     # =============================================================================
     def clearCalibrationFlag(self, channelNo, values):

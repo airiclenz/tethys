@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from .common import *
+from . import firmware
 from .globals import setLastDataUpdate, getLastDataUpdate
 
 # Get the absolute path of the core directory
@@ -324,7 +325,9 @@ def channelSummary(request):
             channel.actionLog_count = actionLogSub.count()
 
 
-        serializer = ChannelSummarySerializer(channels, many=True)
+        serializer = ChannelSummarySerializer(
+            channels, many=True,
+            context={'latestFirmwareVersion': firmware.get_latest_firmware_version()})
         return Response({'channelSummaries': serializer.data})
 
 
@@ -368,7 +371,9 @@ def channelSummary_single(request, number):
             channel.actionLog_count = actionLogSub.count()
 
         record = channels.filter(pk = number)[0]
-        serializer = ChannelSummarySerializer(record)
+        serializer = ChannelSummarySerializer(
+            record,
+            context={'latestFirmwareVersion': firmware.get_latest_firmware_version()})
         return Response(serializer.data)
 
 

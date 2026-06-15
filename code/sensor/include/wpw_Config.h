@@ -62,7 +62,7 @@
 
 	// Fixed on-air payload size in bytes. Both ends call setPayloadSize() with
 	// this value; shorter frames are zero-padded by the radio. Must be >= the
-	// largest message (Package = 7 bytes).
+	// largest message.
 	#define		PAYLOAD_SIZE			8
 
 

@@ -25,6 +25,13 @@ def sensor_frame(version, ptype, moisture, battery):
     return raw.ljust(p.PAYLOAD_SIZE, b"\x00")
 
 
+def config_request_frame(version, ptype, fwMajor, fwMinor, fwBuild):
+    '''Build a config-request (boot/periodic) frame carrying a firmware version,
+    zero-padded to PAYLOAD_SIZE the way the radio delivers it.'''
+    raw = struct.pack("<BBBBB", version, ptype, fwMajor, fwMinor, fwBuild)
+    return raw.ljust(p.PAYLOAD_SIZE, b"\x00")
+
+
 # 1 - normal sensor data parses; batteryAlert is False
 def test_parse_normal_sensor_data():
     r = p.parse_sensor_reading(sensor_frame(PV, p.DATATYPE_SENSORDATA, 42, 3.7))
@@ -83,12 +90,40 @@ def test_config_round_trip():
     assert v2.triggerCalibration is False
 
 
-# 7 - the on-air sizes match the packed firmware structs (Package=7, Config=6)
-#     and fit inside the fixed payload size
+# 7 - the on-air sizes match the packed firmware structs (Package=7, Config=6,
+#     ConfigRequest=5) and fit inside the fixed payload size
 def test_wire_sizes_match_firmware():
     assert p.SENSOR_PAYLOAD_LEN == 7
     assert p.CONFIG_PAYLOAD_LEN == 6
+    assert p.CONFIG_REQUEST_PAYLOAD_LEN == 5
     assert p.PAYLOAD_SIZE >= p.SENSOR_PAYLOAD_LEN
+    assert p.PAYLOAD_SIZE >= p.CONFIG_REQUEST_PAYLOAD_LEN
+
+
+# 10 - a boot config-request carries a firmware version, parsed as "major.minor.build".
+#      The same frame still dispatches on its type byte (GETCONFIG), so the boot
+#      handshake is unaffected while the version is read out-of-band.
+def test_parse_firmware_version_boot():
+    frame = config_request_frame(PV, p.DATATYPE_CMD_GETCONFIG, 3, 1, 24)
+    assert p.parse_firmware_version(frame) == "3.1.24"
+    assert p.message_type(frame) == p.DATATYPE_CMD_GETCONFIG
+
+
+# 11 - the periodic pull carries the version too (the master just doesn't persist it)
+def test_parse_firmware_version_periodic():
+    frame = config_request_frame(PV, p.DATATYPE_CMD_GETCONFIG_PERIODIC, 4, 0, 7)
+    assert p.parse_firmware_version(frame) == "4.0.7"
+
+
+# 12 - a foreign version, a non-request type, and short/None frames yield None
+def test_parse_firmware_version_rejects_bad_frames():
+    assert p.parse_firmware_version(
+        config_request_frame(PV + 1, p.DATATYPE_CMD_GETCONFIG, 3, 1, 24)) is None
+    # a real sensor-data frame is not a config request
+    assert p.parse_firmware_version(
+        sensor_frame(PV, p.DATATYPE_SENSORDATA, 42, 3.7)) is None
+    for bad in (None, b"", b"\x01\x06\x03\x01"):
+        assert p.parse_firmware_version(bad) is None
 
 
 # 8 - channel <-> pipe mapping reserves pipe 0 and validates bounds

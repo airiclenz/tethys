@@ -55,9 +55,13 @@ DATATYPE_CMD_GETCONFIG_PERIODIC = 8  # sensor -> master (settings-only pull)
 
 _SENSOR_STRUCT = struct.Struct("<BBBf")     # version, type, moisture, battery
 _CONFIG_STRUCT = struct.Struct("<BBHB?")    # version, type, freq, power, calib
+# A config request (boot / periodic). Same first two framing bytes as a sensor
+# frame, but the moisture/battery bytes are replaced by the firmware version.
+_CONFIG_REQUEST_STRUCT = struct.Struct("<BBBBB")  # version, type, fwMajor, fwMinor, fwBuild
 
 SENSOR_PAYLOAD_LEN = _SENSOR_STRUCT.size    # 7
 CONFIG_PAYLOAD_LEN = _CONFIG_STRUCT.size    # 6
+CONFIG_REQUEST_PAYLOAD_LEN = _CONFIG_REQUEST_STRUCT.size  # 5
 
 SensorReading = namedtuple(
     "SensorReading", "moistureLevel batteryVoltage batteryAlert")
@@ -97,6 +101,28 @@ def parse_sensor_reading(payload):
         batteryVoltage=battery,
         batteryAlert=(ptype == DATATYPE_SENSORDATA_BATTERYALERT),
     )
+
+
+# =============================================================================
+def parse_firmware_version(payload):
+    """Parse the firmware version a sensor reports in its config-request frame
+    (``DATATYPE_CMD_GETCONFIG`` / ``_PERIODIC``) into a ``"major.minor.build"``
+    string, or return ``None`` for a malformed / wrong-version / non-request
+    frame.
+
+    The request carries the firmware version where a sensor-data frame carries
+    moisture+battery (see ``_CONFIG_REQUEST_STRUCT``); its first two bytes still
+    dispatch the same way, so only this parser reads the version. Never raises
+    on malformed input, so it is safe to call on whatever the radio hands us."""
+    if payload is None or len(payload) < CONFIG_REQUEST_PAYLOAD_LEN:
+        return None
+    version, ptype, fwMajor, fwMinor, fwBuild = \
+        _CONFIG_REQUEST_STRUCT.unpack_from(payload)
+    if version != PROTOCOL_VERSION:
+        return None
+    if ptype not in (DATATYPE_CMD_GETCONFIG, DATATYPE_CMD_GETCONFIG_PERIODIC):
+        return None
+    return f"{fwMajor}.{fwMinor}.{fwBuild}"
 
 
 # =============================================================================
