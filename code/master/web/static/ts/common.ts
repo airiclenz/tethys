@@ -107,6 +107,10 @@ namespace tethys {
             // Re-probe so the auth banner clears immediately once a correct key
             // is entered, without needing a page reload.
             checkApiAuth();
+            // Reconnect the WebSocket with the new key: the channel/schedule data
+            // is delivered over the socket, which now requires the key, so this
+            // makes the rows appear (or disappear) without a page reload.
+            tethys.websocket.reconnect();
         }
     }
 

@@ -105,6 +105,12 @@ sudo systemctl restart tethys-core.service
 echo -e "${GREEN}CORE service restarted${NOCOLOR}"
 sudo systemctl restart tethys-web.service
 echo -e "${GREEN}WEB service restarted${NOCOLOR}"
+# Daphne serves the WebSocket (ASGI) on :8001 and runs the Channels consumers
+# (web/tethys_web/consumers.py). tethys-web above is only the WSGI/HTTP server,
+# so without this restart any consumer/websocket change keeps running the old
+# code until the next reboot.
+sudo systemctl restart daphne.service
+echo -e "${GREEN}Daphne (WebSocket) service restarted${NOCOLOR}"
 
 echo ""
 echo "================================================================================"
