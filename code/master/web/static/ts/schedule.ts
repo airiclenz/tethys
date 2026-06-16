@@ -25,6 +25,14 @@ namespace tethys {
 
         // ============================================================================
         export function deselectAll() {
+            if (selectedScheduleNumber !== null) {
+                const elementSchedule = document.getElementById("idSchedule" + selectedScheduleNumber);
+                if (elementSchedule) { elementSchedule.classList.remove("table-row-active"); }
+            }
+
+            const elementSettings = document.getElementById("idSettings");
+            if (elementSettings) { elementSettings.style.display = "none"; }
+
             selectedScheduleNumber = null;
             selectedScheduleIndex = null;
 

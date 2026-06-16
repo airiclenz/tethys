@@ -16,11 +16,19 @@ namespace tethys {
         function getIndexOfchannelWithNumber(
             channelNumber: number) {
 
-            return channelNumber - 1;
+            return channels.findIndex(channel => channel.number === channelNumber);
         }
 
         // ============================================================================
         export function deselectAll() {
+            if (selectedChannelNumber !== null) {
+                const elementChannel = document.getElementById("idChannel" + selectedChannelNumber);
+                if (elementChannel) { elementChannel.classList.remove("table-row-active"); }
+            }
+
+            const elementSettings = document.getElementById("idSettings");
+            if (elementSettings) { elementSettings.style.display = "none"; }
+
             selectedChannelNumber = null;
         }
 
@@ -105,9 +113,9 @@ namespace tethys {
                 var elementSettingsTitle = document.getElementById("idSettingsTitle")!;
 
                 elementSettingsTitle.textContent =
-                    channels[clickedChannelNumber - 1].number +
+                    channels[getIndexOfchannelWithNumber(clickedChannelNumber)].number +
                     " / " +
-                    channels[clickedChannelNumber - 1].nickName;
+                    channels[getIndexOfchannelWithNumber(clickedChannelNumber)].nickName;
                 elementSettings.style.display = "block";
                 elementChannel.classList.add("table-row-active");
 
@@ -133,9 +141,9 @@ namespace tethys {
                         document.getElementById("idSettingsTitle")!;
 
                     elementSettingsTitle.textContent =
-                        channels[clickedChannelNumber - 1].number +
+                        channels[getIndexOfchannelWithNumber(clickedChannelNumber)].number +
                         " / " +
-                        channels[clickedChannelNumber - 1].nickName;
+                        channels[getIndexOfchannelWithNumber(clickedChannelNumber)].nickName;
                     elementChannel.classList.add("table-row-active");
                     elementLastChannel.classList.remove("table-row-active");
 
@@ -647,10 +655,10 @@ namespace tethys {
             var value = elementOptionEnabled.checked;
             var body = { enabled: value };
 
-            if (value != channels[selectedChannelNumber - 1].enabled) {
+            if (value != channels[getIndexOfchannelWithNumber(selectedChannelNumber)].enabled) {
                 putCall(apiUrl + "channel/" + selectedChannelNumber, body).then((result) => {
                     if (result.ok == true) {
-                        channels[callChannelNumber - 1].enabled = value;
+                        channels[getIndexOfchannelWithNumber(callChannelNumber)].enabled = value;
                         updateChannels();
                         updateSettings();
 
@@ -675,10 +683,10 @@ namespace tethys {
             var value = elementOptionNickName.value;
             var body = { nickName: value };
 
-            if (value != channels[selectedChannelNumber - 1].enabled) {
+            if (value != channels[getIndexOfchannelWithNumber(selectedChannelNumber)].nickName) {
                 putCall(apiUrl + "channel/" + selectedChannelNumber, body).then((result) => {
                     if (result.ok == true) {
-                        channels[callChannelNumber - 1].nickName = value;
+                        channels[getIndexOfchannelWithNumber(callChannelNumber)].nickName = value;
                         updateChannels();
 
                         var elementChannelNumber = document.getElementById(
@@ -710,10 +718,10 @@ namespace tethys {
             var value = elementOptionChannelType[selectedIndex].innerText;
             var body = { channelType: value };
 
-            if (value != channels[selectedChannelNumber - 1].channelType) {
+            if (value != channels[getIndexOfchannelWithNumber(selectedChannelNumber)].channelType) {
                 putCall(apiUrl + "channel/" + selectedChannelNumber, body).then((result) => {
                     if (result.ok == true) {
-                        channels[callChannelNumber - 1].channelType = value;
+                        channels[getIndexOfchannelWithNumber(callChannelNumber)].channelType = value;
 
                         var elementChannelType = document.getElementById(
                             "idChannel" + callChannelNumber + "_type"
@@ -742,10 +750,10 @@ namespace tethys {
             var value = elementOptionFrequency.value;
             var body = { sensorMeasureFrequencyMinutes: value };
 
-            if (value != channels[selectedChannelNumber - 1].sensorMeasureFrequencyMinutes) {
+            if (value != channels[getIndexOfchannelWithNumber(selectedChannelNumber)].sensorMeasureFrequencyMinutes) {
                 putCall(apiUrl + "channel/" + selectedChannelNumber, body).then((result) => {
                     if (result.ok == true) {
-                        channels[callChannelNumber - 1].sensorMeasureFrequencyMinutes =
+                        channels[getIndexOfchannelWithNumber(callChannelNumber)].sensorMeasureFrequencyMinutes =
                             value;
                         console.log(
                             "Channel " +
@@ -768,10 +776,10 @@ namespace tethys {
             var value = elementOptionPumpDuration.value;
             var body = { pumpDurationSeconds: value };
 
-            if (value != channels[selectedChannelNumber - 1].pumpDurationSeconds) {
+            if (value != channels[getIndexOfchannelWithNumber(selectedChannelNumber)].pumpDurationSeconds) {
                 putCall(apiUrl + "channel/" + selectedChannelNumber, body).then((result) => {
                     if (result.ok == true) {
-                        channels[callChannelNumber - 1].pumpDurationSeconds = value;
+                        channels[getIndexOfchannelWithNumber(callChannelNumber)].pumpDurationSeconds = value;
                         console.log(
                             "Channel " +
                             callChannelNumber +
@@ -793,17 +801,17 @@ namespace tethys {
             var value = elementOptionActionTriggerPercent.value;
             var body = { actionTriggerPercent: value };
 
-            if (value != channels[selectedChannelNumber - 1].actionTriggerPercent) {
+            if (value != channels[getIndexOfchannelWithNumber(selectedChannelNumber)].actionTriggerPercent) {
                 putCall(apiUrl + "channel/" + selectedChannelNumber, body).then((result) => {
                     if (result.ok == true) {
-                        channels[callChannelNumber - 1].actionTriggerPercent = value;
+                        channels[getIndexOfchannelWithNumber(callChannelNumber)].actionTriggerPercent = value;
 
                         var elementChannelStatus = document.getElementById(
                             "idChannel" + callChannelNumber + "_status"
                         )!;
 
                         elementChannelStatus.innerHTML =
-                            generateMoistureSpanContent(channels[callChannelNumber - 1]);
+                            generateMoistureSpanContent(channels[getIndexOfchannelWithNumber(callChannelNumber)]);
 
                         console.log(
                             "Channel " +
@@ -829,10 +837,10 @@ namespace tethys {
             var value = elementOptionTransmissionPower[selectedIndex].innerText;
             var body = { sensorTransmissionPowerLevel: value };
 
-            if (value != channels[selectedChannelNumber - 1].channelType) {
+            if (value != channels[getIndexOfchannelWithNumber(selectedChannelNumber)].channelType) {
                 putCall(apiUrl + "channel/" + selectedChannelNumber, body).then((result) => {
                     if (result.ok == true) {
-                        channels[callChannelNumber - 1].sensorTransmissionPowerLevel =
+                        channels[getIndexOfchannelWithNumber(callChannelNumber)].sensorTransmissionPowerLevel =
                             value;
 
                         console.log(
@@ -856,10 +864,10 @@ namespace tethys {
             var value = elementOptionCalibrate.checked;
             var body = { sensorTriggerCalibration: value };
 
-            if (value != channels[selectedChannelNumber - 1].sensorTriggerCalibration) {
+            if (value != channels[getIndexOfchannelWithNumber(selectedChannelNumber)].sensorTriggerCalibration) {
                 putCall(apiUrl + "channel/" + selectedChannelNumber, body).then((result) => {
                     if (result.ok == true) {
-                        channels[callChannelNumber - 1].sensorTriggerCalibration =
+                        channels[getIndexOfchannelWithNumber(callChannelNumber)].sensorTriggerCalibration =
                             value;
                         console.log(
                             "Channel " +

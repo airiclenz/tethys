@@ -51,6 +51,17 @@ namespace tethys {
                 tethys.actions.init();
                 break;
         }
+
+        // Clicking anywhere outside the main content area clears any active
+        // channel/schedule selection. deselectAll() no-ops on pages that have
+        // no selection concept (it checks the current location).
+        document.addEventListener("click", (event) => {
+            const container = document.getElementById("mainContentContainer");
+            if (!container) { return; }
+            if (!container.contains(event.target as Node)) {
+                deselectAll();
+            }
+        });
     }
 
 
