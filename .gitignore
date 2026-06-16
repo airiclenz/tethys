@@ -25,6 +25,9 @@ __pycache__/
 *.py[cod]
 *.pyc
 
+### pytest
+.pytest_cache/
+
 
 ### TypeScript ###
 package-lock.json

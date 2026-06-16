@@ -1,0 +1,8 @@
+# Dev/test-only Python dependencies for the web frontend UI tests.
+# Install into the env_tethys virtualenv:
+#     source ../env_tethys/bin/activate
+#     pip install -r requirements-dev.txt
+#     playwright install --with-deps chromium
+# (these are NOT needed at runtime on the Pi — only to run `pytest` here.)
+pytest-django
+pytest-playwright
