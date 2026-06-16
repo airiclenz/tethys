@@ -50,10 +50,16 @@ namespace tethys {
         public async getTemplate(templateName: string): Promise<string> {
             this.templateName = templateName;
 
+            // 'no-cache' makes the browser revalidate the template fragment with
+            // the server on every load (conditional GET via ETag) instead of
+            // serving a heuristically-"fresh" copy from cache. nginx replies 304
+            // when unchanged (cheap) and 200 with the new content after a deploy,
+            // so edits to these templates always take effect on the next reload.
             let response = await fetch(
                 this.templatePath + templateName,
                 {
-                    method: 'get'
+                    method: 'get',
+                    cache: 'no-cache'
                 });
 
             this.templateContent = await response.text();
