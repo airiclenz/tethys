@@ -10,6 +10,48 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Channels UI: fix sparse-channel settings crash + click-outside to deselect
+
+> (2026-06-16). Channels are identified by number and may be non-contiguous
+> (e.g. 1, 2, 5). The settings code looked a channel up with `channels[number - 1]`,
+> assuming a dense array, so clicking channel 5 evaluated `channels[4]` on a
+> 3-element array and threw `TypeError: undefined is not an object`, breaking the
+> settings panel.
+
+#### Fixed
+- **`web/static/ts/channel.ts`** — `getIndexOfchannelWithNumber()` now resolves the
+  index via `Array.findIndex(channel => channel.number === number)` instead of
+  `number - 1`, so sparse / non-contiguous channel numbers open settings correctly.
+
+#### Added
+- Click-outside-to-deselect for the channel list: clicking outside a selected
+  channel deselects it and closes its settings.
+
+### Web frontend: Playwright UI test harness + stop committing compiled JS
+
+> (2026-06-16). There were no browser-level tests, so DOM / click-handler
+> regressions (like the sparse-channel crash above) slipped through the pure-Python
+> suites. Added a pytest + Playwright harness, and stopped committing the compiled
+> JavaScript now that it is rebuilt deterministically on deploy and before tests.
+
+#### Added
+- `web/tests/` — pytest + Playwright UI regression tests. `test_channels_ui.py`
+  covers the sparse-channel settings crash by injecting channels 1/2/5 through the
+  page's own render path, clicking channel 5, and asserting the settings panel opens
+  with no uncaught error. Supporting files: `web/conftest.py` (compiles `static/ts`
+  → `static/js` before tests, mirroring deploy), `web/tethys_web/settings_test.py`
+  (serves static from source, no `collectstatic`), `web/pytest.ini`, and
+  `web/requirements-dev.txt` (pytest-django, pytest-playwright). See
+  `web/tests/README.md`.
+- **`install/install.sh`** — a developer install (`--debug=true`) now also installs
+  the dev/test tooling into the venv (backend + web dev requirements and
+  `playwright install --with-deps chromium`). A production install is unchanged.
+
+#### Changed
+- Compiled `web/static/js/` is no longer tracked in git (`.gitignore`); it is
+  rebuilt from `static/ts` on deploy (`deploy-static.sh`) and before the UI tests
+  (`conftest.py`). The `.ts` sources are the single source of truth.
+
 ### Sensor Readings: moisture & battery-voltage trend charts
 
 > (2026-06-15). The Sensor Readings page only listed raw readings in a table, so

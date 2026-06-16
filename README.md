@@ -343,6 +343,8 @@ WireGuard), not an open port. See [`docs/remote-access-hardening.md`](docs/remot
 
 ### Tests
 
+**Backend (core + API)** — pure Python, no Pi/hardware needed:
+
 ```bash
 cd code/master
 pip install -r install/python-requirements-dev.txt   # pytest, dev-only
@@ -356,12 +358,30 @@ Covers the parts that gate physical action or silent failure: `core/tests/`
 GPIO and protocol seams. **Add tests behind those seams when you touch the
 watering, radio-framing, or silent-phase paths.**
 
+**Web UI (Playwright)** — browser-driven regression tests for the channels UI:
+
+```bash
+cd code/master/web
+pip install -r requirements-dev.txt
+playwright install --with-deps chromium   # downloads Chromium + apt libs (needs sudo)
+pytest
+```
+
+These drive a headless Chromium against a throwaway Django live server, exercising
+the real compiled JavaScript (`conftest.py` compiles `static/ts` → `static/js`
+first), so they catch DOM/click-handler bugs the Python suites can't. See
+[`web/tests/README.md`](code/master/web/tests/README.md) for what's covered and how
+it works. A developer install (`install.sh --debug=true`) installs all of the above
+automatically.
+
 ### Frontend build
 
 TypeScript sources in `web/static/ts/` compile to `web/static/js/` via
 `compile.sh` (`tsc`) / `compileAutomatically.sh` (watch). The build is strict
 (`strict: true` in `tsconfig.json`) and `tsc -p tsconfig.json` compiles cleanly.
-Use `install/deploy-static.sh` to compile + publish to the nginx static dir.
+Use `install/deploy-static.sh` to compile + publish to the nginx static dir. The
+compiled `web/static/js/` is git-ignored — it is rebuilt from the `.ts` sources on
+deploy and before the UI tests, so the TypeScript is the single source of truth.
 
 ### Known limitations / deferred (see `CHANGELOG.md` + `docs/`)
 

@@ -100,6 +100,22 @@ code_pre_reboot() {
     echo "Installing needed packages now..."
     pip install -r ./install/python-requirements.txt
 
+    if [ $DEBUG == "true" ]; then
+        echo ""
+        echo "================================================================================"
+        echo -e "${YELLOW}Installing dev/test tooling (pytest, Playwright)${NOCOLOR}"
+        echo ""
+        # Dev-only: backend (pytest) + web UI (pytest-django, pytest-playwright).
+        # A production (non-debug) install does NOT get these.
+        pip install -r ./install/python-requirements-dev.txt
+        pip install -r ./web/requirements-dev.txt
+        # Headless Chromium + its apt libs for the Playwright UI tests.
+        # Non-fatal: a download/apt failure must not abort the whole install
+        # (the script runs under `set -e`).
+        playwright install --with-deps chromium || \
+            echo -e "${YELLOW}playwright install failed; run it manually before running UI tests.${NOCOLOR}"
+    fi
+
 
     echo ""
     echo "================================================================================"
