@@ -10,6 +10,26 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Web frontend: auth-failure banner on page load
+
+> (2026-06-16). Every API request needs an `X-API-Key`; a missing or wrong key
+> gets a 403 (`api/tethys_api/permissions.py`), and until the key is pasted into
+> Settings the dashboard just sat blank with no explanation. The page now probes
+> the API once on load and tells the user when authentication is the problem.
+
+#### Added
+- **`web/static/ts/common.ts`** — on page load `afterPageLoad()` runs a one-shot
+  `checkApiAuth()` probe against the cheapest endpoint (`GET /api/version/`).
+  A 403 shows a non-blocking warning banner; any other result (or a successful
+  probe) hides it. `saveApiKeyFromField()` re-probes so the banner clears the
+  moment a correct key is saved, without a reload.
+- **`web/templates/layout.html`** / **`web/static/css/main.css`** — a dismissible
+  `#authBanner` under the site header reading "Authentication failed — the API
+  key is missing or invalid", with a link straight to the Settings popup.
+- **`web/tests/test_auth_banner_ui.py`** — Playwright regression tests: the
+  banner appears when the probe returns 403 and stays hidden when it returns 200
+  (the probe is mocked via request interception).
+
 ### Channels UI: fix sparse-channel settings crash + click-outside to deselect
 
 > (2026-06-16). Channels are identified by number and may be non-contiguous

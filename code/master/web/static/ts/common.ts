@@ -33,6 +33,7 @@ namespace tethys {
     export function afterPageLoad() {
 
         setBaseApiUrl();
+        checkApiAuth();
         tethys.websocket.setWebSocketUrl();
         tethys.websocket.connect();
         updateSilentPhaseStatus();
@@ -103,6 +104,9 @@ namespace tethys {
         if (element) {
             setApiKey(element.value);
             console.log("API key saved locally.");
+            // Re-probe so the auth banner clears immediately once a correct key
+            // is entered, without needing a page reload.
+            checkApiAuth();
         }
     }
 
@@ -132,6 +136,42 @@ namespace tethys {
         } else {
             field.type = "password";
             if (toggle) { toggle.innerHTML = "Show"; }
+        }
+    }
+
+
+    // ============================================================================
+    // Auth banner. On page load (and after saving a key) we probe the cheapest
+    // endpoint with the stored key. A 403 means the X-API-Key is missing or wrong,
+    // so the dashboard can't load any data — surface a banner pointing to Settings.
+    // A network error (API unreachable) is a different failure and is left alone.
+    // ============================================================================
+    async function checkApiAuth() {
+        try {
+            const response = await getCall(tethys.apiUrl + "version/");
+            if (response.status === 403) {
+                showAuthBanner();
+            } else {
+                hideAuthBanner();
+            }
+        } catch (e) {
+            // API not reachable — not an authentication problem; do not show the
+            // auth banner.
+        }
+    }
+
+    function showAuthBanner() {
+        var element = document.getElementById("authBanner");
+        if (element) {
+            element.hidden = false;
+        }
+    }
+
+    // Called from the banner's dismiss button (and on a successful re-probe).
+    export function hideAuthBanner() {
+        var element = document.getElementById("authBanner");
+        if (element) {
+            element.hidden = true;
         }
     }
 

@@ -115,8 +115,10 @@ Useful flags:
   [`docs/remote-access-hardening.md`](docs/remote-access-hardening.md).
 
 After it's up: open `http://<pi-host>/` in a browser → **Settings** (top menu) →
-paste the API key → Save. Read-only views work without it; controlling pumps and
-editing config require it.
+paste the API key → Save. The key gates **every** request (reads included; only
+the CORS `OPTIONS` preflight is exempt), so the dashboard stays blank until it's
+set. If a page can't authenticate (missing or wrong key), a warning banner
+appears under the header with a link straight to Settings.
 
 ### Daily use
 

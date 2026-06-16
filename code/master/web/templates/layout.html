@@ -81,6 +81,16 @@
 		</div>
 	</div>
 
+	<div id="authBanner" class="auth-banner" hidden>
+		<span class="auth-banner-icon">&#9888;</span>
+		<span class="auth-banner-text">
+			Authentication failed &mdash; the API key is missing or invalid.
+			<a href="#popup_settings">Open Settings</a> to set it.
+		</span>
+		<button type="button" class="auth-banner-close"
+			onclick="tethys.hideAuthBanner()" aria-label="Dismiss">&times;</button>
+	</div>
+
 	<div id="popup_shutdown" class="overlay">
 		<div class="popup content-section">
 			<h2>Order 66</h2>
