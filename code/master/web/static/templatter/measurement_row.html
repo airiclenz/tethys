@@ -4,26 +4,26 @@
     id="idMeasurement{{ id }}">
 
     <div
-        class="div-column div-column-padding col-10"
+        class="div-column div-column-padding col-25"
         id="idMeasurement{{ id }}_id">
         {{ id }}
     </div>
     <div
-        class="div-column div-column-padding col-30"
+        class="div-column div-column-padding col-25"
         id="idMeasurement{{ id }}_timestamp">
         {{ timestamp }}
     </div>
     <div
-        class="div-column div-column-padding col-20"
+        class="div-column div-column-padding col-25"
         id="idMeasurement{{ id }}_moisture">
         {{ moisture }}
     </div>
     <div
-        class="div-column div-column-padding col-20"
+        class="div-column div-column-padding col-25"
         id="idMeasurement{{ id }}_battery">
         {{ battery }}
     </div>
-    <div class="div-column div-column-padding col-15">
+    <div class="div-column div-column-padding col-2">
         <a href="#popup_delete_confirmation_measurements"
            onclick="tethys.measurements.requestRowDelete({{ id }})">
             <div class="button" title="Delete this reading">
