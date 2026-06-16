@@ -90,11 +90,4 @@
 	text-decoration: none;
 }
 
-@media screen and (max-width: 700px) {
-	.box {
-		width: 70%;
-	}
-	.popup {
-		width: 70%;
-	}
-}
+/* Popup responsiveness now lives in responsive.css (single source of truth). */

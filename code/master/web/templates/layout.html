@@ -4,6 +4,9 @@
 <html lang="en">
 
 <head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
 	<title>{{ title }}</title>
 
 	<link rel="stylesheet" href="{% static_v 'css/main.css'%}" />
@@ -15,6 +18,9 @@
 	<link rel="stylesheet" href="{% static_v 'css/optionset.css'%}" />
 
 	<link rel="stylesheet" href="{% static_v 'css/menu.css'%}" />
+
+	<!-- Loaded LAST so its desktop-first media-query overrides win the cascade. -->
+	<link rel="stylesheet" href="{% static_v 'css/responsive.css'%}" />
 
 	<link rel="icon" type="image/svg" href="{% static 'images/svg/icon_tethys.svg'%}" />
 
@@ -56,26 +62,31 @@
 
 				<div class="div-column no-wrap" style="width: 1.5rem"></div>
 
+				<button id="idNavToggle" class="nav-toggle" type="button"
+					aria-label="Menu" aria-expanded="false" aria-controls="idNavLinks"
+					onclick="tethys.toggleNav()">&#9776;</button>
 
-				<div class="div-column no-wrap" id="menu-sensor-channels">
-					<a href="../channels">Sensor Channels</a>
-				</div>
+				<nav id="idNavLinks" class="nav-links div-column">
+					<div class="div-column no-wrap" id="menu-sensor-channels">
+						<a href="../channels">Sensor Channels</a>
+					</div>
 
-				<div class="div-column no-wrap" id="menu-schedules">
-					<a href="../schedules">Schedules</a>
-				</div>
+					<div class="div-column no-wrap" id="menu-schedules">
+						<a href="../schedules">Schedules</a>
+					</div>
 
-				<div class="div-column no-wrap" id="menu-settings">
-					<a href="#popup_settings">Settings</a>
-				</div>
+					<div class="div-column no-wrap" id="menu-settings">
+						<a href="#popup_settings">Settings</a>
+					</div>
 
-				<div class="div-column no-wrap" id="menu-about">
-					<a href="#popup_info">About</a>
-				</div>
+					<div class="div-column no-wrap" id="menu-about">
+						<a href="#popup_info">About</a>
+					</div>
 
-				<div class="div-column no-wrap" id="menu-order66">
-					<a href="#popup_shutdown">Order 66</a>
-				</div>
+					<div class="div-column no-wrap" id="menu-order66">
+						<a href="#popup_shutdown">Order 66</a>
+					</div>
+				</nav>
 
 			</div>
 		</div>

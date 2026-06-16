@@ -31,6 +31,7 @@
             </div>
 
 
+			<div class="data-table">
 			<div class="div-row table-header">
 				<div class="div-column div-column-padding col-15">
 					Channel
@@ -64,12 +65,22 @@
                 <!-- FILLED BY FORMATTER -->
                 <!-- /////////////////// -->
             </div>
+			</div>
 		</div>
 
 		<!-- ----------------- S E T T I N G S ------------------- -->
 
 
 		<div id="idSettings" class="content-section" style="display: none; margin-top: 0.5rem;">
+
+			<!-- .form-grid lives on this inner wrapper, NOT on #idSettings. The
+			     settings JS reveals the panel via an inline style.display, and an
+			     inline display overrides the responsive `.form-grid { display:flex }`
+			     rule (inline beats @media). That left the container as display:block,
+			     where `order` is inert, so the mobile two-column regrouping collapsed
+			     to DOM order (both headings first, then all fields). Keeping form-grid
+			     on a child the JS never touches lets CSS own its display value. -->
+			<div class="form-grid">
 
 			<!-- set in channels.js -->
 			<div class="div-row">
@@ -88,7 +99,7 @@
 				</div>
 			</div>
 
-			<div class="div-row">
+			<div class="div-row form-title-row">
 
 				<div class="div-column div-column-padding col-50">
 					<h2>Channel Settings</h2>
@@ -102,7 +113,7 @@
 
             <!-- ------------------------------------- -->
 
-			<div class="div-row">
+			<div class="div-row form-row">
 
 				<div class="div-column div-column-padding col-20">
 					Enabled:
@@ -134,7 +145,7 @@
 
             <!-- ------------------------------------- -->
 
-			<div class="div-row">
+			<div class="div-row form-row">
 
 				<div class="div-column div-column-padding col-20">
 					Nickname:
@@ -164,7 +175,7 @@
 
             <!-- ------------------------------------- -->
 
-			<div class="div-row">
+			<div class="div-row form-row">
 
 				<div class="div-column div-column-padding col-20">
 					Channel Type:
@@ -199,7 +210,7 @@
 
             <!-- ------------------------------------- -->
 
-			<div class="div-row">
+			<div class="div-row form-row">
 
 				<div class="div-column div-column-padding col-20">
 					Pump Duration (sec):
@@ -228,7 +239,7 @@
 
             <!-- ------------------------------------- -->
 
-			<div class="div-row">
+			<div class="div-row form-row">
 
 				<div class="div-column div-column-padding col-20">
 					Action Trigger Level (%):
@@ -252,6 +263,8 @@
 				</div>
 
 			</div>
+
+			</div><!-- /.form-grid -->
 
 		</div>
 

@@ -1,0 +1,101 @@
+/* Tethys responsive layer — desktop-first overrides on top of the fixed
+   desktop design in main.css / pop-up.css. Loaded LAST in layout.html.
+   Breakpoints (literal px — CSS vars can't be used in @media):
+     1400px = frame gutters   860px = hamburger nav   700px = phone/cards   */
+
+/* Side gutters once the frame fills the viewport instead of centering. */
+@media (max-width: 1400px) {
+    .site-frame { padding-left: 1rem; padding-right: 1rem; }
+}
+
+/* ---- Handheld navigation (hamburger) ---- */
+.nav-toggle {                       /* hidden on desktop; shown ≤860 */
+    display: none;
+    background: none; border: none;
+    color: #c0c0c0; font-size: 1.6rem;
+    line-height: var(--header-height);
+    padding: 0 1rem; cursor: pointer;
+}
+@media (max-width: 860px) {
+    .nav-toggle { display: block; }
+    .nav-links {                    /* dropdown panel under the sticky bar */
+        display: none;
+        position: absolute;
+        top: var(--header-height); left: 0; right: 0;
+        flex-direction: column;
+        background-color: #000000;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        z-index: 90;
+    }
+    .nav-links.is-open { display: flex; }
+    .nav-links .div-column { width: 100%; }
+    .nav-links .div-column a { display: block; text-align: left; padding: 0 1.2rem; }
+}
+
+/* ---- Phone / compact ---- */
+@media (max-width: 700px) {
+
+    /* Tables → labeled cards (opt-in via .data-table). */
+    .data-table .table-header { display: none; }
+    .data-table .table-row-odd,
+    .data-table .table-row-even {
+        flex-direction: column; align-items: stretch; padding: 0.25rem 0;
+    }
+    .data-table .table-row-odd .div-column,
+    .data-table .table-row-even .div-column {
+        flex-basis: auto; width: 100%; box-sizing: border-box;
+        justify-content: space-between;
+    }
+    .data-table .div-column[data-label]::before {
+        content: attr(data-label);
+        font-weight: bold; color: #555555; margin-right: 0.75rem;
+    }
+    /* NOTE: do NOT add a rule to right-align label-less cells — the delete
+       .button already has margin-left:auto, and the colored badge title cell
+       (no data-label) must stay left-aligned as the card header. */
+
+    /* Settings forms → single column (opt-in via .form-grid).
+       The channel settings panel is authored as a 2-column grid: each .form-row
+       holds a left (channel) field and a right (sensor) field side by side, and
+       the .form-title-row holds both section headings. A naive stack would
+       interleave the columns (and float both titles to the top). Instead we
+       flatten those row boxes with display:contents so their cells become direct
+       flex items of .form-grid, then use `order` to regroup every left-column
+       cell ahead of every right-column cell. Result reads: Channel Settings +
+       its fields, then Sensor Settings + its fields. The settings header row is
+       left intact. Desktop is untouched — these rules are phone-only and the
+       form-row/form-title-row classes carry no desktop styles.
+
+       IMPORTANT: .form-grid must sit on a wrapper the JS never touches, NOT on
+       #idSettings. The settings toggle reveals the panel with an inline
+       style.display, and an inline display beats this @media rule — so if
+       form-grid were on #idSettings the container would stay display:block,
+       `order` would be inert, and the columns would collapse to DOM order. */
+    .form-grid { display: flex; flex-direction: column; }
+    .form-grid .div-row { flex-direction: column; align-items: stretch; }
+    .form-grid .div-row .div-column { flex-basis: auto; width: 100%; box-sizing: border-box; }
+
+    .form-grid .form-row,
+    .form-grid .form-title-row { display: contents; }
+
+    /* Field rows are symmetric 4-cell rows (children 1-2 left, 3-4 right); the
+       title row is a 2-cell row (child 1 left, child 2 right). `order` is a
+       stable sort, so cells keep their source order within each column group. */
+    .form-grid .form-row > .div-column:nth-child(-n + 2),
+    .form-grid .form-title-row > .div-column:nth-child(1) { order: 0; }
+    .form-grid .form-row > .div-column:nth-child(n + 3),
+    .form-grid .form-title-row > .div-column:nth-child(2) { order: 1; }
+
+    /* Charts stack (Chart.js already resizes — see Gotchas). */
+    .chart-row { flex-direction: column; }
+
+    /* Footer columns wrap instead of crushing. */
+    .site-footer .div-row { flex-wrap: wrap; }
+
+    /* Modals: near-full-width, scrollable, flowing action button. */
+    .popup { width: auto; margin: 1rem; max-height: 85vh; overflow: auto; }
+    .popup-button {
+        position: static; width: 100%; margin-top: 1rem;
+        right: auto; bottom: auto; box-sizing: border-box;
+    }
+}

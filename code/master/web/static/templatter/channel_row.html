@@ -11,21 +11,25 @@
     </div>
     <div
         class="div-column div-column-padding col-7"
+        data-label="Type"
         id="idChannel{{ channel.number }}_type">
         {{ channel.channelType }}
     </div>
     <div
         class="div-column div-column-padding col-15"
+        data-label="Moisture"
         id="idChannel{{ channel.number }}_status">
         {{ channel.sensorData_lastMoisturePercent }}
     </div>
     <div
         class="div-column div-column-padding col-7"
+        data-label="Battery"
         id="idChannel{{ channel.number }}_sensorVoltage">
         {{ channel.sensorData_lastBatteryVoltage }}
     </div>
     <div
         class="div-column div-column-padding col-10"
+        data-label="Measurement Count"
         id="idChannel{{ channel.number }}_dataCount"
         onmouseenter="tethys.channel.onCountMouseEnter({{ channel.number }}, 'sensorData_count')"
         onmouseleave="tethys.channel.onCountMouseLeave({{ channel.number }}, 'sensorData_count')">
@@ -33,11 +37,13 @@
     </div>
     <div
         class="div-column div-column-padding col-15"
+        data-label="Last Measurement"
         id="idChannel{{ channel.number }}_lastSensorDataTimestamp">
         {{ channel.sensorData_lastTimestamp }}
     </div>
     <div
         class="div-column div-column-padding col-10"
+        data-label="Action Count"
         id="idChannel{{ channel.number }}_actionCount"
         onmouseenter="tethys.channel.onCountMouseEnter({{ channel.number }}, 'action_count')"
         onmouseleave="tethys.channel.onCountMouseLeave({{ channel.number }}, 'action_count')">
@@ -45,6 +51,7 @@
     </div>
     <div
         id="idChannel{{ channel.number }}_lastActionStartTime"
+        data-label="Last Action"
         class="div-column div-column-padding col-15">
         {{ channel.action_lastActionType }} - {{ channel.action_lastStartTime }} Test
     </div>

@@ -179,6 +179,15 @@ namespace tethys {
         }
     }
 
+    // Toggle the mobile navigation dropdown (the hamburger menu at narrow widths).
+    export function toggleNav() {
+        const links = document.getElementById("idNavLinks");
+        const toggle = document.getElementById("idNavToggle");
+        if (!links || !toggle) { return; }
+        const open = links.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
 
     // ============================================================================
     export function deselectAll() {
