@@ -29,6 +29,10 @@ __pycache__/
 ### TypeScript ###
 package-lock.json
 
+# Compiled output + build cache — regenerated from static/ts by tsc on every
+# deploy (see code/master/install/deploy-static.sh). The .ts sources are the truth.
+code/master/web/static/js/
+
 
 ### C++ ###
 # Prerequisites
