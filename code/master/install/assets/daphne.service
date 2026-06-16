@@ -8,6 +8,11 @@ Environment="TETHYS_DEBUG={DEBUG-FLAG}"
 Environment="TETHYS_ALLOWED_HOSTS={ALLOWED-HOSTS}"
 ExecStart={TETHYS-PATH}/env_tethys/bin/daphne -b 0.0.0.0 -p 8001 tethys_web.asgi:application
 Restart=always
+# Cap the SIGTERM->SIGKILL window so a future shutdown hang can't stall restarts
+# for the default 90s. A healthy graceful stop measures ~0.6s, so 5s is ~8x
+# headroom; SIGKILL is safe here anyway (state lives in the DB/Redis/core, and
+# browsers auto-reconnect).
+TimeoutStopSec=5s
 
 [Install]
 WantedBy=multi-user.target

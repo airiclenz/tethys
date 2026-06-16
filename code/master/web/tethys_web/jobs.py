@@ -21,11 +21,17 @@ repeater = None
 def startPolling():
     tools.log("Checking if polling needs to be started...")
     global isPolling
-    global thread
+    global repeater
 
     if isPolling == False:
         isPolling = True
         repeater = RepeatTimer(settings.POLL_FREQUENCY_SEC, checkForUpdate)
+        # Daemon so it can't block interpreter shutdown: daphne stops its reactor on
+        # SIGTERM, then CPython joins all non-daemon threads before exiting. This
+        # timer loops forever (nothing cancels it), so as a non-daemon thread it hung
+        # shutdown until systemd's stop timeout SIGKILLed daphne (~90s). The
+        # interrupted poll is just an idempotent GET, so abandoning it loses nothing.
+        repeater.daemon = True
         repeater.start()
         tools.log("Polling started...")
 
