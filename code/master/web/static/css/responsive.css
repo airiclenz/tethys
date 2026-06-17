@@ -57,9 +57,14 @@
         flex-basis: auto; width: 100%; box-sizing: border-box;
         justify-content: space-between;
     }
+    /* margin-right:auto (not a fixed gap) pins the label left and lets every
+       value node pack together on the right. Auto margins steal main-axis free
+       space before justify-content:space-between distributes any, so multi-node
+       cells (Moisture: icon+percent+comparator; low Battery: voltage+warning)
+       group on the right instead of spreading. Single-value cells are unchanged. */
     .data-table .div-column[data-label]::before {
         content: attr(data-label);
-        font-weight: bold; color: #555555; margin-right: 0.75rem;
+        font-weight: bold; color: #555555; margin-right: auto;
     }
     /* NOTE: do NOT add a rule to right-align label-less cells — the delete
        .button already has margin-left:auto, and the colored badge title cell
