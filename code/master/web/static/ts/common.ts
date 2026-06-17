@@ -294,7 +294,7 @@ namespace tethys {
 
         var elementCoreTemperature = document.getElementById("idCoreTemperature")!;
 
-        elementCoreTemperature.innerHTML = "Pi-Core: " + coreTemperature.toFixed(1) + "°C";
+        elementCoreTemperature.innerHTML = "Pi-Core:<br>" + coreTemperature.toFixed(1) + "°C";
     }
 
 
@@ -304,15 +304,15 @@ namespace tethys {
         var elementCoreServiceState = document.getElementById("idCoreServiceState")!;
 
         if (coreServiceState === null) {
-            elementCoreServiceState.innerHTML = "Core-Service: --";
+            elementCoreServiceState.innerHTML = "Core-Service:<br>--";
             return;
         }
 
         if (coreServiceState) {
-            elementCoreServiceState.innerHTML = "Core-Service: Running";
+            elementCoreServiceState.innerHTML = "Core-Service:<br>Running";
         }
         else {
-            elementCoreServiceState.innerHTML = "Core-Service: OFF";
+            elementCoreServiceState.innerHTML = "Core-Service:<br>OFF";
         }
 
     }

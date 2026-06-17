@@ -100,8 +100,26 @@
     /* Charts stack (Chart.js already resizes — see Gotchas). */
     .chart-row { flex-direction: column; }
 
-    /* Footer columns wrap instead of crushing. */
-    .site-footer .div-row { flex-wrap: wrap; }
+    /* ---- Footer ----
+       Desktop sizes the footer with fixed col-% bases + an invisible col-50
+       spacer for alignment; on a phone those collapse into a cramped, mangled
+       row. Rebuild it as a simple flex line: hide the tagline and the three
+       layout-only spacer columns, let the two live readouts size to their
+       content and sit left with a gap between them, and push the OSH logo to
+       the right edge with an auto margin. */
+    /* flex-wrap is a safety net for very narrow screens, but it makes the single
+       flex line grow to the tall 2-line readouts and pins it to the top of the
+       footer's cross axis. align-content re-centres the line (and align-items the
+       shorter logo within it) the way the no-wrap desktop footer already sits. */
+    .site-footer .div-row { flex-wrap: wrap; gap: 1.25rem; align-items: center; align-content: center; }
+    .site-footer .col-30,                               /* "Tethys – Home Automation…" tagline */
+    .site-footer .col-5,                                /* &nbsp; spacer between the readouts */
+    .site-footer .div-row > .div-column:nth-child(2),   /* &nbsp; spacer before the readouts */
+    .site-footer .div-row > .div-column:empty {         /* invisible col-50 alignment spacer */
+        display: none;
+    }
+    .site-footer .div-column { flex-basis: auto; }
+    .site-footer .div-row > .div-column:last-child { margin-left: auto; }  /* logo → right edge */
 
     /* Modals: near-full-width, scrollable, flowing action button. */
     .popup { width: auto; margin: 1rem; max-height: 85vh; overflow: auto; }

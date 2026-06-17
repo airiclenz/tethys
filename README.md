@@ -385,6 +385,12 @@ Use `install/deploy-static.sh` to compile + publish to the nginx static dir. The
 compiled `web/static/js/` is git-ignored — it is rebuilt from the `.ts` sources on
 deploy and before the UI tests, so the TypeScript is the single source of truth.
 
+> ⚠️ **Editing the frontend? Change the `.ts` files in `web/static/ts/`, never
+> `web/static/js/` directly.** The `.js` folder is generated output (git-ignored)
+> and is overwritten on every `tsc` run / deploy, so any hand-edits to the `.js`
+> are silently lost. Tip: `git check-ignore <path>` will tell you if a file is a
+> build artifact before you touch it.
+
 ### Known limitations / deferred (see `CHANGELOG.md` + `docs/`)
 
 - Two GPIO owners (`pumpController` for the auto path, the legacy `core/channel.py`
