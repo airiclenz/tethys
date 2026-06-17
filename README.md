@@ -132,6 +132,9 @@ appears under the header with a link straight to Settings.
   weekday + start time + duration windows during which *all* automatic watering
   is suppressed (e.g. overnight). The header shows a sleep icon while a silent
   phase is active.
+- **Order 66** (top menu) — recovery action for when a service or the Pi itself
+  gets wedged: confirm the popup and the Pi performs a graceful reboot (back in
+  ~1 minute). Gated by the API key, like pump control.
 - The dashboard updates live over a WebSocket; no manual refresh needed.
 
 ### Updating / operating

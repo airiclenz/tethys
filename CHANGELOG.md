@@ -10,6 +10,35 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Web frontend: "Order 66" menu action now reboots the Pi
+
+> (2026-06-17). The "Order 66" menu item opened a confirmation popup whose OK
+> button linked to `/shutdown` — a route that never existed, so clicking it just
+> 404'd. It is now a real recovery action for when a service or the Pi itself
+> gets wedged: it triggers a graceful reboot, gated by the API key like every
+> other control action.
+
+#### Added
+- **`api/tethys_api/views.py`** / **`api/tethys_api/urls.py`** — new
+  `POST /api/reboot/` endpoint. Key-gated by the default `ApiKeyRequired`
+  permission (so a bare GET can't trigger it) and POST-only. It runs a
+  **graceful** `systemctl reboot` (not `reboot -f`) so core's SIGTERM hook
+  (`_shutdownPumps`) drives every valve pin LOW before the power cycle, and
+  defers it via a detached shell (`sleep 3 && …`) so the `202` reaches the
+  browser before services tear down. Absolute binary paths are used because the
+  service's `PATH` is pinned to the venv bin (`Environment=PATH=…`), so bare
+  `sh`/`systemctl` would not resolve.
+- **`web/static/ts/common.ts`** — `requestReboot()` POSTs to `/api/reboot/` via
+  the existing key-attaching `postCall` helper, shows a "rebooting…" notice on
+  success, and reuses the `#authBanner` on a 403 (same UX as pump control).
+- **`web/templates/layout.html`** — the Order 66 popup OK button now calls
+  `tethys.requestReboot()` instead of linking to the dead `/shutdown`; the
+  confirmation copy states it reboots the Pi (offline ~1 minute).
+
+#### Removed
+- **`web/templates/index-shutdown.html`** — dead template for the never-routed
+  `/shutdown` page; the "rebooting…" state is shown client-side in the popup.
+
 ### Web frontend: auth-failure banner on page load
 
 > (2026-06-16). Every API request needs an `X-API-Key`; a missing or wrong key

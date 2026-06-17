@@ -22,6 +22,8 @@ urlpatterns = [
 
     path('api/initializeDatabase/', views.initializeDatabase),
 
+    path('api/reboot/', views.reboot),
+
     path('api/actionLog/', views.actionLog),
     path('api/actionLog/entry/<int:id>', views.actionLog_entry),
     path('api/actionLog/<str:number>', views.actionLog_single),

@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 from django.db.models import OuterRef, Subquery, F, Count
 from rest_framework import status
 from rest_framework import serializers
@@ -47,6 +48,40 @@ def initializeDatabase(request):
         actionLog = ModelHelper.initializeDatabase();
         return Response(actionLog)
     
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    request=None,
+    responses={202: None},
+    description='Reboot the whole Raspberry Pi. A recovery action for when a '
+                'service or the device itself gets wedged. Key-gated (the default '
+                'ApiKeyRequired permission applies) and POST-only so a bare GET '
+                'cannot trigger it.',
+)
+@api_view(['POST'])
+def reboot(request):
+
+    print(f'> {request.method}  ./api/reboot/')
+
+    if request.method == 'POST':
+        # Graceful reboot (`systemctl reboot`, not `reboot -f`): systemd sends
+        # SIGTERM to the units, so core's shutdown hook (core/tethys_core.py
+        # _shutdownPumps) runs and drives every valve pin LOW before the power
+        # cycle — critical on a watering system.
+        #
+        # Deferred + detached: this very process (tethys-api, running as root) is
+        # a casualty of the reboot, so the command is handed to a detached shell
+        # that waits a few seconds. That lets the 202 below flush to the browser
+        # before systemd starts tearing services down.
+        #
+        # Absolute paths are required: the unit pins PATH to the venv bin
+        # (Environment=PATH=.../env_tethys/bin), so bare "sh"/"sleep"/"systemctl"
+        # do not resolve in this process and would raise FileNotFoundError.
+        subprocess.Popen(
+            ["/bin/sh", "-c", "/usr/bin/sleep 3 && /usr/bin/systemctl reboot"])
+
+        return Response(status=status.HTTP_202_ACCEPTED)
+
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @extend_schema(

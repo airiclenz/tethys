@@ -179,6 +179,51 @@ namespace tethys {
         }
     }
 
+    // ============================================================================
+    // Order 66 — reboot the whole Pi. A recovery action for when a service or the
+    // device itself gets wedged. POSTs to the key-gated /api/reboot/ endpoint (the
+    // same trust model as pump control); the API performs a graceful, deferred
+    // reboot and returns 202 a few seconds before the device actually drops.
+    // ============================================================================
+    export async function requestReboot() {
+
+        var messageElement = document.getElementById("idShutdownMessage");
+
+        try {
+            const response = await postCall(apiUrl + "reboot/", {});
+
+            if (response.ok) {
+                // 202 Accepted: the Pi goes down in a few seconds. Leave the popup
+                // open and swap its body for a notice; the connection dropping
+                // shortly after is expected.
+                if (messageElement) {
+                    messageElement.innerHTML =
+                        "Commencing Order&nbsp;66 &mdash; the Pi is rebooting." +
+                        "<br><br>It will be back in about a minute.";
+                }
+            } else if (response.status === 403) {
+                // Missing/invalid API key: reuse the standard auth banner and close
+                // the popup so the banner isn't hidden behind the overlay.
+                showAuthBanner();
+                window.location.hash = "";
+            } else {
+                if (messageElement) {
+                    messageElement.innerHTML =
+                        "Reboot request failed (" + response.status +
+                        "). Please try again.";
+                }
+            }
+        } catch (e) {
+            // Network error reaching the API.
+            if (messageElement) {
+                messageElement.innerHTML =
+                    "Could not reach the device to reboot it.";
+            }
+            console.error("Reboot request failed:", e);
+        }
+    }
+
+
     // Toggle the mobile navigation dropdown (the hamburger menu at narrow widths).
     export function toggleNav() {
         const links = document.getElementById("idNavLinks");

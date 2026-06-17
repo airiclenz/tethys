@@ -106,9 +106,13 @@
 		<div class="popup content-section">
 			<h2>Order 66</h2>
 			<a class="close" href="#">&times;</a>
-			<div class="content">Do you want to commence order 66?</div>
+			<div class="content" id="idShutdownMessage">
+				Do you want to commence Order&nbsp;66 and reboot the Pi?
+				<br><br>
+				It will be offline for about a minute while it restarts.
+			</div>
 			<div class="popup-button">
-				<a href="/shutdown">OK</a>
+				<a href="#" onclick="tethys.requestReboot(); return false;">OK</a>
 			</div>
 		</div>
 	</div>
