@@ -43,6 +43,7 @@ body {
 	background-color: #000000;
     position: sticky;
     top:0;
+    z-index: 60;   /* keep header above scrolling content (charts); below modal overlays (.overlay = 100) */
 }
 
 #site-header a {
