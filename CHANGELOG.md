@@ -10,6 +10,24 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Watchdog: nightly maintenance was a silent no-op (restricted PATH)
+
+> (2026-06-17). The watchdog's 01:00 job — restart `tethys-api`/`tethys-core`
+> and vacuum the journal — had been failing every night while logging success.
+> The commands never ran, so the services were never actually cycled.
+
+#### Fixed
+- **`watchdog/tethys_watchdog.py`** — `restartServices()` called `systemctl`
+  and `journalctl` as bare commands through `os.system()`. The systemd unit
+  pins `PATH` to the venv bin (`Environment=PATH=…/env_tethys/bin`), so the
+  `/bin/sh` that `os.system()` spawns could not resolve either binary
+  (`sh: 1: systemctl: not found`). The exit code was ignored and the success
+  `print()`s ran unconditionally, so the failure was invisible in the journal.
+  Now uses absolute paths (`/usr/bin/systemctl`, `/usr/bin/journalctl`) — the
+  same fix as the `/api/reboot/` endpoint — and checks each return code so a
+  future failure logs `FAILED` instead of a false success. No unit change
+  needed; the restricted `PATH` is sidestepped per-call.
+
 ### Web frontend: "Order 66" menu action now reboots the Pi
 
 > (2026-06-17). The "Order 66" menu item opened a confirmation popup whose OK

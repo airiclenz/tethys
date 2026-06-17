@@ -19,14 +19,22 @@ import os
 
 # /////////////////////////////////////////////////////////////////////////////
 def restartServices():
-    os.system("systemctl restart tethys-api.service")
-    os.system("systemctl restart tethys-core.service")
-    
-    print("Services were restarted.")
+    # Absolute binary paths are required: the systemd unit pins PATH to the venv
+    # bin (Environment=PATH=.../env_tethys/bin), so os.system()'s /bin/sh cannot
+    # resolve bare "systemctl"/"journalctl" — it logged "not found" and this
+    # function still printed success. Same fix as the /api/reboot/ endpoint.
+    api = os.system("/usr/bin/systemctl restart tethys-api.service")
+    core = os.system("/usr/bin/systemctl restart tethys-core.service")
 
-    os.system("journalctl --vacuum-time=1d")
+    if api == 0 and core == 0:
+        print("Services were restarted.")
+    else:
+        print(f"Service restart FAILED (api={api}, core={core}).")
 
-    print("Services-journals were truncated.")
+    vac = os.system("/usr/bin/journalctl --vacuum-time=1d")
+
+    print("Services-journals were truncated." if vac == 0
+          else f"Journal vacuum FAILED ({vac}).")
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
