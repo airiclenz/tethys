@@ -6,7 +6,6 @@ items from this list tjhat have been implemented are moved to the file `CHANGELO
 - solve as websocket request to avoid CORS:
     - add new channel / schedule
     - remove
-- implement sensor data / action log views
 - persist the low-battery flag: `SensorData` has no battery-alert column, so the
   sensor's `DATATYPE_SENSORDATA_BATTERYALERT` is currently only logged (the
   reading itself is saved). Add a field + migration to store it. See
