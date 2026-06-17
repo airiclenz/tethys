@@ -32,6 +32,17 @@
     .nav-links .div-column a { display: block; text-align: left; padding: 0 1.2rem; }
 }
 
+/* ---- Fluid table columns ----
+   Table cells are flex items whose .col-* classes set only flex-basis; the
+   default min-width:auto then floors each cell at its own content width. The
+   header labels ("Timestamp", "Duration", …) are wider than the short body
+   data, so as the frame narrows the header columns stop shrinking while the
+   body columns keep going and the header drifts out of alignment with the rows.
+   min-width:0 lets every data column shrink to its flex-basis share so header
+   and body track each other. .col-2 (delete) is excluded so its 42px button is
+   never clipped. Same pattern as the field rows in main.css (min-width:0). */
+.data-table .div-row > .div-column:not(.col-2) { min-width: 0; }
+
 /* ---- Phone / compact ---- */
 @media (max-width: 700px) {
 
