@@ -10,6 +10,24 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### nginx: intermittent 502s / failed `/channels` redirect from IPv6 `localhost` upstreams
+
+> (2026-06-17). Opening Tethys — most visibly over Tailscale — sometimes showed
+> an nginx error page instead of redirecting `/` → `/channels`, and live data
+> could silently drop. It looked host- or cache-specific ("reload fixes it",
+> "works in another browser"), but the root cause was a dual-stack `localhost`
+> mismatch with no relation to the hostname, Tailscale, or caching.
+
+#### Fixed
+- **`install/assets/tethys-{web,api}.nginx`** — `proxy_pass` targeted the name
+  `localhost`, which resolves to both `127.0.0.1` and `[::1]`, while gunicorn
+  (web `:8000`, api `:5001`) and daphne (`:8001`) bind IPv4 only. nginx
+  round-robined onto `[::1]`, hit `connect() failed (111: Connection refused)`,
+  and served its own 502 (the "nginx page") instead of Django's `/ → /channels/`
+  redirect — masked intermittently by per-request retries. Pinned all three
+  upstreams to `127.0.0.1`. Verified live: zero new `[::1]` failures under load.
+  (`assets-localized/` is gitignored and regenerated from these templates.)
+
 ### Watchdog: nightly maintenance was a silent no-op (restricted PATH)
 
 > (2026-06-17). The watchdog's 01:00 job — restart `tethys-api`/`tethys-core`

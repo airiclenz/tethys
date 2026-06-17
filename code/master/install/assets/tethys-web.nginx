@@ -9,11 +9,14 @@ server {
     } 
 
     location / {
-        proxy_pass http://localhost:8000;
+        # IPv4 pin: "localhost" also resolves to ::1, but the backend binds IPv4
+        # only, so proxying to "localhost" lets nginx pick [::1] and intermittently
+        # 502 (connection refused). Must stay 127.0.0.1.
+        proxy_pass http://127.0.0.1:8000;
     }
 
     location /ws/ {
-        proxy_pass http://localhost:8001;
+        proxy_pass http://127.0.0.1:8001;  # IPv4 pin (see note above)
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

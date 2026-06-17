@@ -3,6 +3,8 @@ server {
     server_name localhost;
     
     location / {
-        proxy_pass http://localhost:5001;
+        # IPv4 pin: "localhost" also resolves to ::1, but the backend binds IPv4
+        # only — proxying to "localhost" lets nginx pick [::1] and intermittently 502.
+        proxy_pass http://127.0.0.1:5001;
     }
 } 
