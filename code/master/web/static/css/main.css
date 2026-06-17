@@ -211,8 +211,18 @@ h2 {
 	border-radius: 0.2rem;
 	padding: 0.2rem 0;
 
-	/* Position the tooltip */
+	/* Position the tooltip. Its anchor (#idIsSilentPhase) sits near the top-right
+	   of the header, so anchor the box to that right edge and let it grow left,
+	   into the viewport — growing right ran the fixed 270px off-screen and forced
+	   a horizontal scrollbar at phone width. The max-width reserves ~7rem for the
+	   header controls that sit between the anchor and the viewport edge (the
+	   hamburger + spacers), so the leftward-growing box stays on-screen on both
+	   sides down to ~320px. On desktop the viewport dwarfs this cap, so width
+	   (270px) stands and the tooltip is unchanged. */
 	position: absolute;
+	right: 0;
+	max-width: calc(100vw - 7rem);
+	box-sizing: border-box;
 	z-index: 1;
 }
 
@@ -430,6 +440,14 @@ h2 {
 	position: relative;
 	width: 100%;
 	height: 260px;
+}
+
+/* Cap the canvas at its wrapper's width so it can never push past the viewport.
+   Chart.js sizes the canvas to its container once data arrives (responsive:true),
+   but before then — no data yet, or an empty channel — a bare <canvas> keeps its
+   intrinsic 300px default, which overflowed a narrow phone screen. */
+.chart-canvas-wrap canvas {
+	max-width: 100%;
 }
 
 /* ////////////////////////////////////////////////////// */
