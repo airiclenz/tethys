@@ -46,6 +46,27 @@ Current released version: **3.0.0** (`code/master/globals/config.py`).
 - Tests: **`camera/tests/`** — the fail-closed snapshot gate, idle and max-on
   auto-off, and the auth check, all with `FakeSnapshotBackend` (no hardware).
 
+### Webcam: device-derived capture resolution + full-screen view
+
+> (2026-06-18). The Webcam tab captured at a fixed 1280×720 and had no
+> full-screen view. Resolution is now **selectable** from a dropdown the client
+> fills from the camera itself (so it isn't hardcoded to one model), and the live
+> frame can be viewed **full-screen** — built for phone-width viewports. Both are
+> in-session only; nothing is persisted or recorded.
+
+#### Added
+- **Selectable resolution** — `cameraController.status()` now reports the camera's
+  advertised MJPG sizes (**`captureBackend.V4l2UsbBackend.supported_resolutions()`**,
+  parsed from `v4l2-ctl --list-formats-ext`, **fail-soft** so `status()` never
+  throws) plus the default size. The snapshot request carries `?w=&h=`, validated
+  in the pure router (**`tethys_camera._snapshot`**) with a new **400** for a
+  malformed or unsupported size. Capture stays one-shot — resolution is a
+  per-request parameter, no restart.
+- **Full-screen view** — a control toggles a CSS overlay class on the live `<img>`
+  (**`.camera-fullscreen`**); tap or Escape exits. A CSS overlay (not the
+  Fullscreen API) because iOS Safari can't fullscreen an `<img>`; the polling loop
+  keeps refreshing the same element underneath.
+
 ### Watering: enforce "one channel at a time" for manual control, not just automatic
 
 > (2026-06-17). Automatic watering already serialised — `pumpController` runs one

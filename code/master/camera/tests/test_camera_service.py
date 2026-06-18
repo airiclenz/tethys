@@ -148,3 +148,46 @@ def test_snapshot_path_with_query_string_is_routed():
     response = route_request(controller, KEY, "GET", "/camera/snapshot?ts=123", headers())
 
     assert response.status == 200
+
+
+# -- snapshot resolution validation -------------------------------------------
+#
+# ?w=&h= picks the capture size. FakeSnapshotBackend advertises 1280x720 and
+# 640x480, so a listed size passes, an unlisted one is 400, and a malformed
+# query is 400 (the only path that emits this brand-new status).
+
+def test_snapshot_with_supported_resolution_returns_jpeg():
+    controller, _ = make_controller()
+    route_request(controller, KEY, "POST", "/camera/start", headers())
+
+    response = route_request(
+        controller, KEY, "GET", "/camera/snapshot?w=1280&h=720", headers()
+    )
+
+    assert response.status == 200
+    assert response.content_type == "image/jpeg"
+
+
+def test_snapshot_with_unsupported_resolution_returns_400():
+    controller, _ = make_controller()
+    route_request(controller, KEY, "POST", "/camera/start", headers())
+
+    response = route_request(
+        controller, KEY, "GET", "/camera/snapshot?w=9999&h=9999", headers()
+    )
+
+    assert response.status == 400
+
+
+@pytest.mark.parametrize("query", [
+    "?w=abc&h=480",     # non-integer
+    "?w=640",           # only one of the pair
+    "?w=640&h=0",       # non-positive
+])
+def test_snapshot_with_malformed_resolution_returns_400(query):
+    controller, _ = make_controller()
+    route_request(controller, KEY, "POST", "/camera/start", headers())
+
+    response = route_request(controller, KEY, "GET", "/camera/snapshot" + query, headers())
+
+    assert response.status == 400

@@ -17,6 +17,7 @@
 import hmac
 import json
 import logging
+import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import config
@@ -69,7 +70,7 @@ def route_request(controller, expected_key, method, path, headers):
     action = _action_from_path(path)
 
     if action == "snapshot" and method == "GET":
-        return _snapshot(controller)
+        return _snapshot(controller, path)
     if action == "status" and method == "GET":
         return _json(200, controller.status())
     if action == "start" and method == "POST":
@@ -91,9 +92,44 @@ def _start(controller):
     return _json(202, {"enabled": True})
 
 
-def _snapshot(controller):
+def _parse_resolution(path):
+    '''Read an optional ?w=&h= capture size from the snapshot path. Returns
+    (None, None) when neither is present (use the backend default), or (width,
+    height) when both are present and positive. Raises ValueError on a malformed
+    request — a non-integer value, only one of the pair, or a non-positive size —
+    so the router can answer 400.'''
+    query = urllib.parse.urlparse(path).query
+    params = urllib.parse.parse_qs(query)
+    has_width = "w" in params
+    has_height = "h" in params
+    if not has_width and not has_height:
+        return None, None
+    if has_width != has_height:
+        raise ValueError("both w and h are required")
+
+    width = int(params["w"][0])         # ValueError on a non-integer value
+    height = int(params["h"][0])
+    if width <= 0 or height <= 0:
+        raise ValueError("w and h must be positive")
+    return width, height
+
+
+def _snapshot(controller, path):
     try:
-        frame = controller.snapshot()
+        width, height = _parse_resolution(path)
+    except ValueError:
+        return _json(400, {"error": "invalid resolution; use ?w=<int>&h=<int>"})
+
+    if width is not None:
+        allowed = controller.supported_resolutions()
+        # Validate only when enumeration succeeded. An empty list means we
+        # couldn't build one, so don't block the request on a list we don't have
+        # — a genuinely bad size then surfaces as the existing 503.
+        if allowed and {"width": width, "height": height} not in allowed:
+            return _json(400, {"error": "unsupported resolution", "supported": allowed})
+
+    try:
+        frame = controller.snapshot(width, height)
     except CameraDisabledError:
         return _json(409, {"error": "camera is disabled; POST /camera/start first"})
     except CaptureError as e:

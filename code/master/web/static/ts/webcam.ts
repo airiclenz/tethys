@@ -17,8 +17,21 @@ namespace tethys {
         // normal viewing never trips the idle auto-off.
         const refreshMs = 3000;
 
+        // The class that turns the live frame into a full-viewport overlay
+        // (web/static/css/main.css). Toggled — never inline-styled — so the UI
+        // test can assert on it.
+        const fullscreenClass = "camera-fullscreen";
+
         let pollTimer: number | null = null;
         let objectUrl: string | null = null;    // the currently-shown blob URL
+        // Tears down the full-screen click/Escape listeners; null while windowed.
+        let fullscreenExit: (() => void) | null = null;
+
+        // A capture size the device advertises, as the status JSON delivers it.
+        interface Resolution {
+            width: number;
+            height: number;
+        }
 
 
         // ============================================================================
@@ -50,6 +63,18 @@ namespace tethys {
                 enable();
             } else {
                 disable();
+            }
+        }
+
+
+        // ============================================================================
+        // Called from the resolution dropdown (onchange in the template). Re-fetch
+        // at the newly-picked size at once instead of waiting for the next poll —
+        // but only while capturing, so changing the size with the camera off can't
+        // trigger a 409 (which would read as an unexpected auto-off).
+        export function onResolutionChange() {
+            if (pollTimer !== null) {
+                tick();
             }
         }
 
@@ -105,7 +130,7 @@ namespace tethys {
         async function tick() {
 
             try {
-                const response = await getCall(cameraUrl + "snapshot");
+                const response = await getCall(cameraUrl + "snapshot" + resolutionQuery());
 
                 // The service auto-disabled (idle window or max-on ceiling) — follow it.
                 if (response.status === 409) {
@@ -207,6 +232,7 @@ namespace tethys {
                 }
 
                 const data = await response.json();
+                populateResolutions(data.resolutions, data.defaultResolution);
                 if (data.enabled) {
                     setToggle(true);
                     startPolling();
@@ -214,6 +240,51 @@ namespace tethys {
             } catch (e) {
                 // Camera service unreachable — leave the page in its off state.
             }
+        }
+
+
+        // ============================================================================
+        // Fill the resolution dropdown from the device-derived list, pre-selecting
+        // the default. Idempotent: once options exist we leave them (and the user's
+        // pick) alone, so a later status re-sync never clobbers a selection. An
+        // empty/absent list leaves the select empty and disabled, and the snapshot
+        // then falls back to the backend default.
+        function populateResolutions(resolutions: Resolution[], defaultResolution: Resolution | null) {
+
+            const select = getResolutionSelect();
+            if (!select || select.options.length > 0 || !resolutions || resolutions.length === 0) {
+                return;
+            }
+
+            for (const resolution of resolutions) {
+                const option = document.createElement("option");
+                option.value = resolution.width + "x" + resolution.height;
+                option.textContent = resolution.width + " × " + resolution.height;
+                if (defaultResolution
+                    && resolution.width === defaultResolution.width
+                    && resolution.height === defaultResolution.height) {
+                    option.selected = true;
+                }
+                select.add(option);
+            }
+
+            select.disabled = false;
+        }
+
+
+        // ============================================================================
+        // The "?w=W&h=H" suffix for the snapshot request from the current dropdown
+        // selection, or "" when nothing is selected (so the backend uses its default).
+        function resolutionQuery(): string {
+
+            const select = getResolutionSelect();
+            const value = select ? select.value : "";
+            if (!value) {
+                return "";
+            }
+
+            const [width, height] = value.split("x");
+            return "?w=" + width + "&h=" + height;
         }
 
 
@@ -243,6 +314,75 @@ namespace tethys {
         }
 
 
+        // ============================================================================
+        // Toggle the live frame between windowed and a full-viewport CSS overlay.
+        // The running poll keeps updating the same <img> underneath, so there's no
+        // second image element. A no-op (with a hint) when no frame is showing yet.
+        export function toggleFullscreen() {
+
+            const image = getFrame();
+            if (!image) {
+                return;
+            }
+
+            if (image.classList.contains(fullscreenClass)) {
+                exitFullscreen();
+                return;
+            }
+
+            // clearFrame() removes the src when capture is off, so this also covers
+            // "camera not enabled yet".
+            if (!image.getAttribute("src")) {
+                setStatus("Enable the camera first to view it full screen.");
+                return;
+            }
+
+            enterFullscreen(image);
+        }
+
+
+        // ============================================================================
+        // Enter full-screen and register per-session exits (tap the image or press
+        // Escape). The teardown closure removes both, so there's no always-on global
+        // key handler left behind.
+        function enterFullscreen(image: HTMLImageElement) {
+
+            image.classList.add(fullscreenClass);
+
+            const onClick = () => exitFullscreen();
+            const onKeydown = (event: KeyboardEvent) => {
+                if (event.key === "Escape") {
+                    exitFullscreen();
+                }
+            };
+
+            image.addEventListener("click", onClick);
+            document.addEventListener("keydown", onKeydown);
+
+            fullscreenExit = () => {
+                image.removeEventListener("click", onClick);
+                document.removeEventListener("keydown", onKeydown);
+            };
+        }
+
+
+        // ============================================================================
+        // Leave full-screen and remove the exit listeners. Idempotent: safe to call
+        // when already windowed (e.g. from clearFrame on an auto-off).
+        function exitFullscreen() {
+
+            const image = getFrame();
+            if (image) {
+                image.classList.remove(fullscreenClass);
+            }
+
+            if (fullscreenExit) {
+                fullscreenExit();
+                fullscreenExit = null;
+            }
+        }
+
+
         // -- small DOM helpers ---------------------------------------------------
 
         function getToggle(): HTMLInputElement | null {
@@ -251,6 +391,10 @@ namespace tethys {
 
         function getFrame(): HTMLImageElement | null {
             return document.getElementById("idCameraFrame") as HTMLImageElement | null;
+        }
+
+        function getResolutionSelect(): HTMLSelectElement | null {
+            return document.getElementById("idCameraResolution") as HTMLSelectElement | null;
         }
 
         function setToggle(on: boolean) {
@@ -275,6 +419,10 @@ namespace tethys {
         }
 
         function clearFrame() {
+            // Drop out of full-screen first, so an auto-off mid-view never leaves a
+            // black overlay (the frame loses its src below).
+            exitFullscreen();
+
             const image = getFrame();
             if (image) {
                 image.removeAttribute("src");

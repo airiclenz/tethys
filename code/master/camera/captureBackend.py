@@ -11,6 +11,7 @@
 # =============================================================================
 
 import glob
+import re
 import subprocess
 
 import config
@@ -40,9 +41,18 @@ class SnapshotBackend:
         '''Release the device. Called when capture is disabled.'''
         pass
 
-    def capture_jpeg(self):
-        '''Return a single JPEG frame as bytes. Raise CaptureError on failure.'''
+    def capture_jpeg(self, width=None, height=None):
+        '''Return a single JPEG frame as bytes, optionally at the given capture
+        size (None -> the backend's configured default). Raise CaptureError on
+        failure.'''
         raise NotImplementedError
+
+    def supported_resolutions(self):
+        '''Capture resolutions this backend can offer the UI dropdown, as
+        [{"width": W, "height": H}, ...]. Empty when enumeration is unavailable
+        (the default), which degrades the client to "no dropdown". Must never
+        raise — status() depends on this.'''
+        return []
 
     def device_name(self):
         '''Human-readable device identifier for the status endpoint, or None if
@@ -79,11 +89,14 @@ class V4l2UsbBackend(SnapshotBackend):
         self._height = height
         self._skip_frames = skip_frames
         self._timeout_seconds = timeout_seconds
+        self._resolutions = None        # None -> enumerate on first use; [] never cached
 
-    def capture_jpeg(self):
+    def capture_jpeg(self, width=None, height=None):
         device = self._resolve_device()
 
-        fmt = f"width={self._width},height={self._height},pixelformat=MJPG"
+        capture_width = width if width is not None else self._width
+        capture_height = height if height is not None else self._height
+        fmt = f"width={capture_width},height={capture_height},pixelformat=MJPG"
         command = [
             "v4l2-ctl",
             "--device", device,
@@ -117,6 +130,37 @@ class V4l2UsbBackend(SnapshotBackend):
 
     def device_name(self):
         return self._device
+
+    def supported_resolutions(self):
+        '''Resolutions the camera advertises for MJPG capture, in device order
+        (typically largest-first), for the UI dropdown. Mirrors _resolve_device's
+        cache-on-success and _device_caps' subprocess/parse idioms, but fails
+        soft: any failure (no capture node, missing tool, wedged or empty probe)
+        returns [] rather than raising, because status() must never throw. Only a
+        non-empty result is cached, so a camera plugged in after a failed probe is
+        still picked up on a later call.'''
+        if self._resolutions:
+            return self._resolutions
+
+        try:
+            device = self._resolve_device()
+        except CaptureError:
+            return []                   # no capture node yet — retry next call
+
+        try:
+            result = subprocess.run(
+                ["v4l2-ctl", "--device", device, "--list-formats-ext"],
+                capture_output=True, timeout=self._timeout_seconds, text=True,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return []
+        if result.returncode != 0:
+            return []
+
+        resolutions = self._parse_resolutions(result.stdout)
+        if resolutions:
+            self._resolutions = resolutions
+        return resolutions
 
     # -- device selection -----------------------------------------------------
 
@@ -187,6 +231,26 @@ class V4l2UsbBackend(SnapshotBackend):
                 break
         return caps
 
+    def _parse_resolutions(self, listing):
+        '''Pull the discrete MJPG sizes out of `v4l2-ctl --list-formats-ext`. The
+        listing groups sizes under a per-format header (e.g. "[0]: 'MJPG'"); we
+        collect "Size: Discrete WxH" lines only while inside the MJPG block, so
+        YUYV/H264 sizes are excluded. Device order is preserved.'''
+        resolutions = []
+        in_mjpg = False
+        for line in listing.splitlines():
+            header = re.match(r"\s*\[\d+\]:\s*'(\w+)'", line)
+            if header:
+                in_mjpg = header.group(1) == "MJPG"
+                continue
+            if in_mjpg:
+                size = re.search(r"Size:\s*Discrete\s*(\d+)x(\d+)", line)
+                if size:
+                    resolutions.append(
+                        {"width": int(size.group(1)), "height": int(size.group(2))}
+                    )
+        return resolutions
+
 
 # =============================================================================
 class Picamera2Backend(SnapshotBackend):
@@ -195,7 +259,7 @@ class Picamera2Backend(SnapshotBackend):
     an in-memory JPEG, close on stop). Left unbuilt on purpose — the seam exists
     so adding it touches only this file.'''
 
-    def capture_jpeg(self):
+    def capture_jpeg(self, width=None, height=None):
         raise CaptureError(
             "Picamera2Backend is not implemented; use V4l2UsbBackend for USB cameras"
         )
@@ -211,6 +275,13 @@ class FakeSnapshotBackend(SnapshotBackend):
     # HTTP layer treat as "a JPEG". Tests never decode it.
     CANNED_JPEG = b"\xff\xd8\xff\xd9"
 
+    # A canned device-derived list so the controller/router can be exercised
+    # against resolution validation without a camera.
+    CANNED_RESOLUTIONS = [
+        {"width": 1280, "height": 720},
+        {"width": 640, "height": 480},
+    ]
+
     def __init__(self, frame=None, fail=False):
         self.frame = frame if frame is not None else self.CANNED_JPEG
         self.fail = fail                # capture_jpeg raises CaptureError when True
@@ -224,11 +295,14 @@ class FakeSnapshotBackend(SnapshotBackend):
     def stop(self):
         self.stop_count += 1
 
-    def capture_jpeg(self):
+    def capture_jpeg(self, width=None, height=None):
         self.capture_count += 1
         if self.fail:
             raise CaptureError("simulated capture failure")
         return self.frame
+
+    def supported_resolutions(self):
+        return list(self.CANNED_RESOLUTIONS)
 
     def device_name(self):
         return "fake"

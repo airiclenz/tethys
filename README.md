@@ -154,6 +154,10 @@ on plants — but it ships **off** and only captures **on demand**:
 - **Snapshot-only, nothing recorded.** The tab fetches a fresh JPEG every few
   seconds (an authenticated `fetch`, gated by the same API key as everything
   else). There is no video stream and no storage — purely a live view.
+- **Pick the size, view it full-screen.** A dropdown lists the resolutions the
+  camera itself reports (so it isn't tied to one model), and the live frame can be
+  expanded to fill the screen — both handy on a phone. The choice is per-session
+  only; nothing is saved.
 - **Fail-closed + auto-off.** The service boots disabled (a snapshot while off
   returns `409`). It auto-releases the camera after a short idle window and
   enforces a hard maximum on-time, mirroring the pump's auto-off safety — so the

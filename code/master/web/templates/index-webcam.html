@@ -26,6 +26,15 @@
 				</label>
 			</div>
 
+			<div class="div-column col-10"
+				style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+				Size:
+			</div>
+			<div class="div-column col-20" style="padding-bottom: 1rem;">
+				<select class="custom-select" id="idCameraResolution" disabled
+					onchange="tethys.webcam.onResolutionChange()"></select>
+			</div>
+
 			<div class="div-column" id="idWebcamStatus"
 				style="margin-left: auto; justify-content: flex-end; padding-bottom: 1rem; color: #aaaaaa;">
 				Camera is off.
@@ -34,6 +43,12 @@
 
 
 		<!-- ----------------- L I V E   F R A M E ------------------- -->
+
+		<div class="div-row" style="justify-content: flex-end;">
+			<button id="idCameraFullscreen" type="button" class="button"
+				style="width: auto; padding-left: 0.6rem; padding-right: 0.6rem;"
+				onclick="tethys.webcam.toggleFullscreen()">⛶ Full screen</button>
+		</div>
 
 		<div class="div-row" style="justify-content: center;">
 			<img id="idCameraFrame" alt="Live webcam snapshot"

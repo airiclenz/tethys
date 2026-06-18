@@ -27,7 +27,10 @@ def test_webcam_tab_enables_and_shows_frame(live_server, page):
         "**/camera/status",
         lambda route: fulfill_json(
             route, 200,
-            '{"enabled": false, "lastFrameAgeSec": null, "device": "fake", "refreshSeconds": 3}',
+            '{"enabled": false, "lastFrameAgeSec": null, "device": "fake", '
+            '"refreshSeconds": 3, '
+            '"resolutions": [{"width": 1280, "height": 720}, {"width": 640, "height": 480}], '
+            '"defaultResolution": {"width": 1280, "height": 720}}',
         ),
     )
 
@@ -80,5 +83,42 @@ def test_webcam_tab_enables_and_shows_frame(live_server, page):
         "#idCameraPlaceholder", "el => getComputedStyle(el).display"
     )
     assert placeholder_display == "none"
+
+    # The resolution dropdown was filled from the status payload's device list.
+    option_count = page.eval_on_selector(
+        "#idCameraResolution", "el => el.options.length"
+    )
+    assert option_count == 2, f"resolution dropdown not populated: {option_count}"
+
+    # Full screen: the control overlays the live frame by toggling a class (not
+    # inline style), and Escape leaves it. The poll keeps updating the same <img>.
+    page.click("#idCameraFullscreen")
+    page.wait_for_function(
+        "() => document.getElementById('idCameraFrame')"
+        ".classList.contains('camera-fullscreen')"
+    )
+
+    # The class being present isn't enough: the frame carries inline
+    # max-width/border-radius (and height) that outrank a class selector, so the
+    # overlay only fills the screen if the rules win with !important. Assert the
+    # override actually landed — a class-present check passed even with the
+    # original bug. (Computed style, not pixel geometry: the 4-byte stub has no
+    # intrinsic size to drive a height:auto aspect-fit, so geometry can't
+    # distinguish fixed from broken here; the real device verified the fill.)
+    overrides = page.eval_on_selector(
+        "#idCameraFrame",
+        "el => { const s = getComputedStyle(el);"
+        " return {maxWidth: s.maxWidth, radius: s.borderTopLeftRadius}; }",
+    )
+    assert overrides["maxWidth"] == "none", \
+        f"inline max-width not overridden by .camera-fullscreen: {overrides['maxWidth']}"
+    assert overrides["radius"] == "0px", \
+        f"inline border-radius not overridden by .camera-fullscreen: {overrides['radius']}"
+
+    page.keyboard.press("Escape")
+    page.wait_for_function(
+        "() => !document.getElementById('idCameraFrame')"
+        ".classList.contains('camera-fullscreen')"
+    )
 
     assert not page_errors, f"uncaught JS error(s) on the page: {page_errors}"

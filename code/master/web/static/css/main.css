@@ -500,3 +500,25 @@ h2 {
 .auth-banner-close:hover {
 	color: #000000;
 }
+
+
+/* Full-screen overlay for the live webcam frame. A CSS overlay (not the
+   Fullscreen API) because iOS Safari can't fullscreen an <img>; the polling
+   loop keeps updating this same element underneath. z-index sits above the
+   sticky header (60) and tooltips. */
+.camera-fullscreen {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	width: 100vw;
+	/* !important is required: the frame carries inline height/max-width/
+	   border-radius styles (index-webcam.html), and an inline style outranks a
+	   class selector. Without these overrides the <img> keeps its windowed
+	   height:auto and only fills a band at the top instead of the viewport. */
+	height: 100vh !important;
+	max-width: none !important;
+	object-fit: contain;
+	background: #000000;
+	border-radius: 0 !important;
+	cursor: zoom-out;
+}

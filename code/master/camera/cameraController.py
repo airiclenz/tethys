@@ -83,18 +83,28 @@ class CameraController:
             self._disable_locked()
             self._log.info("camera disabled")
 
-    def snapshot(self):
-        '''Return one JPEG frame as bytes. Raises CameraDisabledError if capture
-        is disabled, or CaptureError if the grab fails. Each call resets the idle
-        countdown (the request itself is the activity that keeps the device on).'''
+    def snapshot(self, width=None, height=None):
+        '''Return one JPEG frame as bytes, optionally at the given capture size
+        (None -> the backend's configured default). Raises CameraDisabledError if
+        capture is disabled, or CaptureError if the grab fails. Each call resets
+        the idle countdown (the request itself is the activity that keeps the
+        device on). Resolution is per-request only — never stored, matching the
+        one-shot grab model.'''
         with self._lock:
             if not self._enabled:
                 raise CameraDisabledError("camera is disabled")
 
             self._arm_idle_locked()
-            frame = self._backend.capture_jpeg()    # may raise CaptureError
+            frame = self._backend.capture_jpeg(width, height)    # may raise CaptureError
             self._last_frame_at = self._clock()
             return frame
+
+    def supported_resolutions(self):
+        '''Capture resolutions the backend offers the UI dropdown. Empty when
+        enumeration is unavailable; never raises (locked for symmetry with
+        status()).'''
+        with self._lock:
+            return self._backend.supported_resolutions()
 
     def is_enabled(self):
         with self._lock:
@@ -102,7 +112,8 @@ class CameraController:
 
     def status(self):
         '''Snapshot of state for the UI: whether capture is on, how long ago the
-        last frame was served, the selected device, and the refresh hint.'''
+        last frame was served, the selected device, the refresh hint, and the
+        selectable resolutions plus the default one.'''
         with self._lock:
             age = None
             if self._last_frame_at is not None:
@@ -112,6 +123,11 @@ class CameraController:
                 "lastFrameAgeSec": age,
                 "device": self._backend.device_name(),
                 "refreshSeconds": config.SNAPSHOT_REFRESH_SECONDS,
+                "resolutions": self._backend.supported_resolutions(),
+                "defaultResolution": {
+                    "width": config.CAPTURE_WIDTH,
+                    "height": config.CAPTURE_HEIGHT,
+                },
             }
 
     # -- internals ------------------------------------------------------------
