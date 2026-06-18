@@ -70,7 +70,14 @@ code_pre_reboot() {
     sudo apt update -y && sudo apt full-upgrade -y
     sudo apt install -y \
         python3-venv python3-full python3-dev \
-        libopenblas-dev nginx redis-server jq
+        libopenblas-dev nginx redis-server jq \
+        v4l-utils
+
+    # The optional webcam (tethys-camera) grabs JPEG snapshots from a USB/V4L2
+    # camera via v4l2-ctl (from v4l-utils, installed above). The /dev/video* nodes
+    # are root:video, and the service runs unprivileged, so add the app user to
+    # the `video` group. -aG appends; harmless if already a member.
+    sudo usermod -aG video "$(whoami)"
 
     if [ $DEBUG == "true" ]; then
         # used for installing npm - the typescript compiler

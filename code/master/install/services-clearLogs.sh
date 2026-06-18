@@ -10,6 +10,7 @@ sudo journalctl --vacuum-time=1s -u tethys_api.service
 sudo journalctl --vacuum-time=1s -u tethys_core.service
 sudo journalctl --vacuum-time=1s -u tethys_web.service
 sudo journalctl --vacuum-time=1s -u tethys_watchdog.service
+sudo journalctl --vacuum-time=1s -u tethys-camera.service
 sudo journalctl --vacuum-time=1s -u daphne.service
 sudo journalctl --vacuum-time=1s -u redis-server
 

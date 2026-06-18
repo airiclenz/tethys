@@ -159,7 +159,7 @@ fi
 
 echo ""
 echo "================================================================================"
-echo -e "${YELLOW}Installing our customn system services (api, core, web, watchdog, daphne)${NOCOLOR}"
+echo -e "${YELLOW}Installing our customn system services (api, core, web, watchdog, camera, daphne)${NOCOLOR}"
 echo ""
 
 cd $ROOTPATH
@@ -168,6 +168,7 @@ cp ./install/assets/tethys-api.service ./install/assets-localized/
 cp ./install/assets/tethys-core.service ./install/assets-localized/
 cp ./install/assets/tethys-web.service ./install/assets-localized/
 cp ./install/assets/tethys-watchdog.service ./install/assets-localized/
+cp ./install/assets/tethys-camera.service ./install/assets-localized/
 
 cp ./install/assets/daphne.service ./install/assets-localized/
 
@@ -177,7 +178,7 @@ cp ./web/config/gunicorn.py ./install/assets-localized/gunicorn_config_web.py
 # -------------------------------------
 echo "Updating the paths in localized versions of the service descriptions"
 
-for service in tethys-{api,core,web,watchdog} daphne; do
+for service in tethys-{api,core,web,watchdog,camera} daphne; do
     python3 ./install/updateTokenInFile.py "./install/assets-localized/$service.service" "{TETHYS-PATH}" "$ROOTPATH"
     # {DEBUG-FLAG} / {ALLOWED-HOSTS} only appear in the Django units; a no-op elsewhere.
     python3 ./install/updateTokenInFile.py "./install/assets-localized/$service.service" "{DEBUG-FLAG}" "$DEBUG_FLAG"
@@ -190,7 +191,7 @@ python3 ./install/updateTokenInFile.py ./install/assets-localized/gunicorn_confi
 # -------------------------------------
 echo "Copying new service definitions to system path /etc/systemd/system and enabling services..."
 
-for service in tethys-{api,core,web,watchdog} daphne; do
+for service in tethys-{api,core,web,watchdog,camera} daphne; do
     sudo cp "./install/assets-localized/$service.service" "/etc/systemd/system/$service.service"
     sudo systemctl enable "$service.service"
     printf " > Enabled %s\n" "$service.service"

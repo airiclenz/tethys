@@ -54,6 +54,13 @@ wait $pid
 printf "\r > Stoppped tethys-watchdog.service    OK\n"
 
 
+printf " > Stopping tethys-camera.service...   "
+sudo systemctl stop tethys-camera.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Stoppped tethys-camera.service      OK\n"
+
+
 printf " > Stopping nginx...                   "
 sudo systemctl stop nginx & pid=$!
 show_progress $pid

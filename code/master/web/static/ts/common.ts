@@ -19,12 +19,14 @@ namespace tethys {
         channel: "channels",
         schedule: "schedules",
         measurements: "measurements",
-        actions: "actions"
+        actions: "actions",
+        webcam: "webcam"
     }
 
     const menuIds: { [key: string]: string } = {
         channels: "menu-sensor-channels",
-        schedules: "menu-schedules"
+        schedules: "menu-schedules",
+        webcam: "menu-webcam"
     }
 
 
@@ -50,6 +52,10 @@ namespace tethys {
 
             case location.actions:
                 tethys.actions.init();
+                break;
+
+            case location.webcam:
+                tethys.webcam.init();
                 break;
         }
 

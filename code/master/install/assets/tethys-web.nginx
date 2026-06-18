@@ -28,4 +28,11 @@ server {
         proxy_send_timeout 86400s;
     }
 
+    location /camera/ {
+        proxy_pass http://127.0.0.1:8002;  # IPv4 pin (see note above)
+        # No URI on proxy_pass, so the /camera/ prefix reaches the backend; it
+        # routes on the full path. Don't buffer the JPEG snapshot response.
+        proxy_buffering off;
+    }
+
 } 

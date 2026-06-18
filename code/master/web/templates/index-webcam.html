@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+<!-- ----------------- W E B C A M ------------------- -->
+
+<div style="flex-direction: column; width: 100%;">
+
+	<div class="content-section">
+
+		<div class="div-row">
+			<div class="title div-column col-30">
+				Webcam
+			</div>
+
+			<div class="div-column col-10"
+				style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+				Enable:
+			</div>
+			<div class="div-column col-10" style="padding-bottom: 1rem;">
+				<label class="switch">
+					<input type="checkbox" id="idWebcamEnable"
+						onchange="tethys.webcam.onToggleChange()">
+					<span class="slider round"></span>
+				</label>
+			</div>
+
+			<div class="div-column" id="idWebcamStatus"
+				style="margin-left: auto; justify-content: flex-end; padding-bottom: 1rem; color: #aaaaaa;">
+				Camera is off.
+			</div>
+		</div>
+
+
+		<!-- ----------------- L I V E   F R A M E ------------------- -->
+
+		<div class="div-row" style="justify-content: center;">
+			<img id="idCameraFrame" alt="Live webcam snapshot"
+				style="max-width: 100%; height: auto; display: none; border-radius: 4px;" />
+
+			<div id="idCameraPlaceholder"
+				style="padding: 3rem 1rem; color: #aaaaaa; text-align: center;">
+				The camera is off. Flip <strong>Enable</strong> to view a live snapshot.
+				<br><br>
+				Snapshots are live-view only &mdash; nothing is recorded.
+			</div>
+		</div>
+
+	</div>
+
+</div>
+
+
+{% endblock %}

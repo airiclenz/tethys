@@ -9,6 +9,7 @@ urlpatterns = [
     path("channels/", views.channels, name="channels"),
     path("schedules/", views.schedules, name="schedules"),
     path("measurements/", views.measurements, name="measurements"),
-    path("actions/", views.actions, name="actions")
+    path("actions/", views.actions, name="actions"),
+    path("webcam/", views.webcam, name="webcam")
 
 ]

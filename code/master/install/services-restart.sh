@@ -79,6 +79,12 @@ show_progress $pid
 wait $pid
 printf "\r > Restarting tethys-watchdog.service  OK\n"
 
+printf " > Restarting tethys-camera.service    "
+sudo systemctl restart tethys-camera.service & pid=$!
+show_progress $pid
+wait $pid
+printf "\r > Restarting tethys-camera.service    OK\n"
+
 printf " > Restarting nginx                    "
 sudo systemctl restart nginx & pid=$!
 show_progress $pid

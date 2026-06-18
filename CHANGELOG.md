@@ -10,6 +10,42 @@ Current released version: **3.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Webcam: optional on-demand snapshot tab
+
+> (2026-06-18). Tethys had no camera support. This adds an **optional** live
+> webcam view on its own tab, **off by default** and capturing **on demand** —
+> not a constantly-running stream. It slots in as one more isolated systemd
+> service (`tethys-camera`), deliberately separate from the single-worker API
+> (which must never block on a ~0.3–1 s camera grab) and well away from the
+> safety-critical pump daemon. Capture is snapshot-only (a fresh JPEG every few
+> seconds via an authenticated `fetch`), so nothing is recorded and the API key
+> never lands in a URL. Safety mirrors the pump's auto-off philosophy: the
+> service is **fail-closed** (a snapshot while disabled returns `409`),
+> auto-releases the device after an idle window, and enforces a hard max-on
+> ceiling so the camera can never be left on indefinitely.
+
+#### Added
+- **`camera/`** — a new standalone service: **`tethys_camera.py`** (stdlib
+  `ThreadingHTTPServer` on `127.0.0.1:8002`; a constant-time `X-API-Key` gate
+  reusing the API's trust model; `start` / `stop` / `snapshot` / `status`
+  routes), **`cameraController.py`** (the enabled state machine + idle / max-on
+  `threading.Timer` auto-off), and **`captureBackend.py`** (a `SnapshotBackend`
+  seam: `V4l2UsbBackend` via `v4l2-ctl` with capability-based device selection, a
+  `Picamera2Backend` stub for a future CSI swap, and `FakeSnapshotBackend` for
+  tests).
+- **Web UI** — a new **Webcam** tab (**`web/templates/index-webcam.html`**,
+  **`web/static/ts/webcam.ts`**): an Enable flip switch that arms the service and
+  refreshes a JPEG every few seconds via blob object URLs (revoking the previous
+  one each tick), auto-stopping when the tab is hidden or closed. Wired into
+  `layout.html`, `urls.py` / `views.py`, and `common.ts` (location + active-menu).
+- **Deployment** — **`install/assets/tethys-camera.service`** (runs unprivileged
+  with `SupplementaryGroups=video`), an nginx `/camera/` location (IPv4-pinned),
+  `install.sh` adds the app user to the `video` group and installs `v4l-utils`,
+  and the service joins `installServices.sh`, the restart / stop / clear-logs
+  scripts, and the watchdog's nightly restart.
+- Tests: **`camera/tests/`** — the fail-closed snapshot gate, idle and max-on
+  auto-off, and the auth check, all with `FakeSnapshotBackend` (no hardware).
+
 ### Watering: enforce "one channel at a time" for manual control, not just automatic
 
 > (2026-06-17). Automatic watering already serialised — `pumpController` runs one

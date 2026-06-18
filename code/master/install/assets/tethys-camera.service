@@ -1,0 +1,26 @@
+[Unit]
+Description=Tethys Camera
+After=network.target
+
+[Service]
+ExecStart={TETHYS-PATH}/env_tethys/bin/python3 -u {TETHYS-PATH}/camera/tethys_camera.py
+WorkingDirectory={TETHYS-PATH}/camera/
+# Unlike the other units, the system dirs MUST stay on PATH: this service shells
+# out to v4l2-ctl (in /usr/bin) for every grab and device probe. systemd's
+# Environment= REPLACES PATH wholesale (no shell, no $PATH expansion), so a
+# venv-bin-only PATH hides /usr/bin and every snapshot fails with the misleading
+# "no V4L2 Video Capture device found" (the device probe can't run v4l2-ctl).
+Environment="PATH={TETHYS-PATH}/env_tethys/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+# Least privilege: the camera needs no root (unlike tethys-core's GPIO/SPI). It
+# runs as the normal app user, with the `video` group added so it can open the
+# root:video /dev/video* capture node.
+SupplementaryGroups=video
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+# Cap the SIGTERM->SIGKILL window (the controller releases the device on stop);
+# matches the daphne unit. SIGKILL is safe — nothing is persisted.
+TimeoutStopSec=5s
+
+[Install]
+WantedBy=multi-user.target

@@ -54,6 +54,7 @@ tethys/
 │   │   ├── core/          # The watering daemon (radio + pump control + action engine)
 │   │   ├── api/           # Django REST API (the system's database + state)
 │   │   ├── web/           # Django + Channels dashboard (browser UI)
+│   │   ├── camera/        # Optional on-demand webcam snapshot service (USB/V4L2)
 │   │   ├── watchdog/      # Daily service-restart / log-vacuum job
 │   │   ├── globals/       # Shared config + git-ignored secrets
 │   │   └── install/       # install.sh, systemd units, nginx configs
@@ -132,10 +133,35 @@ appears under the header with a link straight to Settings.
   weekday + start time + duration windows during which *all* automatic watering
   is suppressed (e.g. overnight). The header shows a sleep icon while a silent
   phase is active.
+- **Webcam page** (`/webcam/`) — *optional* live view from a USB camera. Off by
+  default; flip **Enable** to refresh a snapshot every few seconds. Live-view
+  only — nothing is recorded, and the camera releases automatically when you
+  leave the tab or after an idle timeout. See *Webcam* below.
 - **Order 66** (top menu) — recovery action for when a service or the Pi itself
   gets wedged: confirm the popup and the Pi performs a graceful reboot (back in
   ~1 minute). Gated by the API key, like pump control.
 - The dashboard updates live over a WebSocket; no manual refresh needed.
+
+### Webcam (optional)
+
+Tethys can show a live webcam view on its own **Webcam** tab — handy for checking
+on plants — but it ships **off** and only captures **on demand**:
+
+- **USB camera (V4L2).** Plug in any UVC webcam; the service grabs JPEG snapshots
+  with `v4l2-ctl` (no extra Python dependency). A Pi Camera Module (CSI) is not
+  wired up yet — the capture code keeps a seam (`camera/captureBackend.py`) for
+  adding it as one new class.
+- **Snapshot-only, nothing recorded.** The tab fetches a fresh JPEG every few
+  seconds (an authenticated `fetch`, gated by the same API key as everything
+  else). There is no video stream and no storage — purely a live view.
+- **Fail-closed + auto-off.** The service boots disabled (a snapshot while off
+  returns `409`). It auto-releases the camera after a short idle window and
+  enforces a hard maximum on-time, mirroring the pump's auto-off safety — so the
+  camera can never be left on by accident.
+- **Least privilege.** `tethys-camera` runs as the normal app user (no root,
+  unlike `tethys-core`), with only the `video` group added so it can open the
+  `root:video` `/dev/video*` nodes. The installer adds the user to that group and
+  installs `v4l-utils`.
 
 ### Updating / operating
 
@@ -144,9 +170,9 @@ From `code/master/install/`:
 - `./services-restart.sh`, `./services-stop.sh`, `./services-clearLogs.sh`.
 - `./deploy-static.sh` — rebuild the frontend TypeScript and publish it to nginx.
 
-The five services: `tethys-core`, `tethys-api`, `tethys-web`, `daphne`, and
-`tethys-watchdog` (the last restarts core+api nightly at 01:00 and vacuums the
-journal).
+The six services: `tethys-core`, `tethys-api`, `tethys-web`, `daphne`,
+`tethys-watchdog` (restarts core+api+camera nightly at 01:00 and vacuums the
+journal), and `tethys-camera` (the optional on-demand webcam, off by default).
 
 ### Firmware (sensor nodes)
 
@@ -252,6 +278,7 @@ Everything runs on the Pi as systemd services (units in
 | `tethys-web`      | gunicorn → `tethys_web.wsgi`    | `localhost:8000` | nginx **:80** `/`   |
 | `daphne`          | ASGI → `tethys_web.asgi`        | `0.0.0.0:8001`   | nginx **:80** `/ws/`|
 | `tethys-watchdog` | `watchdog/tethys_watchdog.py`   | —            | nightly restart        |
+| `tethys-camera`   | `camera/tethys_camera.py` (stdlib HTTP) | `127.0.0.1:8002` | nginx **:80** `/camera/` |
 | redis-server      | Channels layer for daphne       | `localhost:6379` | —                  |
 
 **The API is the single source of truth.** Both the core daemon and the web
@@ -381,6 +408,11 @@ queue) and `api/tethys_api/tests/` (API-key permission, silent-phase window math
 GPIO and protocol seams. **Add tests behind those seams when you touch the
 watering, radio-framing, or silent-phase paths.**
 
+The camera service has its own pure-Python suite (`camera/tests/`: the
+fail-closed snapshot gate, idle / max-on auto-off, and the X-API-Key check, via
+`FakeSnapshotBackend`). It is not in the default `testpaths`, so run it
+explicitly: `pytest camera/tests`.
+
 **Web UI (Playwright)** — browser-driven regression tests for the channels UI:
 
 ```bash
@@ -415,6 +447,9 @@ deploy and before the UI tests, so the TypeScript is the single source of truth.
 ### Known limitations / deferred (see `CHANGELOG.md` + `docs/`)
 
 - Low-battery flag is logged but not persisted (no `SensorData` column yet).
+- Webcam is live-view only — no recording / clip storage, snapshot download, or
+  multiple cameras; the CSI/`picamera2` backend is deferred (seam left in
+  `camera/captureBackend.py`).
 
 ### Where the design rationale lives
 

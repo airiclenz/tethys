@@ -78,3 +78,15 @@ def actions(request):
     }
 
     return render(request, "index-actions.html", context)
+
+
+# ::::::::::::::::::::::::::::::::::
+def webcam(request):
+    # The page talks to the separate tethys-camera service client-side over
+    # /camera/ (enable, snapshot polling — see static/ts/webcam.ts), so the view
+    # only renders the template shell.
+    context = {
+        "title": "Tethys"
+    }
+
+    return render(request, "index-webcam.html", context)

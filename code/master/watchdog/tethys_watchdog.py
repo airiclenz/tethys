@@ -25,11 +25,12 @@ def restartServices():
     # function still printed success. Same fix as the /api/reboot/ endpoint.
     api = os.system("/usr/bin/systemctl restart tethys-api.service")
     core = os.system("/usr/bin/systemctl restart tethys-core.service")
+    camera = os.system("/usr/bin/systemctl restart tethys-camera.service")
 
-    if api == 0 and core == 0:
+    if api == 0 and core == 0 and camera == 0:
         print("Services were restarted.")
     else:
-        print(f"Service restart FAILED (api={api}, core={core}).")
+        print(f"Service restart FAILED (api={api}, core={core}, camera={camera}).")
 
     vac = os.system("/usr/bin/journalctl --vacuum-time=1d")
 
