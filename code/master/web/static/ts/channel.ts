@@ -883,12 +883,13 @@ namespace tethys {
 
         // ============================================================================
         // Poll a queued manual command until the core reaches a terminal status.
-        // The API only *enqueues* activate/deactivate; the core runs it on its next
-        // loop pass (within the ~30s radio-listen window) and may reject an activate
+        // The API only *enqueues* activate/deactivate; the core drains the queue on
+        // a fast (~1s) thread independent of its radio-listen window, so a terminal
+        // status normally appears within ~1-2s. An activate may still be rejected
         // when another channel is already running (the one-channel power limit).
         async function pollManualCommandOutcome(commandId: number): Promise<string> {
-            const POLL_INTERVAL_MS = 2000;
-            const MAX_ATTEMPTS = 20; // ~40s: comfortably covers the core's listen window
+            const POLL_INTERVAL_MS = 1000;
+            const MAX_ATTEMPTS = 20; // ~20s ceiling: covers a slow or briefly unreachable core
 
             for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
                 await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));

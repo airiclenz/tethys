@@ -4,7 +4,8 @@ import sys
 import os
 import atexit
 import signal
-import asyncio
+import threading
+import time
 
 from hardware import Pins
 from radio import Radio
@@ -64,23 +65,48 @@ def handleCoreActivities():
         # sensor's handshake.
         radioWrapper.refreshConfigCache()
         radioWrapper.handleRadioEvents(timeOutInSec = 30)
-        # Run any manual "Test Channel" taps from the web UI through the same
-        # single pump controller as automatic watering, so the one-channel power
-        # limit is enforced across both paths.
-        manualCommands.drain(pumpController)
         actionEngine.handleActions(pumpController)
 
 
-# =============================================================================
-async def main():
-        
-    task_core = asyncio.create_task(handleCoreActivities())
-    task_fan = asyncio.create_task(fan.control_fan())
+# Manual taps drain on this cadence, on their own thread, independent of the 30s
+# radio-listen window above -- so the web "Test Channel" toggle acts within ~1s
+# instead of waiting for the current window to end.
+MANUAL_DRAIN_INTERVAL_SEC = 1
 
-    await asyncio.gather(task_core, task_fan)
+
+# =============================================================================
+def _drainManualCommands():
+    while True:
+        try:
+            # Run any manual "Test Channel" taps from the web UI through the same
+            # single pump controller as automatic watering, so the one-channel
+            # power limit is enforced across both paths. The controller's lock
+            # serialises this thread against actionEngine on the main thread.
+            manualCommands.drain(pumpController)
+        except Exception as e:
+            # A transient error (e.g. an API blip) must not kill the thread and
+            # silently end manual control -- log it and keep polling.
+            print(f"manual-drain loop error: {e}")
+        time.sleep(MANUAL_DRAIN_INTERVAL_SEC)
+
+
+# =============================================================================
+def main():
+
+    # The core is synchronous at heart (blocking lgpio/radio busy-waits), so each
+    # concurrent activity runs on its own daemon thread rather than an asyncio
+    # task. (The previous asyncio.create_task(handleCoreActivities()) blocked
+    # forever evaluating the sync while-loop, so the fan task was never even
+    # created.) Daemon threads exit with the process; the SIGTERM/atexit hook
+    # above still drives the pumps LOW on shutdown.
+    threading.Thread(target=_drainManualCommands, daemon=True).start()
+    threading.Thread(target=fan.control_fan, daemon=True).start()
+
+    # Radio listening + automatic watering run on the main thread.
+    handleCoreActivities()
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 if __name__ == "__main__":
 
-    asyncio.run(main())
+    main()
