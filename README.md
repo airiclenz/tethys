@@ -158,6 +158,12 @@ on plants — but it ships **off** and only captures **on demand**:
   camera itself reports (so it isn't tied to one model), and the live frame can be
   expanded to fill the screen — both handy on a phone. The choice is per-session
   only; nothing is saved.
+- **Focus & zoom sliders.** A plant sits at a fixed distance, so autofocus just
+  hunts. The tab offers focus and zoom as sliders whose ranges are read from the
+  camera itself — and a slider is disabled when the camera doesn't support that
+  control. Setting focus pins it (no more hunting). Your pick is remembered in the
+  browser; `CAPTURE_FOCUS` / `CAPTURE_ZOOM` in `camera/config.py` set the
+  defaults a fresh browser starts from.
 - **Fail-closed + auto-off.** The service boots disabled (a snapshot while off
   returns `409`). It auto-releases the camera after a short idle window and
   enforces a hard maximum on-time, mirroring the pump's auto-off safety — so the

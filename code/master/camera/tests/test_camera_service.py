@@ -191,3 +191,53 @@ def test_snapshot_with_malformed_resolution_returns_400(query):
     response = route_request(controller, KEY, "GET", "/camera/snapshot" + query, headers())
 
     assert response.status == 400
+
+
+# -- snapshot focus / zoom validation -----------------------------------------
+#
+# ?focus=&zoom= pick the capture controls. FakeSnapshotBackend advertises focus
+# 300-650 and zoom 100-400, so an in-range value passes (and is forwarded to the
+# backend), an out-of-range value is 400, and a non-integer is 400. status()
+# carries the same ranges so the UI can build the sliders.
+
+def test_snapshot_with_in_range_focus_and_zoom_returns_jpeg():
+    controller, backend = make_controller()
+    route_request(controller, KEY, "POST", "/camera/start", headers())
+
+    response = route_request(
+        controller, KEY, "GET", "/camera/snapshot?focus=400&zoom=200", headers()
+    )
+
+    assert response.status == 200
+    assert response.content_type == "image/jpeg"
+    assert backend.last_capture == (None, None, 400, 200)
+
+
+def test_snapshot_with_out_of_range_focus_returns_400():
+    controller, _ = make_controller()
+    route_request(controller, KEY, "POST", "/camera/start", headers())
+
+    response = route_request(
+        controller, KEY, "GET", "/camera/snapshot?focus=9999", headers()
+    )
+
+    assert response.status == 400
+
+
+def test_snapshot_with_non_integer_zoom_returns_400():
+    controller, _ = make_controller()
+    route_request(controller, KEY, "POST", "/camera/start", headers())
+
+    response = route_request(controller, KEY, "GET", "/camera/snapshot?zoom=abc", headers())
+
+    assert response.status == 400
+
+
+def test_status_reports_controls():
+    controller, _ = make_controller()
+
+    response = route_request(controller, KEY, "GET", "/camera/status", headers())
+    controls = json.loads(response.body)["controls"]
+
+    assert controls["focus"] == {"min": 300, "max": 650, "step": 1, "value": 550}
+    assert controls["zoom"]["max"] == 400

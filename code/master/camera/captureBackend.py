@@ -41,10 +41,10 @@ class SnapshotBackend:
         '''Release the device. Called when capture is disabled.'''
         pass
 
-    def capture_jpeg(self, width=None, height=None):
+    def capture_jpeg(self, width=None, height=None, focus=None, zoom=None):
         '''Return a single JPEG frame as bytes, optionally at the given capture
-        size (None -> the backend's configured default). Raise CaptureError on
-        failure.'''
+        size and focus/zoom (None -> the backend's configured default for each).
+        Raise CaptureError on failure.'''
         raise NotImplementedError
 
     def supported_resolutions(self):
@@ -53,6 +53,14 @@ class SnapshotBackend:
         (the default), which degrades the client to "no dropdown". Must never
         raise — status() depends on this.'''
         return []
+
+    def supported_controls(self):
+        '''Adjustable controls this backend can offer the UI as sliders, as
+        {"focus": {"min": .., "max": .., "step": .., "value": ..}, "zoom": {..}}.
+        Only includes controls the camera actually exposes, so the UI disables
+        the rest. Empty when enumeration is unavailable (the default). Must never
+        raise — status() depends on this.'''
+        return {}
 
     def device_name(self):
         '''Human-readable device identifier for the status endpoint, or None if
@@ -83,50 +91,97 @@ class V4l2UsbBackend(SnapshotBackend):
         height=config.CAPTURE_HEIGHT,
         skip_frames=config.CAPTURE_SKIP_FRAMES,
         timeout_seconds=config.CAPTURE_TIMEOUT_SECONDS,
+        focus=config.CAPTURE_FOCUS,
+        zoom=config.CAPTURE_ZOOM,
     ):
         self._device = device          # None -> resolve by capability on first use
         self._width = width
         self._height = height
         self._skip_frames = skip_frames
         self._timeout_seconds = timeout_seconds
+        self._focus = focus            # seed default; None -> leave focus untouched
+        self._zoom = zoom              # seed default; None -> leave zoom untouched
         self._resolutions = None        # None -> enumerate on first use; [] never cached
+        self._controls = None          # None -> not probed; dict (maybe empty) once probed OK
+        self._af_control = None        # continuous-AF control name, if the camera has one
 
-    def capture_jpeg(self, width=None, height=None):
+    def capture_jpeg(self, width=None, height=None, focus=None, zoom=None):
         device = self._resolve_device()
+        af_disable, ctrls, focus_pinned = self._resolve_controls(focus, zoom)
+
+        # Disable continuous AF in its own committed invocation BEFORE the grab.
+        # focus_absolute and continuous AF form a UVC auto-cluster: focus_absolute
+        # is flagged INACTIVE while AF owns the lens, so setting AF=off and
+        # focus_absolute in the *same* VIDIOC_S_EXT_CTRLS is validated against the
+        # pre-call state and the focus write is dropped — AF never actually turns
+        # off and the lens keeps hunting. A separate v4l2-ctl run commits AF off
+        # (UVC keeps that across the sub-second reopen, and --set-fmt-video below
+        # doesn't reset it), so the grab's focus_absolute then takes. Best-effort:
+        # a camera that won't take the AF-off still yields a frame (the grab that
+        # follows surfaces any real failure, e.g. a missing v4l2-ctl).
+        if af_disable:
+            self._run_v4l2(
+                ["v4l2-ctl", "--device", device, "--set-ctrl=" + af_disable + "=0"],
+                check=False,
+            )
 
         capture_width = width if width is not None else self._width
         capture_height = height if height is not None else self._height
         fmt = f"width={capture_width},height={capture_height},pixelformat=MJPG"
-        command = [
-            "v4l2-ctl",
-            "--device", device,
-            "--set-fmt-video=" + fmt,
+        command = ["v4l2-ctl", "--device", device, "--set-fmt-video=" + fmt]
+
+        if ctrls:
+            # The now-active controls (focus_absolute / zoom_absolute). Sits before
+            # --stream-mmap so v4l2-ctl applies them ahead of streaming, in the
+            # same invocation as the grab.
+            command.append("--set-ctrl=" + ctrls)
+
+        # A grab that pins focus skips more frames: the focus motor needs a few
+        # hundred ms to travel to the new position, so the default couple of skip
+        # frames would catch the lens mid-travel and look like AF still hunting.
+        skip = self._skip_frames
+        if focus_pinned:
+            skip = max(skip, config.CAPTURE_FOCUS_SETTLE_SKIP_FRAMES)
+        command += [
             "--stream-mmap",
-            "--stream-skip=" + str(self._skip_frames),
+            "--stream-skip=" + str(skip),
             "--stream-count=1",
             "--stream-to=-",
         ]
 
-        try:
-            result = subprocess.run(
-                command, capture_output=True, timeout=self._timeout_seconds,
-            )
-        except FileNotFoundError as e:
-            raise CaptureError("v4l2-ctl not found; install v4l-utils") from e
-        except subprocess.TimeoutExpired as e:
-            raise CaptureError(
-                f"camera grab timed out after {self._timeout_seconds}s"
-            ) from e
-
-        if result.returncode != 0:
-            message = result.stderr.decode("utf-8", "replace").strip()
-            raise CaptureError(f"v4l2-ctl failed ({result.returncode}): {message}")
+        result = self._run_v4l2(command, check=True)
 
         frame = result.stdout
         if not frame.startswith(self._JPEG_SOI):
             raise CaptureError("grab returned no JPEG frame (wrong device node?)")
 
         return frame
+
+    def _run_v4l2(self, command, check):
+        '''Run a v4l2-ctl command. With check=True (the grab) a missing tool,
+        timeout, or non-zero exit becomes a CaptureError. With check=False (the
+        best-effort AF-disable pre-step) every failure is swallowed and None is
+        returned — a camera that won't take the AF-off still gets a frame, and any
+        genuine problem surfaces on the grab that follows.'''
+        try:
+            result = subprocess.run(
+                command, capture_output=True, timeout=self._timeout_seconds,
+            )
+        except FileNotFoundError as e:
+            if not check:
+                return None
+            raise CaptureError("v4l2-ctl not found; install v4l-utils") from e
+        except subprocess.TimeoutExpired as e:
+            if not check:
+                return None
+            raise CaptureError(
+                f"camera grab timed out after {self._timeout_seconds}s"
+            ) from e
+
+        if check and result.returncode != 0:
+            message = result.stderr.decode("utf-8", "replace").strip()
+            raise CaptureError(f"v4l2-ctl failed ({result.returncode}): {message}")
+        return result
 
     def device_name(self):
         return self._device
@@ -161,6 +216,74 @@ class V4l2UsbBackend(SnapshotBackend):
         if resolutions:
             self._resolutions = resolutions
         return resolutions
+
+    def supported_controls(self):
+        '''The focus/zoom controls the camera advertises, for the UI sliders, as
+        {"focus": {"min": .., "max": .., "step": .., "value": ..}, "zoom": {..}}
+        with only the controls the camera actually exposes. Shells
+        `v4l2-ctl --list-ctrls` and, like supported_resolutions(), fails soft —
+        any failure returns {} rather than raising, because status() must never
+        throw. Unlike resolutions, a successful-but-empty probe IS cached: "this
+        camera has no focus/zoom" is a stable answer worth not re-probing. Only a
+        failed probe is left uncached so a later call retries.'''
+        if self._controls is not None:
+            return self._controls
+
+        try:
+            device = self._resolve_device()
+        except CaptureError:
+            return {}                   # no capture node yet — retry next call
+
+        try:
+            result = subprocess.run(
+                ["v4l2-ctl", "--device", device, "--list-ctrls"],
+                capture_output=True, timeout=self._timeout_seconds, text=True,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return {}
+        if result.returncode != 0:
+            return {}
+
+        ranges, self._af_control = self._parse_controls(result.stdout)
+        self._controls = self._seed_initial_values(ranges)
+        return self._controls
+
+    def _resolve_controls(self, focus, zoom):
+        '''Work out the camera controls for this grab. Returns
+        (af_disable, active, focus_pinned):
+          - af_disable: the continuous-AF control name to switch off in its own
+            committed invocation before the grab (so focus_absolute is no longer
+            INACTIVE when set), or None when no AF needs disabling;
+          - active: the comma-joined `--set-ctrl` value for the grab itself — the
+            controls that are active once AF is off (focus_absolute / zoom_absolute)
+            — or "" when nothing applies;
+          - focus_pinned: True when focus_absolute is being set (the caller then
+            uses the larger settle skip so the moved lens isn't caught mid-travel).
+        A per-request focus/zoom wins; otherwise the seed default
+        (config.CAPTURE_FOCUS / CAPTURE_ZOOM) is used. A control is emitted only
+        when the camera exposes it (or enumeration was unavailable, in which case
+        focus/zoom are attempted best-effort) — so a value can never wedge the grab
+        on a camera that lacks the control.'''
+        controls = self.supported_controls()       # cached; populates _af_control
+        focus = focus if focus is not None else self._focus
+        zoom = zoom if zoom is not None else self._zoom
+
+        af_disable = None
+        active = []
+        focus_pinned = False
+        if focus is not None and (not controls or "focus" in controls):
+            # Only switch off an AF control the camera actually advertises: naming
+            # one it lacks would make v4l2-ctl fail the whole grab. A camera with
+            # manual focus and no continuous-AF control (or one we couldn't
+            # enumerate) has no INACTIVE flag to clear, so we set focus_absolute
+            # directly and skip the AF-disable step.
+            if self._af_control:
+                af_disable = self._af_control
+            active.append(f"focus_absolute={focus}")
+            focus_pinned = True
+        if zoom is not None and (not controls or "zoom" in controls):
+            active.append(f"zoom_absolute={zoom}")
+        return af_disable, ",".join(active), focus_pinned
 
     # -- device selection -----------------------------------------------------
 
@@ -251,6 +374,65 @@ class V4l2UsbBackend(SnapshotBackend):
                     )
         return resolutions
 
+    # v4l2 control names -> the keys the UI/router speak. Only these two are
+    # surfaced as sliders; adding more later is one entry each.
+    _UI_CONTROLS = {"focus_absolute": "focus", "zoom_absolute": "zoom"}
+    # Continuous-AF control names across kernels: modern first, pre-5.x fallback.
+    _AF_CONTROLS = ("focus_automatic_continuous", "focus_auto")
+
+    def _parse_controls(self, listing):
+        '''Parse `v4l2-ctl --list-ctrls` into (ranges, af_control). `ranges` maps
+        each UI control the camera lists to its raw {min, max, step, default,
+        value}; `af_control` is the name of the camera's continuous-AF control if
+        present (so capture_jpeg knows which one to switch off before pinning
+        focus), else None. A control the camera omits is simply absent from
+        `ranges`, which is what lets the UI disable its slider. The `flags=...`
+        suffix some controls carry (e.g. focus_absolute "inactive" while AF owns
+        the lens) is ignored — it's not an int field and the control is still
+        listed.'''
+        ranges = {}
+        af_control = None
+        for line in listing.splitlines():
+            match = re.match(
+                r"\s*(\w+)\s+0x[0-9a-fA-F]+\s+\((\w+)\)\s*:\s*(.*)", line
+            )
+            if not match:
+                continue
+            name, ctype, rest = match.group(1), match.group(2), match.group(3)
+            if name in self._AF_CONTROLS:
+                af_control = name
+                continue
+            ui_name = self._UI_CONTROLS.get(name)
+            if ui_name and ctype == "int":
+                fields = {k: int(v) for k, v in re.findall(r"(\w+)=(-?\d+)", rest)}
+                if "min" in fields and "max" in fields:
+                    ranges[ui_name] = fields
+        return ranges, af_control
+
+    def _seed_initial_values(self, ranges):
+        '''Turn raw control ranges into the UI payload {control: {min, max, step,
+        value}}. `value` is the slider's starting position: the configured seed
+        (config.CAPTURE_FOCUS / CAPTURE_ZOOM) when set and within the camera's
+        range, else the camera's own current value (falling back to its default,
+        then min). The browser's localStorage can still override this per
+        device — this is just the fresh-browser / no-override default.'''
+        seeds = {"focus": self._focus, "zoom": self._zoom}
+        controls = {}
+        for name, fields in ranges.items():
+            low, high = fields["min"], fields["max"]
+            seed = seeds.get(name)
+            if seed is not None and low <= seed <= high:
+                value = seed
+            else:
+                value = fields.get("value", fields.get("default", low))
+            controls[name] = {
+                "min": low,
+                "max": high,
+                "step": fields.get("step", 1),
+                "value": value,
+            }
+        return controls
+
 
 # =============================================================================
 class Picamera2Backend(SnapshotBackend):
@@ -259,7 +441,7 @@ class Picamera2Backend(SnapshotBackend):
     an in-memory JPEG, close on stop). Left unbuilt on purpose — the seam exists
     so adding it touches only this file.'''
 
-    def capture_jpeg(self, width=None, height=None):
+    def capture_jpeg(self, width=None, height=None, focus=None, zoom=None):
         raise CaptureError(
             "Picamera2Backend is not implemented; use V4l2UsbBackend for USB cameras"
         )
@@ -282,12 +464,21 @@ class FakeSnapshotBackend(SnapshotBackend):
         {"width": 640, "height": 480},
     ]
 
+    # Canned focus/zoom ranges so the controller/router can be exercised against
+    # control validation without a camera (focus 300-650, zoom 100-400 — the
+    # verified C200's ranges).
+    CANNED_CONTROLS = {
+        "focus": {"min": 300, "max": 650, "step": 1, "value": 550},
+        "zoom": {"min": 100, "max": 400, "step": 1, "value": 100},
+    }
+
     def __init__(self, frame=None, fail=False):
         self.frame = frame if frame is not None else self.CANNED_JPEG
         self.fail = fail                # capture_jpeg raises CaptureError when True
         self.start_count = 0
         self.stop_count = 0
         self.capture_count = 0
+        self.last_capture = None        # (width, height, focus, zoom) of the last grab
 
     def start(self):
         self.start_count += 1
@@ -295,14 +486,18 @@ class FakeSnapshotBackend(SnapshotBackend):
     def stop(self):
         self.stop_count += 1
 
-    def capture_jpeg(self, width=None, height=None):
+    def capture_jpeg(self, width=None, height=None, focus=None, zoom=None):
         self.capture_count += 1
+        self.last_capture = (width, height, focus, zoom)
         if self.fail:
             raise CaptureError("simulated capture failure")
         return self.frame
 
     def supported_resolutions(self):
         return list(self.CANNED_RESOLUTIONS)
+
+    def supported_controls(self):
+        return {name: dict(spec) for name, spec in self.CANNED_CONTROLS.items()}
 
     def device_name(self):
         return "fake"

@@ -23,9 +23,18 @@ namespace tethys {
         const fullscreenClass = "camera-fullscreen";
 
         let pollTimer: number | null = null;
+        // Frames shown in the current capture session — reset on each start,
+        // surfaced as a small "Frame N" readout (idCameraFrameCount) so it's
+        // visible that the live view is actually refreshing.
+        let frameCount = 0;
         let objectUrl: string | null = null;    // the currently-shown blob URL
         // Tears down the full-screen click/Escape listeners; null while windowed.
         let fullscreenExit: (() => void) | null = null;
+        // Set once a real page teardown (navigation / reload / close) begins. The
+        // navigation cancels any in-flight snapshot fetch, which WebKit rejects as
+        // "TypeError: Load failed"; this flag lets tick() recognise that benign
+        // cancellation and stay quiet instead of logging a spurious error.
+        let tearingDown = false;
 
         // A capture size the device advertises, as the status JSON delivers it.
         interface Resolution {
@@ -33,22 +42,53 @@ namespace tethys {
             height: number;
         }
 
+        // An adjustable control's range + initial position, as the status JSON
+        // delivers it (only present for controls the camera actually exposes).
+        interface ControlSpec {
+            min: number;
+            max: number;
+            step: number;
+            value: number;
+        }
+
+        // The controls surfaced as sliders. Each maps to an <input type="range">
+        // + a <span> readout in index-webcam.html (idCameraFocus/idCameraZoom and
+        // …Value), and to a ?<name>= snapshot query param.
+        const controlNames = ["focus", "zoom"];
+        // Per-device storage key for a slider's last value, so a pick sticks
+        // across reloads on the device it was set from.
+        function controlStorageKey(name: string): string {
+            return "tethys.camera." + name;
+        }
+
 
         // ============================================================================
         export function init() {
 
-            // Reinforce on-demand at the client: release the camera when the tab is
-            // hidden or the page is being left. The service's idle auto-off is the
-            // real guarantee — this just releases the device sooner.
-            document.addEventListener("visibilitychange", () => {
-                if (document.hidden) {
-                    stopCapture(false);
+            // Keep the camera running while the tab is merely hidden — a quick
+            // app/tab switch shouldn't kill the live view. Release only on a real
+            // page teardown (navigation or close), where pagehide fires with
+            // persisted === false; a bfcache hide (persisted === true, e.g. an iOS
+            // app switch) is left running, with the service's max-on / idle timeout
+            // as the real backstop. Not stopping on hide also removes the spurious
+            // "access control checks" console error that a normal fetch produced
+            // when fired as the page was being frozen.
+            window.addEventListener("pagehide", (event) => {
+                if (!event.persisted) {
+                    tearingDown = true;
+                    stopCapture(true);
                 }
             });
-            window.addEventListener("pagehide", () => stopCapture(true));
 
-            // Sync the toggle to the real service state (e.g. left enabled in
-            // another tab) so the page reflects reality on load.
+            // Re-sync to the real service state on load, and again whenever the page
+            // is restored from the back/forward cache (returning from another app),
+            // so the toggle reflects reality — including a camera the service
+            // released (idle / max-on) while we were away.
+            window.addEventListener("pageshow", (event) => {
+                if (event.persisted) {
+                    syncFromStatus();
+                }
+            });
             syncFromStatus();
         }
 
@@ -73,6 +113,31 @@ namespace tethys {
         // but only while capturing, so changing the size with the camera off can't
         // trigger a 409 (which would read as an unexpected auto-off).
         export function onResolutionChange() {
+            if (pollTimer !== null) {
+                tick();
+            }
+        }
+
+
+        // ============================================================================
+        // Called continuously while a control slider is dragged (oninput in the
+        // template). Updates the numeric readout only — no fetch, so a drag doesn't
+        // fire one snapshot per pixel.
+        export function onControlInput(name: string) {
+            updateReadout(name);
+        }
+
+
+        // ============================================================================
+        // Called when a control slider is released (onchange in the template).
+        // Persists the pick per-device and re-fetches at the new value at once —
+        // but only while capturing, so adjusting a control with the camera off
+        // can't trigger a 409 (which would read as an unexpected auto-off).
+        export function onControlChange(name: string) {
+            const slider = getControlSlider(name);
+            if (slider) {
+                window.localStorage.setItem(controlStorageKey(name), slider.value);
+            }
             if (pollTimer !== null) {
                 tick();
             }
@@ -120,6 +185,8 @@ namespace tethys {
                 window.clearInterval(pollTimer);
             }
 
+            frameCount = 0;
+            setFrameCount(null);                     // blank until the first frame
             showFrameArea();
             tick();                                  // first frame immediately
             pollTimer = window.setInterval(tick, refreshMs);
@@ -130,7 +197,7 @@ namespace tethys {
         async function tick() {
 
             try {
-                const response = await getCall(cameraUrl + "snapshot" + resolutionQuery());
+                const response = await getCall(cameraUrl + "snapshot" + snapshotQuery());
 
                 // The service auto-disabled (idle window or max-on ceiling) — follow it.
                 if (response.status === 409) {
@@ -151,8 +218,17 @@ namespace tethys {
 
                 const blob = await response.blob();
                 showBlob(blob);
+                setFrameCount(++frameCount);
                 setStatus("Live — refreshing every " + (refreshMs / 1000) + "s.");
             } catch (e) {
+                // A fetch cancelled by a page teardown (reload / navigation /
+                // close) rejects here as "Load failed". That's benign — the page
+                // is going away — so stay quiet rather than logging a scary error
+                // and overwriting the status. A genuine mid-session drop still
+                // reports below.
+                if (tearingDown) {
+                    return;
+                }
                 setStatus("Lost connection to the camera service.");
                 console.error("Snapshot fetch failed:", e);
             }
@@ -233,6 +309,7 @@ namespace tethys {
 
                 const data = await response.json();
                 populateResolutions(data.resolutions, data.defaultResolution);
+                populateControls(data.controls);
                 if (data.enabled) {
                     setToggle(true);
                     startPolling();
@@ -273,18 +350,92 @@ namespace tethys {
 
 
         // ============================================================================
-        // The "?w=W&h=H" suffix for the snapshot request from the current dropdown
-        // selection, or "" when nothing is selected (so the backend uses its default).
-        function resolutionQuery(): string {
+        // Fill the focus/zoom sliders from the camera-derived ranges. For each
+        // control the camera exposes: set min/max/step, position it at the stored
+        // value (per-device localStorage, so a pick sticks) or the status default,
+        // enable it, and show the readout. A control the camera omits stays disabled
+        // (greyed) and is never sent. Idempotent: an already-populated slider is left
+        // alone, so a later status re-sync never resets a value mid-adjustment.
+        function populateControls(controls: { [name: string]: ControlSpec } | undefined) {
+
+            if (!controls) {
+                return;
+            }
+
+            for (const name of controlNames) {
+                const slider = getControlSlider(name);
+                const spec = controls[name];
+                if (!slider || slider.dataset.populated || !spec) {
+                    continue;
+                }
+
+                slider.min = String(spec.min);
+                slider.max = String(spec.max);
+                slider.step = String(spec.step);
+                slider.value = String(initialControlValue(name, spec));
+                slider.disabled = false;
+                slider.dataset.populated = "1";
+                updateReadout(name);
+            }
+        }
+
+
+        // ============================================================================
+        // A slider's starting value: the per-device localStorage pick when it's a
+        // number within the camera's range, else the status default. Clamping by
+        // range means a stale value stored against a different camera can't push the
+        // slider out of bounds.
+        function initialControlValue(name: string, spec: ControlSpec): number {
+
+            const raw = window.localStorage.getItem(controlStorageKey(name));
+            const stored = raw === null ? NaN : Number(raw);
+            if (!isNaN(stored) && stored >= spec.min && stored <= spec.max) {
+                return stored;
+            }
+            return spec.value;
+        }
+
+
+        // ============================================================================
+        // The full "?a=1&b=2" suffix for a snapshot request: the picked resolution
+        // plus any enabled control sliders. "" when nothing is set, so the backend
+        // falls back to its own defaults. One assembler so controls still apply even
+        // when no resolution is selected (a plain "&focus=" wouldn't start a query).
+        function snapshotQuery(): string {
+            const params = resolutionParams().concat(controlParams());
+            return params.length ? "?" + params.join("&") : "";
+        }
+
+
+        // ============================================================================
+        // ["w=W", "h=H"] from the resolution dropdown, or [] when nothing is selected.
+        function resolutionParams(): string[] {
 
             const select = getResolutionSelect();
             const value = select ? select.value : "";
             if (!value) {
-                return "";
+                return [];
             }
 
             const [width, height] = value.split("x");
-            return "?w=" + width + "&h=" + height;
+            return ["w=" + width, "h=" + height];
+        }
+
+
+        // ============================================================================
+        // ["focus=F", "zoom=Z"] from the enabled control sliders. A disabled slider
+        // (an unsupported control, or one not yet populated) contributes nothing, so
+        // it's never sent — the backend then leaves that control alone.
+        function controlParams(): string[] {
+
+            const params: string[] = [];
+            for (const name of controlNames) {
+                const slider = getControlSlider(name);
+                if (slider && !slider.disabled) {
+                    params.push(name + "=" + slider.value);
+                }
+            }
+            return params;
         }
 
 
@@ -397,6 +548,28 @@ namespace tethys {
             return document.getElementById("idCameraResolution") as HTMLSelectElement | null;
         }
 
+        // Control slider/readout ids are "idCamera" + Capitalised name (+ "Value"),
+        // e.g. focus -> idCameraFocus / idCameraFocusValue.
+        function getControlSlider(name: string): HTMLInputElement | null {
+            return document.getElementById("idCamera" + capitalize(name)) as HTMLInputElement | null;
+        }
+
+        function getControlReadout(name: string): HTMLElement | null {
+            return document.getElementById("idCamera" + capitalize(name) + "Value");
+        }
+
+        function updateReadout(name: string) {
+            const slider = getControlSlider(name);
+            const readout = getControlReadout(name);
+            if (slider && readout) {
+                readout.textContent = slider.value;
+            }
+        }
+
+        function capitalize(text: string): string {
+            return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+
         function setToggle(on: boolean) {
             const toggle = getToggle();
             if (toggle) {
@@ -408,6 +581,15 @@ namespace tethys {
             const element = document.getElementById("idWebcamStatus");
             if (element) {
                 element.textContent = text;
+            }
+        }
+
+        // The small live frame counter (idCameraFrameCount). null blanks it (camera
+        // off / between sessions); a number shows "Frame N".
+        function setFrameCount(count: number | null) {
+            const element = document.getElementById("idCameraFrameCount");
+            if (element) {
+                element.textContent = count === null ? "" : "Frame " + count;
             }
         }
 
@@ -438,6 +620,9 @@ namespace tethys {
                 URL.revokeObjectURL(objectUrl);
                 objectUrl = null;
             }
+
+            frameCount = 0;
+            setFrameCount(null);
         }
 
     }

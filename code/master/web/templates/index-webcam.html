@@ -42,9 +42,41 @@
 		</div>
 
 
+		<!-- Focus / zoom sliders. Disabled until /camera/status reports the camera
+		     supports each control; populated with its real min/max there. -->
+		<div class="div-row">
+			<div class="div-column col-10"
+				style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+				Focus:
+			</div>
+			<div class="div-column col-25" style="padding-bottom: 1rem;">
+				<input type="range" class="custom-slider" id="idCameraFocus" disabled
+					style="flex: 1;"
+					oninput="tethys.webcam.onControlInput('focus')"
+					onchange="tethys.webcam.onControlChange('focus')">
+				<span id="idCameraFocusValue"
+					style="margin-left: 0.5rem; min-width: 2.5rem; text-align: right; color: #aaaaaa;"></span>
+			</div>
+
+			<div class="div-column col-10"
+				style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+				Zoom:
+			</div>
+			<div class="div-column col-25" style="padding-bottom: 1rem;">
+				<input type="range" class="custom-slider" id="idCameraZoom" disabled
+					style="flex: 1;"
+					oninput="tethys.webcam.onControlInput('zoom')"
+					onchange="tethys.webcam.onControlChange('zoom')">
+				<span id="idCameraZoomValue"
+					style="margin-left: 0.5rem; min-width: 2.5rem; text-align: right; color: #aaaaaa;"></span>
+			</div>
+		</div>
+
+
 		<!-- ----------------- L I V E   F R A M E ------------------- -->
 
-		<div class="div-row" style="justify-content: flex-end;">
+		<div class="div-row" style="justify-content: space-between; align-items: center;">
+			<span id="idCameraFrameCount" style="color: #aaaaaa; font-size: 0.85rem;"></span>
 			<button id="idCameraFullscreen" type="button" class="button"
 				style="width: auto; padding-left: 0.6rem; padding-right: 0.6rem;"
 				onclick="tethys.webcam.toggleFullscreen()">⛶ Full screen</button>

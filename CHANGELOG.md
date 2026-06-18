@@ -36,7 +36,7 @@ Current released version: **3.0.0** (`code/master/globals/config.py`).
 - **Web UI** — a new **Webcam** tab (**`web/templates/index-webcam.html`**,
   **`web/static/ts/webcam.ts`**): an Enable flip switch that arms the service and
   refreshes a JPEG every few seconds via blob object URLs (revoking the previous
-  one each tick), auto-stopping when the tab is hidden or closed. Wired into
+  one each tick), auto-stopping when the page is closed or left. Wired into
   `layout.html`, `urls.py` / `views.py`, and `common.ts` (location + active-menu).
 - **Deployment** — **`install/assets/tethys-camera.service`** (runs unprivileged
   with `SupplementaryGroups=video`), an nginx `/camera/` location (IPv4-pinned),
@@ -66,6 +66,82 @@ Current released version: **3.0.0** (`code/master/globals/config.py`).
   (**`.camera-fullscreen`**); tap or Escape exits. A CSS overlay (not the
   Fullscreen API) because iOS Safari can't fullscreen an `<img>`; the polling loop
   keeps refreshing the same element underneath.
+
+### Webcam: focus + zoom sliders, read from the camera
+
+> (2026-06-18). A plant camera points at a fixed distance, so the camera's
+> default continuous autofocus only adds hunting and "breathing" between
+> otherwise-identical snapshots. The Webcam tab now offers **focus** and **zoom**
+> as live sliders, with each slider's range read **from the camera itself** and
+> **disabled when the camera doesn't expose that control** — so it adapts to any
+> USB camera instead of being hardcoded, and is adjustable from a phone in the
+> field (no config edit, the original ask). Setting focus pins it (disabling
+> continuous AF), killing the breathing.
+
+#### Added
+- **Device-derived controls** — `cameraController.status()` now reports the
+  focus/zoom ranges the camera advertises
+  (**`captureBackend.V4l2UsbBackend.supported_controls()`**, parsed from
+  `v4l2-ctl --list-ctrls`, **fail-soft** so `status()` never throws), each as
+  `{min, max, step, value}` with `value` seeded from `config.CAPTURE_FOCUS` /
+  `CAPTURE_ZOOM` when in range. Only controls the camera exposes are reported.
+- **Per-request application** — the snapshot request carries `?focus=&zoom=`
+  (validated in the pure router **`tethys_camera._snapshot`** against the
+  camera's ranges, a new **400** for out-of-range/non-integer). Pinning focus
+  handles two camera quirks verified on the C200: continuous AF is switched off
+  in its **own committed `v4l2-ctl` invocation** before the grab (`focus_absolute`
+  is `INACTIVE` while AF owns the lens; the camera keeps AF-off across the reopen,
+  and a separate call is robust where a combined cluster set isn't); and because
+  the camera **resets `focus_absolute` when a stream stops** and its focus motor
+  **only travels while streaming**, a focused grab discards
+  **`CAPTURE_FOCUS_SETTLE_SKIP_FRAMES`** (≈1 s) so the lens reaches the requested
+  position before the kept frame — without it the lens is caught mid-travel and
+  looks like AF is still hunting. Zoom is digital (instant, not reset on stream
+  stop) so it rides the grab's own `--set-ctrl`. A control the camera lacks is
+  never emitted, so a value can't wedge the grab.
+- **UI sliders** — focus/zoom `<input type="range">`s in the Webcam tab populate
+  from `status.controls` and **disable** for unsupported controls; a pick is
+  remembered per-device in `localStorage` and re-fetches at once. `CAPTURE_FOCUS`
+  / `CAPTURE_ZOOM` remain as the server-side seed defaults a fresh browser sees.
+
+### Webcam: keep the camera running while the tab is hidden
+
+> (2026-06-18). The Webcam tab released the camera the moment its tab went hidden
+> (`visibilitychange`), so a brief switch to another app killed the live view —
+> and that stop `fetch`, fired as the page was being frozen, surfaced in Safari as
+> a misleading `Fetch API cannot load … due to access control checks` console
+> error (it is same-origin; nothing was actually blocked). The camera now stays
+> running across app/tab switches and is released only on a real page-leave or by
+> the service's own timeout.
+
+#### Changed
+- **`web/static/ts/webcam.ts`** — dropped the `visibilitychange` auto-stop; the
+  `pagehide` release now fires only on a real teardown (`event.persisted === false`),
+  so an iOS app-switch into the back/forward cache is left running, and a new
+  `pageshow` handler re-syncs state when the page is restored from that cache.
+- **`camera/config.py`** — `IDLE_TIMEOUT_SECONDS` widened from 15 s to 30 min so a
+  backgrounded tab whose polling has paused isn't released early; `MAX_ON_SECONDS`
+  (30 min) stays the ceiling, now the effective single timeout.
+
+#### Fixed
+- The spurious `access control checks` console error on switching away from the
+  Webcam tab (the doomed stop `fetch` is no longer fired on hide).
+- The spurious `Snapshot fetch failed: TypeError: Load failed` console error on a
+  page reload/navigation: the in-flight snapshot `fetch` the navigation cancels
+  now sets a `tearingDown` flag that `tick()`'s `catch` recognises, so it stays
+  quiet instead of logging — a genuine mid-session drop still reports.
+
+### Webcam: live frame counter
+
+> (2026-06-18). A small **"Frame N"** readout above the live view, incrementing as
+> each snapshot lands, so it's visible at a glance that the view is actually
+> refreshing (and how many frames a session has shown).
+
+#### Added
+- **`web/templates/index-webcam.html`** / **`web/static/ts/webcam.ts`** — a
+  `#idCameraFrameCount` span beside the Full screen control: reset on each enable,
+  incremented per rendered frame in `tick()`, blanked when the camera stops (so it
+  rides every existing auto-off path for free).
 
 ### Watering: enforce "one channel at a time" for manual control, not just automatic
 

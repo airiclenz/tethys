@@ -522,3 +522,41 @@ h2 {
 	border-radius: 0 !important;
 	cursor: zoom-out;
 }
+
+
+/* Webcam focus / zoom sliders. Styled to match the flip switch (#6b99ff accent);
+   the disabled state (a control the camera doesn't expose) reads as greyed and
+   not-allowed. Track + thumb need vendor-specific pseudo-elements — there's no
+   single cross-browser selector. */
+input[type="range"].custom-slider {
+	-webkit-appearance: none;
+	appearance: none;
+	height: 0.35rem;
+	border-radius: 0.3rem;
+	background: #d9e6f5;
+	outline: none;
+	cursor: pointer;
+}
+
+input[type="range"].custom-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 1rem;
+	height: 1rem;
+	border-radius: 50%;
+	background: #6b99ff;
+	border: none;
+}
+
+input[type="range"].custom-slider::-moz-range-thumb {
+	width: 1rem;
+	height: 1rem;
+	border-radius: 50%;
+	background: #6b99ff;
+	border: none;
+}
+
+input[type="range"].custom-slider:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}

@@ -30,7 +30,9 @@ def test_webcam_tab_enables_and_shows_frame(live_server, page):
             '{"enabled": false, "lastFrameAgeSec": null, "device": "fake", '
             '"refreshSeconds": 3, '
             '"resolutions": [{"width": 1280, "height": 720}, {"width": 640, "height": 480}], '
-            '"defaultResolution": {"width": 1280, "height": 720}}',
+            '"defaultResolution": {"width": 1280, "height": 720}, '
+            '"controls": {"focus": {"min": 300, "max": 650, "step": 1, "value": 550}, '
+            '"zoom": {"min": 100, "max": 400, "step": 1, "value": 200}}}',
         ),
     )
 
@@ -84,11 +86,38 @@ def test_webcam_tab_enables_and_shows_frame(live_server, page):
     )
     assert placeholder_display == "none"
 
+    # The small live frame counter shows "Frame N" once snapshots start landing.
+    page.wait_for_function(
+        "() => /Frame \\d+/.test("
+        "document.getElementById('idCameraFrameCount').textContent)"
+    )
+
     # The resolution dropdown was filled from the status payload's device list.
     option_count = page.eval_on_selector(
         "#idCameraResolution", "el => el.options.length"
     )
     assert option_count == 2, f"resolution dropdown not populated: {option_count}"
+
+    # Focus + zoom sliders were populated from status.controls with the camera's
+    # real ranges and enabled.
+    focus_state = page.eval_on_selector(
+        "#idCameraFocus",
+        "el => ({min: el.min, max: el.max, value: el.value, disabled: el.disabled})",
+    )
+    assert focus_state["disabled"] is False, "focus slider not enabled"
+    assert focus_state["min"] == "300" and focus_state["max"] == "650", \
+        f"focus range not from camera: {focus_state}"
+    assert focus_state["value"] == "550", f"focus not seeded to default: {focus_state}"
+    assert page.eval_on_selector("#idCameraZoom", "el => el.disabled") is False, \
+        "zoom slider not enabled"
+
+    # Adjusting a slider re-fetches a snapshot that carries the controls as query
+    # params (?focus=&zoom=), so the camera is driven from the UI.
+    with page.expect_request("**/camera/snapshot*") as req_info:
+        page.evaluate("window.tethys.webcam.onControlChange('focus')")
+    snapshot_url = req_info.value.url
+    assert "focus=" in snapshot_url and "zoom=" in snapshot_url, \
+        f"controls not carried in snapshot URL: {snapshot_url}"
 
     # Full screen: the control overlays the live frame by toggling a class (not
     # inline style), and Escape leaves it. The poll keeps updating the same <img>.
@@ -122,3 +151,27 @@ def test_webcam_tab_enables_and_shows_frame(live_server, page):
     )
 
     assert not page_errors, f"uncaught JS error(s) on the page: {page_errors}"
+
+
+def test_webcam_focus_slider_disabled_when_camera_lacks_control(live_server, page):
+    """A control the camera doesn't report leaves its slider disabled (greyed):
+    here status carries only zoom, so the zoom slider enables but focus stays
+    disabled — the UI's "disable unsupported controls" behaviour."""
+    page.route(
+        "**/camera/status",
+        lambda route: route.fulfill(
+            status=200, content_type="application/json",
+            body='{"enabled": false, "lastFrameAgeSec": null, "device": "fake", '
+                 '"refreshSeconds": 3, "resolutions": [], "defaultResolution": null, '
+                 '"controls": {"zoom": {"min": 100, "max": 400, "step": 1, "value": 200}}}',
+        ),
+    )
+
+    page.goto(f"{live_server.url}/webcam/")
+    page.wait_for_function("() => window.tethys && window.tethys.webcam")
+
+    # Sliders populate from status on load. Wait until the supported control (zoom)
+    # is enabled, then assert the unsupported one (focus) stayed disabled.
+    page.wait_for_function("() => !document.getElementById('idCameraZoom').disabled")
+    assert page.eval_on_selector("#idCameraFocus", "el => el.disabled") is True, \
+        "focus slider should stay disabled when the camera reports no focus control"

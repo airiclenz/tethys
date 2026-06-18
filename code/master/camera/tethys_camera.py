@@ -92,14 +92,12 @@ def _start(controller):
     return _json(202, {"enabled": True})
 
 
-def _parse_resolution(path):
-    '''Read an optional ?w=&h= capture size from the snapshot path. Returns
+def _parse_resolution(params):
+    '''Read an optional ?w=&h= capture size from the parsed query params. Returns
     (None, None) when neither is present (use the backend default), or (width,
     height) when both are present and positive. Raises ValueError on a malformed
     request — a non-integer value, only one of the pair, or a non-positive size —
     so the router can answer 400.'''
-    query = urllib.parse.urlparse(path).query
-    params = urllib.parse.parse_qs(query)
     has_width = "w" in params
     has_height = "h" in params
     if not has_width and not has_height:
@@ -114,11 +112,40 @@ def _parse_resolution(path):
     return width, height
 
 
+def _parse_optional_int(params, name):
+    '''Read an optional integer query param (?focus= / ?zoom=). None when absent;
+    the int value otherwise. Raises ValueError on a non-integer, so the router can
+    answer 400 (the range itself is checked against the camera separately).'''
+    if name not in params:
+        return None
+    return int(params[name][0])         # ValueError on a non-integer value
+
+
+def _validate_control(controls, name, value):
+    '''A 400-body dict if `value` is set but out of the camera's advertised range
+    for this control, else None. Like the resolution check, validation only
+    happens when enumeration gave us a range; if it didn't (control absent /
+    enumeration unavailable), the value isn't blocked here — the backend simply
+    won't emit a control the camera lacks, and a genuinely bad value surfaces as
+    the existing 503.'''
+    if value is None:
+        return None
+    spec = controls.get(name)
+    if not spec:
+        return None
+    if value < spec["min"] or value > spec["max"]:
+        return {"error": f"{name} out of range", "supported": spec}
+    return None
+
+
 def _snapshot(controller, path):
+    params = urllib.parse.parse_qs(urllib.parse.urlparse(path).query)
     try:
-        width, height = _parse_resolution(path)
+        width, height = _parse_resolution(params)
+        focus = _parse_optional_int(params, "focus")
+        zoom = _parse_optional_int(params, "zoom")
     except ValueError:
-        return _json(400, {"error": "invalid resolution; use ?w=<int>&h=<int>"})
+        return _json(400, {"error": "invalid query; use ?w=&h= and integer focus/zoom"})
 
     if width is not None:
         allowed = controller.supported_resolutions()
@@ -128,8 +155,15 @@ def _snapshot(controller, path):
         if allowed and {"width": width, "height": height} not in allowed:
             return _json(400, {"error": "unsupported resolution", "supported": allowed})
 
+    if focus is not None or zoom is not None:
+        controls = controller.supported_controls()
+        error = (_validate_control(controls, "focus", focus)
+                 or _validate_control(controls, "zoom", zoom))
+        if error:
+            return _json(400, error)
+
     try:
-        frame = controller.snapshot(width, height)
+        frame = controller.snapshot(width, height, focus, zoom)
     except CameraDisabledError:
         return _json(409, {"error": "camera is disabled; POST /camera/start first"})
     except CaptureError as e:
