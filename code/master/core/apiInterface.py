@@ -122,3 +122,45 @@ def createPumpActionInDB(channelNumber, startTime, endTime):
 
     else:
         _logger.log("ERROR: The action could not be logged in the database!")
+
+
+# =============================================================================
+def fetchPendingManualCommands():
+    '''Return the pending manual activate/deactivate commands (oldest first) the
+    web UI enqueued, as a list of dicts. Returns [] when there are none or the
+    API is unreachable, so a missing API just defers manual control safely.'''
+    url = BASE_API_URL + "manualCommand/pending"
+
+    try:
+        response = requests.get(url, headers=_AUTH_HEADERS)
+    except requests.RequestException:
+        _logger.log("The Tethys API is not reachable; manual commands skipped this pass.")
+        return []
+
+    # check if the response code is in the 200 range: 2xx
+    responseCode = response.status_code - (response.status_code % 100)
+
+    if responseCode == 200:
+        return json.loads(response.text)["manualCommands"]
+
+    return []
+
+
+# =============================================================================
+def reportManualCommandResult(commandId, resultStatus, message=""):
+    '''Write the terminal outcome of a processed manual command back to the API
+    so the web UI can confirm or revert its toggle.'''
+    url = BASE_API_URL + "manualCommand/" + str(commandId)
+    jsonBody = {"status": resultStatus, "message": message}
+
+    try:
+        response = requests.patch(url=url, json=jsonBody, headers=_AUTH_HEADERS)
+    except requests.RequestException:
+        _logger.log(f"ERROR: could not report manual command {commandId} (API unreachable).")
+        return
+
+    # check if the response code is in the 200 range: 2xx
+    responseCode = response.status_code - (response.status_code % 100)
+
+    if responseCode != 200:
+        _logger.log(f"ERROR: reporting manual command {commandId} failed ({response.status_code}).")

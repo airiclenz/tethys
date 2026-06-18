@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from .models import *
 from . import firmware
@@ -131,12 +132,40 @@ class ScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Schedule
         fields = [
-            'id', 
+            'id',
             'weekday',
             'enabled',
             'scheduleType',
             'startTime',
             'durationMinutes'
         ]
+
+
+# /////////////////////////////////////////////////////////////////////////////
+class ManualCommandSerializer(serializers.ModelSerializer):
+
+    # Flatten the related channel so the core gets the number and the pump type
+    # it needs to drive the controller, without a second lookup.
+    channel = serializers.IntegerField(source='channel.number', read_only=True)
+    channelType = serializers.CharField(source='channel.channelType.name', read_only=True)
+    # Age computed on the API side (same clock and timezone setting as the stored
+    # timestamp), so the core just applies its freshness policy to a plain number.
+    ageSeconds = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ManualCommand
+        fields = [
+            'id',
+            'channel',
+            'channelType',
+            'action',
+            'status',
+            'message',
+            'requestedAt',
+            'ageSeconds',
+        ]
+
+    def get_ageSeconds(self, obj):
+        return (timezone.now() - obj.requestedAt).total_seconds()
 
 

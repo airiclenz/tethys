@@ -21,6 +21,24 @@ WEEKDAYS = (
 )
 
 
+# A manual activate/deactivate request the web UI enqueues for the core to run.
+MANUAL_COMMAND_ACTIONS = (
+    ("activate", "activate"),
+    ("deactivate", "deactivate"),
+)
+
+# Lifecycle of a queued manual command. "pending" is the initial state; the core
+# sets exactly one terminal state once it has processed (or refused) the command.
+MANUAL_COMMAND_STATUSES = (
+    ("pending", "pending"),      # enqueued, not yet seen by the core
+    ("accepted", "accepted"),    # activate ran (a channel is now energised)
+    ("rejected", "rejected"),    # activate refused: another channel is already active
+    ("expired", "expired"),      # activate ignored as stale (core was down too long)
+    ("done", "done"),            # deactivate ran
+    ("failed", "failed"),        # the hardware write failed
+)
+
+
 # /////////////////////////////////////////////////////////////////////////////
 class ActionType(models.Model):
     '''The available action types.'''
@@ -110,6 +128,30 @@ class Schedule(models.Model):
 
     def __str__(self) -> str:
         return self.weekday + ' - ' + self.scheduleType.name
+
+
+# /////////////////////////////////////////////////////////////////////////////
+class ManualCommand(models.Model):
+    '''A manual "Test Channel" activate/deactivate request from the web UI.
+
+    The Django API never drives GPIO. It enqueues the request here and the core
+    -- the single owner of the watering hardware -- drains it on its next loop
+    pass and runs it through the pump controller. Routing manual taps through the
+    same controller as automatic watering is what keeps the one-channel power
+    limit ("max one channel + pump at a time") enforced for manual control too.'''
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
+    action = models.CharField(max_length=20, choices=MANUAL_COMMAND_ACTIONS)
+    status = models.CharField(max_length=20, choices=MANUAL_COMMAND_STATUSES, default="pending")
+    message = models.CharField(max_length=200, blank=True, default="")
+    # When the UI enqueued the request. The core ignores stale activate requests
+    # (see MANUAL_COMMAND_MAX_AGE_SECONDS) so a tap made while the core was down
+    # cannot silently energise a channel minutes later.
+    requestedAt = models.DateTimeField(auto_now_add=True)
+    # When the core reached a terminal status; null while still pending.
+    processedAt = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self) -> str:
+        return str(self.channel.number) + ' - ' + self.action + ' (' + self.status + ')'
 
 
 # /////////////////////////////////////////////////////////////////////////////

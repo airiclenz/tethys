@@ -10,6 +10,45 @@ Current released version: **2.0.0** (`code/master/globals/config.py`).
 
 ## [Unreleased]
 
+### Watering: enforce "one channel at a time" for manual control, not just automatic
+
+> (2026-06-17). Automatic watering already serialised — `pumpController` runs one
+> channel at a time (`max_concurrent = 1`). But the web UI's manual "Test Channel"
+> toggle drove GPIO directly from the Django API process, bypassing the controller:
+> two manual taps, or a manual tap during an automatic pump, could energise more
+> than one channel at once and overload the power supply. The API and core are
+> separate processes (and the API runs 3 gunicorn workers), so no in-memory guard
+> could prevent it. Manual taps now flow through the *same* single controller as
+> automatic watering, so the one-channel power limit ("max one channel + pump")
+> holds at all times. Resolves audit findings **[H-01]** (two GPIO owners /
+> swallowed error returns `True`) and the manual-activate half of **[C-02]** (no
+> auto-off on a manual activate).
+
+#### Added
+- **`api/tethys_api/models.py`** / **`migrations/0004_manualcommand.py`** — a
+  `ManualCommand` queue (`action`, `status`, timestamps) the web UI writes and the
+  core drains. The API no longer imports any core GPIO module.
+- **`api/tethys_api/views.py`** / **`urls.py`** / **`serializers.py`** —
+  `channel_single_action` now *enqueues* a command and returns its id; new
+  `GET /api/manualCommand/pending` (polled by the core) and
+  `GET|PATCH /api/manualCommand/<id>` (UI polls the outcome, core reports it).
+- **`core/manualCommands.py`** + **`core/apiInterface.py`** + **`core/tethys_core.py`**
+  — the core drains pending commands each loop pass and runs them through
+  `pumpController.activate`/`deactivate`. A manual activate while another channel is
+  running is **rejected** (the `max_concurrent = 1` guard); a stale request (core
+  was down) is **expired**; a manual activate now inherits the 300 s auto-off ceiling.
+- **`web/static/ts/channel.ts`** — the Test Channel toggle polls the command's
+  outcome and reverts itself (with an "another channel is active" message) when an
+  activate is rejected.
+- Tests: **`core/tests/test_manual_commands.py`** (accept / reject-when-busy /
+  expire / deactivate) and **`api/tethys_api/tests/test_manual_command.py`**
+  (enqueue, pending list, result write-back).
+
+#### Removed
+- **`core/channel.py`** — the legacy `setOutputState` GPIO path (the second GPIO
+  owner, and the one that returned `True` even after a swallowed write error) is
+  deleted; all watering GPIO now has a single owner.
+
 ### nginx: intermittent 502s / failed `/channels` redirect from IPv6 `localhost` upstreams
 
 > (2026-06-17). Opening Tethys — most visibly over Tailscale — sometimes showed

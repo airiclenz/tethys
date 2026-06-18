@@ -278,6 +278,13 @@ backend treat it as the database boundary and reach it at `http://localhost:5000
    on a change, broadcasts to all browsers over the `/ws/tethys/` WebSocket
    (`web/tethys_web/consumers.py`).
 
+A **manual *Test Channel* tap** uses the same hardware path, not a separate one:
+the API enqueues a `ManualCommand` (it never drives GPIO), the core drains it each
+loop pass and runs it through the same `pumpController` (rejecting an activate when
+another channel is already running), and writes the outcome back for the UI to
+poll. This is what keeps the one-channel power limit holding for manual control —
+see *Invariants* below.
+
 When a sensor asks for its config (`GETCONFIG`), the master answers from an
 in-memory `ConfigCache` (warmed out-of-band by `Radio.refreshConfigCache`), never
 with a blocking HTTP call inside the sensor's short listen window. A running node's
@@ -292,6 +299,13 @@ with the calibration trigger stripped and never cleared.
   watering path that bypasses `pumpController`. `make_controller()` is the *only*
   place `lgpio` is bound; all hardware goes through the `GpioAdapter` seam so the
   logic is testable without a Pi.
+- **One channel at a time (power limit).** `pumpController` is the *single owner*
+  of the watering GPIO. Both automatic watering and the web UI's manual *Test
+  Channel* taps go through it — the latter via the `ManualCommand` queue the core
+  drains each loop pass — so its `max_concurrent = 1` guard holds the invariant
+  that **at most one channel (plus the shared pump pin) is ever energised**, which
+  protects the power supply. A manual activate that arrives while another channel
+  is running is *rejected*, not run. The API process never drives GPIO itself.
 - **Silent phase is fail-closed.** If the API is unreachable, `isInSilentPhase()`
   returns `None` and `actionEngine` **skips watering** for that pass — it must
   never water on unknown state. The window math lives in
@@ -342,6 +356,10 @@ WireGuard), not an open port. See [`docs/remote-access-hardening.md`](docs/remot
 - **ActionLog** — `channel` FK, `actionType`, `startTime`, `endTime`.
 - **Schedule** — `weekday`, `scheduleType` (`silent`), `startTime` (UTC wall-clock),
   `durationMinutes`, `enabled`.
+- **ManualCommand** — `channel` FK, `action` (activate/deactivate), `status`,
+  `message`, `requestedAt`, `processedAt`. The web UI enqueues a manual *Test
+  Channel* tap here; the core drains it through `pumpController` (the API never
+  drives GPIO) and reports the outcome back for the UI to poll.
 - Lookup tables: `ChannelType`, `ActionType`, `ScheduleType`, `TransmissionPowerLevel`.
 - `channelSummary/<n>` is the denormalized read both the core and UI consume
   (channel config + latest sensor reading + counts).
@@ -357,9 +375,9 @@ pytest                                                # pytest.ini sets paths
 ```
 
 Covers the parts that gate physical action or silent failure: `core/tests/`
-(pump controller, GPIO adapter, protocol framing, action engine) and
-`api/tethys_api/tests/` (API-key permission, silent-phase window math,
-`LAST_DATA_UPDATE` wiring). All run without `lgpio`/`pyrf24`/a Pi, thanks to the
+(pump controller, GPIO adapter, protocol framing, action engine, manual-command
+queue) and `api/tethys_api/tests/` (API-key permission, silent-phase window math,
+`LAST_DATA_UPDATE` wiring, manual-command lifecycle). All run without `lgpio`/`pyrf24`/a Pi, thanks to the
 GPIO and protocol seams. **Add tests behind those seams when you touch the
 watering, radio-framing, or silent-phase paths.**
 
@@ -396,11 +414,6 @@ deploy and before the UI tests, so the TypeScript is the single source of truth.
 
 ### Known limitations / deferred (see `CHANGELOG.md` + `docs/`)
 
-- Two GPIO owners (`pumpController` for the auto path, the legacy `core/channel.py`
-  for the API's manual activate) coexist until **phase 2** routes the API through
-  the controller. `core/channel.py` is deprecated — no new callers.
-- The manual API "activate" has no server-side auto-off yet (only the core path
-  is clamped).
 - Low-battery flag is logged but not persisted (no `SensorData` column yet).
 
 ### Where the design rationale lives

@@ -1,16 +1,17 @@
 # =============================================================================
 # Pump controller — the single deep module that drives watering hardware safely.
 #
-# Replaces the old core/channel.setOutputState path for automatic watering. Every
-# "pump on" is clamped to a hard maximum, always has a guaranteed "off" (via a
-# timer plus try/finally), and reports real success/failure instead of always
-# returning True. Hardware is reached only through a GpioAdapter so the module is
-# unit-testable without lgpio / a Raspberry Pi.
+# Replaces the old core/channel.setOutputState path. Every "pump on" is clamped to
+# a hard maximum, always has a guaranteed "off" (via a timer plus try/finally), and
+# reports real success/failure instead of always returning True. Hardware is reached
+# only through a GpioAdapter so the module is unit-testable without lgpio / a Pi.
 #
-# Scope note: this module owns GPIO for the *core* (automatic) path only. The
-# Django API still drives pins via core/channel.py until phase 2; we therefore
-# keep the per-operation claim/write/release lifecycle (in the adapter) so the
-# two coexist without GPIO_BUSY conflicts.
+# Scope note: this module is the single owner of the watering GPIO. Automatic
+# watering and the web UI's manual taps both go through it -- the latter via the
+# ManualCommand queue the core drains (see manualCommands.py), not a separate GPIO
+# path -- so the max_concurrent guard keeps at most one channel energised across
+# every path. The adapter keeps a per-operation claim/write/release lifecycle so it
+# coexists with the fan controller's own chip handle without GPIO_BUSY conflicts.
 # =============================================================================
 
 import logging

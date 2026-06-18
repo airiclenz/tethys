@@ -882,44 +882,81 @@ namespace tethys {
         }
 
         // ============================================================================
-        export function triggerChannel() {
-            var callChannelNumber = selectedChannelNumber;
-            var elementTestChannel = <HTMLInputElement>(
+        // Poll a queued manual command until the core reaches a terminal status.
+        // The API only *enqueues* activate/deactivate; the core runs it on its next
+        // loop pass (within the ~30s radio-listen window) and may reject an activate
+        // when another channel is already running (the one-channel power limit).
+        async function pollManualCommandOutcome(commandId: number): Promise<string> {
+            const POLL_INTERVAL_MS = 2000;
+            const MAX_ATTEMPTS = 20; // ~40s: comfortably covers the core's listen window
+
+            for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+                await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+
+                const response = await getCall(apiUrl + "manualCommand/" + commandId);
+                if (!response.ok) {
+                    continue;
+                }
+
+                const command = await response.json();
+                if (command.status !== "pending") {
+                    return command.status;
+                }
+            }
+
+            return "timeout";
+        }
+
+        // ============================================================================
+        export async function triggerChannel() {
+            const callChannelNumber = selectedChannelNumber;
+            const elementTestChannel = <HTMLInputElement>(
                 (<unknown>document.getElementById("idTestChannel"))
             );
-            var value = elementTestChannel.checked;
+            const requestedOn = elementTestChannel.checked;
+            const callString = requestedOn ? "activate" : "deactivate";
 
-            var callString: string;
-            value ? (callString = "activate") : (callString = "deactivate");
-
-            patchCall(apiUrl + "channel/" + selectedChannelNumber + "/" + callString).then(
-                (response) => {
-                    if (response.ok) {
-                        console.log(
-                            "Channel " + callChannelNumber + " was " + callString + "d."
-                        );
-                    } else {
-                        console.log(
-                            "Channel " +
-                            callChannelNumber +
-                            " wad not " +
-                            callString +
-                            "d: " +
-                            response.statusText
-                        );
-
-                        // Permission denied: the API key is missing or wrong.
-                        // Revert the toggle and point the user at Settings.
-                        if (response.status === 403) {
-                            elementTestChannel.checked = !value;
-                            alert(
-                                "Not authorized to control the pump. Set the " +
-                                "correct API key in Settings (top menu)."
-                            );
-                        }
-                    }
-                }
+            const response = await patchCall(
+                apiUrl + "channel/" + callChannelNumber + "/" + callString
             );
+
+            if (!response.ok) {
+                // The command was not even queued. Revert the toggle so it reflects
+                // reality, and explain a permission failure (missing/wrong API key).
+                elementTestChannel.checked = !requestedOn;
+                if (response.status === 403) {
+                    alert(
+                        "Not authorized to control the pump. Set the " +
+                        "correct API key in Settings (top menu)."
+                    );
+                } else {
+                    console.log(
+                        "Channel " + callChannelNumber + " could not be " +
+                        callString + "d: " + response.statusText
+                    );
+                }
+                return;
+            }
+
+            // Queued. Wait for the core to actually run (or refuse) it.
+            const body = await response.json();
+            const outcome = await pollManualCommandOutcome(body.commandId);
+            console.log(
+                "Channel " + callChannelNumber + " " + callString + " outcome: " + outcome
+            );
+
+            // Only an activate can be refused; a successful one is "accepted".
+            if (requestedOn && outcome !== "accepted") {
+                elementTestChannel.checked = false;
+                if (outcome === "rejected") {
+                    alert(
+                        "Another channel is currently active. Only one channel can " +
+                        "run at a time to protect the power supply."
+                    );
+                } else if (outcome === "timeout") {
+                    alert("The channel did not respond in time. Please try again.");
+                }
+            }
         }
 
 

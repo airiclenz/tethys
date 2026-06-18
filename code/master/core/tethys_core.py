@@ -16,6 +16,7 @@ if root_path not in sys.path:
     sys.path.append(root_path)
 
 import core.actionEngine as actionEngine
+import core.manualCommands as manualCommands
 import core.fanController as fan
 
 
@@ -63,6 +64,10 @@ def handleCoreActivities():
         # sensor's handshake.
         radioWrapper.refreshConfigCache()
         radioWrapper.handleRadioEvents(timeOutInSec = 30)
+        # Run any manual "Test Channel" taps from the web UI through the same
+        # single pump controller as automatic watering, so the one-channel power
+        # limit is enforced across both paths.
+        manualCommands.drain(pumpController)
         actionEngine.handleActions(pumpController)
 
 

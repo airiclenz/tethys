@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 from django.db.models import OuterRef, Subquery, F, Count
+from django.utils import timezone
 from rest_framework import status
 from rest_framework import serializers
 from rest_framework.decorators import api_view
@@ -21,8 +22,10 @@ root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if root_path not in sys.path:
     sys.path.append(root_path)
 
-# Now you can import hardware
-import core.channel as hardwareChannel
+# Now you can import the shared globals package. NOTE: the API deliberately does
+# NOT import core's GPIO modules -- manual channel control is enqueued for the
+# core to run (see channel_single_action), so the watering hardware has a single
+# owner and the one-channel power limit holds for manual taps too.
 import globals.config as tethysConfig
 
 
@@ -387,9 +390,17 @@ def channel_single(request, number):
 
 @extend_schema(
     request=None,
-    responses={202: None, 400: None, 404: None, 406: None},
-    description="Activate or deactivate a channel's hardware output. "
-                "`action` must be `activate` or `deactivate`; returns 406 if the channel is disabled.",
+    responses={
+        202: inline_serializer(
+            name='ManualCommandQueued', fields={'commandId': serializers.IntegerField()}),
+        400: None, 404: None, 406: None,
+    },
+    description="Queue a manual activate/deactivate of a channel for the core to run. "
+                "`action` must be `activate` or `deactivate`; returns 406 if the channel "
+                "is disabled. The API does not touch hardware: it enqueues a ManualCommand "
+                "and returns its id so the caller can poll the outcome at "
+                "GET /api/manualCommand/<commandId> (an activate is rejected if another "
+                "channel is already running).",
 )
 @api_view(['PATCH'])
 def channel_single_action(request, number, action):
@@ -400,29 +411,82 @@ def channel_single_action(request, number, action):
         record = Channel.objects.get(pk = number)
     except Channel.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    
+
     if request.method == 'PATCH':
         if record.enabled == False:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-        
-        if action == 'activate':
-            hardwareChannel.setOutputState(
-                number, 
-                record.channelType.name, 
-                True)
-            
-            return Response(status=status.HTTP_202_ACCEPTED) 
-        
-        elif action == 'deactivate':
-            hardwareChannel.setOutputState(
-                number, 
-                record.channelType.name, 
-                False)
-            
-            return Response(status=status.HTTP_202_ACCEPTED) 
-        
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST) 
+
+        if action not in dict(MANUAL_COMMAND_ACTIONS):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # Enqueue for the core; never drive GPIO from the API process.
+        command = ManualCommand.objects.create(channel=record, action=action)
+        setLastDataUpdateNow()
+
+        return Response({'commandId': command.id}, status=status.HTTP_202_ACCEPTED)
+
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    responses=inline_serializer(
+        name='ManualCommandPendingList',
+        fields={'manualCommands': ManualCommandSerializer(many=True)}),
+    description='Pending manual commands (oldest first). Polled by the core, which runs '
+                'each one through the pump controller and reports the outcome back.',
+)
+@api_view(['GET'])
+def manualCommand_pending(request):
+
+    print(f'> {request.method}  ./api/manualCommand/pending')
+
+    commands = ManualCommand.objects.filter(status='pending').order_by('requestedAt')
+    serializer = ManualCommandSerializer(commands, many=True)
+    return Response({'manualCommands': serializer.data})
+
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
+    methods=['GET'],
+    responses={200: ManualCommandSerializer, 404: None},
+    description='Status of one manual command (polled by the web UI to confirm or revert its toggle).',
+)
+@extend_schema(
+    methods=['PATCH'],
+    request=inline_serializer(
+        name='ManualCommandResult',
+        fields={
+            'status': serializers.CharField(),
+            'message': serializers.CharField(required=False),
+        }),
+    responses={200: ManualCommandSerializer, 400: None, 404: None},
+    description='Report the terminal outcome of a processed manual command (written by the core).',
+)
+@api_view(['GET', 'PATCH'])
+def manualCommand_single(request, id):
+
+    print(f'> {request.method}  ./api/manualCommand/{id}')
+
+    try:
+        record = ManualCommand.objects.get(pk = id)
+    except ManualCommand.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        return Response(ManualCommandSerializer(record).data)
+
+    if request.method == 'PATCH':
+        newStatus = request.data.get('status')
+        # Only the core writes here, and only a terminal status is valid.
+        if newStatus not in dict(MANUAL_COMMAND_STATUSES) or newStatus == 'pending':
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        record.status = newStatus
+        record.message = request.data.get('message', '')
+        record.processedAt = timezone.now()
+        record.save()
+        setLastDataUpdateNow()
+
+        return Response(ManualCommandSerializer(record).data)
 
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

@@ -4,8 +4,9 @@
 # Verifies the security contract after reads were locked down for safe remote
 # (VPN) access: EVERY request needs a correct X-API-Key header, reads included;
 # only the CORS preflight (OPTIONS) is exempt. The pump activate/deactivate
-# endpoint is the worst-case target, so it is exercised end-to-end (with the
-# hardware call mocked out so no GPIO is touched). The state-seeding
+# endpoint is the worst-case target, so it is exercised end-to-end. The API no
+# longer touches GPIO at all -- it enqueues a ManualCommand for the core to run --
+# so a denied request is verified to enqueue nothing. The state-seeding
 # initializeDatabase endpoint is verified to be a key-gated POST, not an open GET.
 #
 # Run from code/master/api/:  python manage.py test tethys_api
@@ -16,7 +17,7 @@ from unittest import mock
 from django.conf import settings
 from django.test import TestCase
 
-from tethys_api.models import Channel, ChannelType, TransmissionPowerLevel
+from tethys_api.models import Channel, ChannelType, ManualCommand, TransmissionPowerLevel
 
 
 def _auth(key):
@@ -59,23 +60,20 @@ class ApiKeyPermissionTests(TestCase):
 
     # -- pump activate is gated ----------------------------------------------
 
-    @mock.patch("tethys_api.views.hardwareChannel.setOutputState")
-    def test_activate_denied_without_key(self, mock_set):
+    def test_activate_denied_without_key(self):
         response = self.client.patch("/api/channel/1/activate")
         self.assertEqual(response.status_code, 403)
-        mock_set.assert_not_called()  # hardware must not be touched when denied
+        self.assertFalse(ManualCommand.objects.exists())  # nothing enqueued when denied
 
-    @mock.patch("tethys_api.views.hardwareChannel.setOutputState")
-    def test_activate_denied_with_wrong_key(self, mock_set):
+    def test_activate_denied_with_wrong_key(self):
         response = self.client.patch("/api/channel/1/activate", **_auth("nope"))
         self.assertEqual(response.status_code, 403)
-        mock_set.assert_not_called()
+        self.assertFalse(ManualCommand.objects.exists())
 
-    @mock.patch("tethys_api.views.hardwareChannel.setOutputState")
-    def test_activate_allowed_with_key(self, mock_set):
+    def test_activate_allowed_with_key(self):
         response = self.client.patch("/api/channel/1/activate", **_auth(self.key))
         self.assertEqual(response.status_code, 202)
-        mock_set.assert_called_once()
+        self.assertEqual(ManualCommand.objects.filter(channel=1, action="activate").count(), 1)
 
     # -- a representative POST is gated --------------------------------------
 
