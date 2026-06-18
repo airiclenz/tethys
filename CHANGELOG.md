@@ -4,7 +4,7 @@ All notable changes to Tethys are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-Current released version: **2.0.0** (`code/master/globals/config.py`).
+Current released version: **3.0.0** (`code/master/globals/config.py`).
 
 ---
 

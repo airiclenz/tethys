@@ -52,7 +52,7 @@ def test_auth_banner_shows_on_403(live_server, page):
 
 
 def test_auth_banner_hidden_when_probe_succeeds(live_server, page):
-    page.route("**/api/version/", _mock_version(200, '{"version": "2.0.0"}'))
+    page.route("**/api/version/", _mock_version(200, '{"version": "3.0.0"}'))
 
     # Wait for the probe's GET to resolve so the hide path has run before we
     # assert; the banner must stay hidden on a successful probe.

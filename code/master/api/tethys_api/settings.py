@@ -195,7 +195,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Tethys IoT API',
     'DESCRIPTION': 'REST API for the Tethys IoT system -- control and monitor channels, schedules, and sensor data.',
-    'VERSION': '2.0.0',
+    'VERSION': '3.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     # drf-spectacular's schema/Swagger/ReDoc views take their permissions from
     # SERVE_PERMISSIONS (default AllowAny), NOT REST_FRAMEWORK's
