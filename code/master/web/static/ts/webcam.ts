@@ -36,6 +36,32 @@ namespace tethys {
         // cancellation and stay quiet instead of logging a spurious error.
         let tearingDown = false;
 
+        // Consecutive failed snapshots in the current session. After
+        // maxSnapshotFailures in a row the live poll is stopped (so the browser
+        // stops logging a failed request every few seconds) and the camera is
+        // treated as "dropped off the bus": the status explains it and the Reset
+        // button (a USB re-enumeration) is offered. Reset to 0 by any good frame.
+        let snapshotFailures = 0;
+        const maxSnapshotFailures = 2;
+        // True while a USB-reset round is in flight, so a second click (or a stray
+        // tick) can't fire overlapping resets.
+        let resetting = false;
+        // Floor wait after the API accepts the reset before the live view resumes.
+        // Sized to the DETERMINISTIC part of recovery — the controller unbind/rebind
+        // and the device re-enumerating (SETTLE_SECONDS + WAIT_SECONDS ≈ 14 s in
+        // globals/usb_recovery.py) — so polling never resumes while the device is
+        // still guaranteed absent. The variable tail (the tethys-camera restart) is
+        // absorbed by the post-reset grace window below, not by this one constant.
+        const resetWaitMs = 15000;
+        // After the floor wait the camera service may still be restarting, so the
+        // first snapshots can fail (a 503) before the device is truly back. For this
+        // many ticks a failure is treated as "still coming back": it does NOT count
+        // toward maxSnapshotFailures and does NOT re-show Reset — a single good frame
+        // ends the window early. This is what makes resume tolerant rather than a bet
+        // on one fixed wait matching the backend exactly.
+        let postResetGraceTicks = 0;
+        const postResetGraceTickCount = 6;
+
         // A capture size the device advertises, as the status JSON delivers it.
         interface Resolution {
             width: number;
@@ -145,7 +171,10 @@ namespace tethys {
 
 
         // ============================================================================
-        async function enable() {
+        // graceTicks > 0 (a resume after a USB reset) tells startPolling to tolerate
+        // a still-restarting camera service for that many ticks; a normal enable
+        // (the toggle) passes 0 and gets no grace.
+        async function enable(graceTicks: number = 0) {
 
             setStatus("Starting camera…");
 
@@ -167,7 +196,7 @@ namespace tethys {
                 return;
             }
 
-            startPolling();
+            startPolling(graceTicks);
         }
 
 
@@ -178,12 +207,18 @@ namespace tethys {
 
 
         // ============================================================================
-        function startPolling() {
+        function startPolling(graceTicks: number = 0) {
 
             // Guard against a double-start leaving a second interval running.
             if (pollTimer !== null) {
                 window.clearInterval(pollTimer);
             }
+
+            // Fresh session: clear any prior failure run and hide the Reset button.
+            // graceTicks seeds the post-reset tolerance window (0 for a normal start).
+            snapshotFailures = 0;
+            postResetGraceTicks = graceTicks;
+            showResetButton(false);
 
             frameCount = 0;
             setFrameCount(null);                     // blank until the first frame
@@ -212,10 +247,13 @@ namespace tethys {
                 }
 
                 if (!response.ok) {
-                    setStatus("Snapshot failed (" + response.status + ").");
+                    await handleSnapshotFailure(response);
                     return;
                 }
 
+                snapshotFailures = 0;
+                postResetGraceTicks = 0;             // a good frame ends any grace window
+                showResetButton(false);
                 const blob = await response.blob();
                 showBlob(blob);
                 setFrameCount(++frameCount);
@@ -232,6 +270,115 @@ namespace tethys {
                 setStatus("Lost connection to the camera service.");
                 console.error("Snapshot fetch failed:", e);
             }
+        }
+
+
+        // ============================================================================
+        // A snapshot came back non-OK (typically a 503: the grab failed or the
+        // device fell off the bus). Surface the real cause from the body; after a
+        // couple in a row, stop the poll and offer a USB reset — both so the browser
+        // stops logging a failed request every few seconds, and so the user gets a
+        // one-click remote recovery.
+        async function handleSnapshotFailure(response: Response) {
+
+            // Still inside the post-reset grace window: the camera service is most
+            // likely mid-restart, so don't count this toward the give-up threshold
+            // or re-show Reset — just report progress and keep polling. A good frame
+            // (in tick()) ends the window immediately.
+            if (postResetGraceTicks > 0) {
+                postResetGraceTicks -= 1;
+                setStatus("Camera reconnecting…");
+                return;
+            }
+
+            snapshotFailures += 1;
+            const message = await describeFailure(response);
+
+            if (snapshotFailures >= maxSnapshotFailures) {
+                stopPolling();
+                setToggle(false);
+                setStatus(message + " — try Reset camera.");
+                showResetButton(true);
+            } else {
+                setStatus(message);
+            }
+        }
+
+
+        // ============================================================================
+        // A human message for a failed snapshot, read from the service's JSON body
+        // when present. The camera service's 503 detail names the real cause (e.g.
+        // "no V4L2 Video Capture device found under /dev/video*"); an nginx 503
+        // (camera service itself down) has no JSON body, so we fall back to the code.
+        async function describeFailure(response: Response): Promise<string> {
+            try {
+                const data = await response.json();
+                const detail = String((data && (data.detail || data.error)) || "");
+                if (/no v4l2|video capture device|no such|not found|grab failed/i.test(detail)) {
+                    return "No camera detected — it dropped off the USB bus.";
+                }
+                if (detail) {
+                    return "Camera error: " + detail;
+                }
+            } catch (e) {
+                // Non-JSON body (e.g. an nginx 503 page) — fall through to the code.
+            }
+            return "Snapshot failed (" + response.status + ").";
+        }
+
+
+        // ============================================================================
+        // Reset camera button. Snapshots are failing because the USB device dropped
+        // off the bus; ask the (root) API to re-enumerate the USB controller — the
+        // one recovery that works without a physical replug — then re-enable the
+        // live view once the device is back. POSTs the key-gated
+        // /api/camera/reset-usb/ endpoint (same trust model as reboot).
+        export async function resetCamera() {
+
+            if (resetting) {
+                return;
+            }
+            resetting = true;
+            setResetButtonEnabled(false);
+            setStatus("Resetting camera — re-enumerating USB (up to ~30 s)…");
+
+            try {
+                const response = await postCall(tethys.apiUrl + "camera/reset-usb/", {});
+
+                if (!handleAuth(response)) {
+                    finishReset();
+                    return;
+                }
+                if (!response.ok) {
+                    setStatus("Reset request failed (" + response.status + "). Please try again.");
+                    finishReset();
+                    return;
+                }
+            } catch (e) {
+                setStatus("Could not reach the API to reset the camera.");
+                console.error("Camera USB reset failed:", e);
+                finishReset();
+                return;
+            }
+
+            // The API accepted (202). After the floor wait, resume the live view
+            // with a grace window so a camera service still mid-restart doesn't
+            // immediately flap back to "failed → Reset": a good frame clears the
+            // window and hides Reset; only failures that outlast the grace re-show
+            // it. enable(graceTicks) threads the window through to startPolling.
+            window.setTimeout(() => {
+                finishReset();
+                showResetButton(false);
+                setToggle(true);
+                enable(postResetGraceTickCount);
+            }, resetWaitMs);
+        }
+
+        // Clear the in-flight guard and re-arm the button (shared by every exit
+        // path of resetCamera, so a failure never leaves it stuck disabled).
+        function finishReset() {
+            resetting = false;
+            setResetButtonEnabled(true);
         }
 
 
@@ -546,6 +693,27 @@ namespace tethys {
 
         function getResolutionSelect(): HTMLSelectElement | null {
             return document.getElementById("idCameraResolution") as HTMLSelectElement | null;
+        }
+
+        function getResetButton(): HTMLButtonElement | null {
+            return document.getElementById("idCameraReset") as HTMLButtonElement | null;
+        }
+
+        // Show/hide the Reset button (hidden whenever the live view is healthy).
+        function showResetButton(show: boolean) {
+            const button = getResetButton();
+            if (button) {
+                button.hidden = !show;
+            }
+        }
+
+        // Grey the Reset button out while a reset is in flight, so it can't be
+        // double-fired.
+        function setResetButtonEnabled(enabled: boolean) {
+            const button = getResetButton();
+            if (button) {
+                button.disabled = !enabled;
+            }
         }
 
         // Control slider/readout ids are "idCamera" + Capitalised name (+ "Value"),

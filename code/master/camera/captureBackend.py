@@ -149,11 +149,22 @@ class V4l2UsbBackend(SnapshotBackend):
             "--stream-to=-",
         ]
 
-        result = self._run_v4l2(command, check=True)
+        try:
+            result = self._run_v4l2(command, check=True)
 
-        frame = result.stdout
-        if not frame.startswith(self._JPEG_SOI):
-            raise CaptureError("grab returned no JPEG frame (wrong device node?)")
+            frame = result.stdout
+            if not frame.startswith(self._JPEG_SOI):
+                raise CaptureError("grab returned no JPEG frame (wrong device node?)")
+        except CaptureError:
+            # A failed grab is most often the device dropping off the bus (the C200
+            # EPROTO-disconnects mid-session). That leaves the cached node stale, so
+            # every later grab fails against a /dev/video* that no longer exists.
+            # Forget it so the next snapshot re-probes and picks up the node a USB
+            # recovery re-enumerates the camera as — self-correcting even if this
+            # process isn't restarted. (A full recovery also restarts the service,
+            # which clears every cache; this is the in-process safety net.)
+            self._device = None
+            raise
 
         return frame
 

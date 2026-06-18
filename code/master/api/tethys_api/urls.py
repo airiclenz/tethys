@@ -24,6 +24,8 @@ urlpatterns = [
 
     path('api/reboot/', views.reboot),
 
+    path('api/camera/reset-usb/', views.reset_camera_usb),
+
     path('api/actionLog/', views.actionLog),
     path('api/actionLog/entry/<int:id>', views.actionLog_entry),
     path('api/actionLog/<str:number>', views.actionLog_single),

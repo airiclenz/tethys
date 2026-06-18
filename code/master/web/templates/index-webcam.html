@@ -1,102 +1,201 @@
-{% extends "layout.html" %}
-
-{% block content %}
-
+{% extends "layout.html" %} {% block content %}
 
 <!-- ----------------- W E B C A M ------------------- -->
 
-<div style="flex-direction: column; width: 100%;">
-
+<div style="flex-direction: column; width: 100%">
 	<div class="content-section">
-
 		<div class="div-row">
-			<div class="title div-column col-30">
-				Webcam
-			</div>
+			<div class="title div-column col-30">Webcam</div>
 
-			<div class="div-column col-10"
-				style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+			<div
+				class="div-column col-10"
+				style="
+					justify-content: flex-end;
+					padding-right: 0.6rem;
+					padding-bottom: 1rem;
+				"
+			>
 				Enable:
 			</div>
-			<div class="div-column col-10" style="padding-bottom: 1rem;">
+			<div class="div-column col-10" style="padding-bottom: 1rem">
 				<label class="switch">
-					<input type="checkbox" id="idWebcamEnable"
-						onchange="tethys.webcam.onToggleChange()">
+					<input
+						type="checkbox"
+						id="idWebcamEnable"
+						onchange="tethys.webcam.onToggleChange()"
+					/>
 					<span class="slider round"></span>
 				</label>
 			</div>
 
-			<div class="div-column col-10"
-				style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+			<div
+				class="div-column col-10"
+				style="
+					justify-content: flex-end;
+					padding-right: 0.6rem;
+					padding-bottom: 1rem;
+				"
+			>
 				Size:
 			</div>
-			<div class="div-column col-20" style="padding-bottom: 1rem;">
-				<select class="custom-select" id="idCameraResolution" disabled
-					onchange="tethys.webcam.onResolutionChange()"></select>
+			<div class="div-column col-20" style="padding-bottom: 1rem">
+				<select
+					class="custom-select"
+					id="idCameraResolution"
+					disabled
+					onchange="tethys.webcam.onResolutionChange()"
+				></select>
 			</div>
 
-			<div class="div-column" id="idWebcamStatus"
-				style="margin-left: auto; justify-content: flex-end; padding-bottom: 1rem; color: #aaaaaa;">
+			<div
+				class="div-column"
+				id="idWebcamStatus"
+				style="
+					margin-left: auto;
+					justify-content: flex-end;
+					padding-bottom: 1rem;
+					color: #aaaaaa;
+				"
+			>
 				Camera is off.
 			</div>
-		</div>
 
+			<!-- Shown only when snapshots keep failing because the USB camera has
+			     dropped off the bus: asks the (root) API to re-enumerate the USB
+			     controller — a remote recovery that needs no physical replug. -->
+			<button
+				id="idCameraReset"
+				type="button"
+				class="button"
+				hidden
+				style="
+					width: auto;
+					padding-left: 0.6rem;
+					padding-right: 0.6rem;
+					margin-left: 0.6rem;
+					margin-bottom: 1rem;
+				"
+				onclick="tethys.webcam.resetCamera()"
+			>
+				↻ Reset camera
+			</button>
+		</div>
 
 		<!-- Focus / zoom sliders. Disabled until /camera/status reports the camera
 		     supports each control; populated with its real min/max there. -->
 		<div class="div-row">
-			<div class="div-column col-10"
-				style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+			<div
+				class="div-column col-10"
+				style="
+					justify-content: flex-end;
+					padding-right: 0.6rem;
+					padding-bottom: 1rem;
+				"
+			>
 				Focus:
 			</div>
-			<div class="div-column col-25" style="padding-bottom: 1rem;">
-				<input type="range" class="custom-slider" id="idCameraFocus" disabled
-					style="flex: 1;"
+			<div class="div-column col-25" style="padding-bottom: 1rem">
+				<input
+					type="range"
+					class="custom-slider"
+					id="idCameraFocus"
+					disabled
+					style="flex: 1"
 					oninput="tethys.webcam.onControlInput('focus')"
-					onchange="tethys.webcam.onControlChange('focus')">
-				<span id="idCameraFocusValue"
-					style="margin-left: 0.5rem; min-width: 2.5rem; text-align: right; color: #aaaaaa;"></span>
+					onchange="tethys.webcam.onControlChange('focus')"
+				/>
+				<span
+					id="idCameraFocusValue"
+					style="
+						margin-left: 0.5rem;
+						min-width: 2.5rem;
+						text-align: right;
+						color: #aaaaaa;
+					"
+				></span>
 			</div>
 
-			<div class="div-column col-10"
-				style="justify-content: flex-end; padding-right: 0.6rem; padding-bottom: 1rem;">
+			<div
+				class="div-column col-10"
+				style="
+					justify-content: flex-end;
+					padding-right: 0.6rem;
+					padding-bottom: 1rem;
+				"
+			>
 				Zoom:
 			</div>
-			<div class="div-column col-25" style="padding-bottom: 1rem;">
-				<input type="range" class="custom-slider" id="idCameraZoom" disabled
-					style="flex: 1;"
+			<div class="div-column col-25" style="padding-bottom: 1rem">
+				<input
+					type="range"
+					class="custom-slider"
+					id="idCameraZoom"
+					disabled
+					style="flex: 1"
 					oninput="tethys.webcam.onControlInput('zoom')"
-					onchange="tethys.webcam.onControlChange('zoom')">
-				<span id="idCameraZoomValue"
-					style="margin-left: 0.5rem; min-width: 2.5rem; text-align: right; color: #aaaaaa;"></span>
+					onchange="tethys.webcam.onControlChange('zoom')"
+				/>
+				<span
+					id="idCameraZoomValue"
+					style="
+						margin-left: 0.5rem;
+						min-width: 2.5rem;
+						text-align: right;
+						color: #aaaaaa;
+					"
+				></span>
 			</div>
 		</div>
-
 
 		<!-- ----------------- L I V E   F R A M E ------------------- -->
 
-		<div class="div-row" style="justify-content: space-between; align-items: center;">
-			<span id="idCameraFrameCount" style="color: #aaaaaa; font-size: 0.85rem;"></span>
-			<button id="idCameraFullscreen" type="button" class="button"
-				style="width: auto; padding-left: 0.6rem; padding-right: 0.6rem;"
-				onclick="tethys.webcam.toggleFullscreen()">⛶ Full screen</button>
+		<div
+			class="div-row"
+			style="justify-content: space-between; align-items: center"
+		>
+			<span
+				id="idCameraFrameCount"
+				style="color: #aaaaaa; font-size: 0.85rem"
+			></span>
+			<button
+				id="idCameraFullscreen"
+				type="button"
+				class="button"
+				style="
+					width: auto;
+					padding: 0.6rem;
+					border: 0px;
+					background-color: transparent;
+					font-size: 0.85rem;
+				"
+				onclick="tethys.webcam.toggleFullscreen()"
+			>
+				⛶ - Full screen
+			</button>
 		</div>
 
-		<div class="div-row" style="justify-content: center;">
-			<img id="idCameraFrame" alt="Live webcam snapshot"
-				style="max-width: 100%; height: auto; display: none; border-radius: 4px;" />
+		<div class="div-row" style="justify-content: center">
+			<img
+				id="idCameraFrame"
+				alt="Live webcam snapshot"
+				style="
+					max-width: 100%;
+					height: auto;
+					display: none;
+					border-radius: 4px;
+				"
+			/>
 
-			<div id="idCameraPlaceholder"
-				style="padding: 3rem 1rem; color: #aaaaaa; text-align: center;">
-				The camera is off. Flip <strong>Enable</strong> to view a live snapshot.
-				<br><br>
+			<div
+				id="idCameraPlaceholder"
+				style="padding: 3rem 1rem; color: #aaaaaa; text-align: center"
+			>
+				The camera is off. Flip <strong>Enable</strong> to view a live
+				snapshot. <br /><br />
 				Snapshots are live-view only &mdash; nothing is recorded.
 			</div>
 		</div>
-
 	</div>
-
 </div>
-
 
 {% endblock %}

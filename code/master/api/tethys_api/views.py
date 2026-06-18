@@ -88,6 +88,43 @@ def reboot(request):
 
 # :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 @extend_schema(
+    request=None,
+    responses={202: None},
+    description='Recover a USB webcam that has dropped off the bus by '
+                're-enumerating the USB host controller. The verified Anker C200 '
+                'occasionally EPROTO-crashes mid-session and disconnects; once the '
+                'device is gone, only a controller reset (not a service restart) '
+                'brings it back. A remote recovery for when the camera cannot be '
+                'physically replugged. Key-gated and POST-only.',
+)
+@api_view(['POST'])
+def reset_camera_usb(request):
+
+    print(f'> {request.method}  ./api/camera/reset-usb/')
+
+    if request.method == 'POST':
+        # The unprivileged camera service cannot reset USB; this view (tethys-api,
+        # running as root) can. Re-enumerating the controller takes ~5-12 s and
+        # briefly drops every USB device, so hand it to a detached process and
+        # return 202 at once -- the same shape as reboot() above. The webcam UI
+        # waits out the re-enumeration and then resumes polling.
+        #
+        # start_new_session=True genuinely detaches it: the helper gets its own
+        # session/process group, so a gunicorn worker recycle mid-recovery can't
+        # signal the child and abort the unbind/rebind half-way. (reboot() can skip
+        # this because the whole box is going down with it anyway.)
+        #
+        # Absolute paths: the unit pins PATH to the venv bin, so a bare "python3"
+        # would not resolve in this process (FileNotFoundError).
+        venv_python = os.path.join(root_path, 'env_tethys/bin/python3')
+        helper = os.path.join(root_path, 'globals/usb_recovery.py')
+        subprocess.Popen([venv_python, helper], start_new_session=True)
+
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+
+# :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+@extend_schema(
     responses=inline_serializer(
         name='LastUpdateResponse',
         fields={'timestamp': serializers.DateTimeField()}),

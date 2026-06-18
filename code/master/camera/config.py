@@ -26,8 +26,8 @@ PORT = 8002
 
 # Snapshot capture format. The verified USB cam (Anker PowerConf C200) emits MJPG
 # natively at this size, so a grab needs no transcoding.
-CAPTURE_WIDTH = 1280
-CAPTURE_HEIGHT = 720
+CAPTURE_WIDTH = 1920
+CAPTURE_HEIGHT = 1080
 
 # Frames to discard before the kept one, so auto-exposure / white-balance have a
 # few frames to converge — a cold UVC device's first frame is often dark or
@@ -60,7 +60,7 @@ CAPTURE_FOCUS_SETTLE_SKIP_FRAMES = 30
 # `v4l2-ctl --list-ctrls` and disables a slider the camera doesn't expose. A
 # control absent from the camera is never sent, so an out-of-range/unsupported
 # value can't wedge the grab.
-CAPTURE_FOCUS = 550
+CAPTURE_FOCUS = 430
 CAPTURE_ZOOM = None
 
 # Hard ceiling (seconds) on a single grab, so a wedged device can never block the
@@ -81,7 +81,7 @@ MAX_ON_SECONDS = 30 * 60
 # Hint sent to the UI for its snapshot refresh cadence (seconds). Comfortably
 # under IDLE_TIMEOUT_SECONDS so normal polling keeps the device warm and never
 # trips the idle auto-off.
-SNAPSHOT_REFRESH_SECONDS = 3
+SNAPSHOT_REFRESH_SECONDS = 2
 
 
 # =============================================================================
