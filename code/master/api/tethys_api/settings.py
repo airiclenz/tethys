@@ -191,11 +191,18 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Single version source of truth: globals/config.py. This is the same value
+# GET /api/version/ reports (views.py) -- imported here so the OpenAPI docs
+# version can never drift from the release version. `version` is a
+# packaging.version.Version, so stringify it for the OpenAPI `info.version`
+# field (which must be a string).
+from globals.config import version as tethys_version
+
 # DRF Spectacular (OpenAPI schema + Swagger/ReDoc docs)
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Tethys IoT API',
     'DESCRIPTION': 'REST API for the Tethys IoT system -- control and monitor channels, schedules, and sensor data.',
-    'VERSION': '3.0.0',
+    'VERSION': str(tethys_version),
     'SERVE_INCLUDE_SCHEMA': False,
     # drf-spectacular's schema/Swagger/ReDoc views take their permissions from
     # SERVE_PERMISSIONS (default AllowAny), NOT REST_FRAMEWORK's
