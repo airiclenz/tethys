@@ -16,6 +16,7 @@ namespace tethys {
         const voltageColor = "#2f8f4e";                   // green
         const voltageFill = "rgba(47, 143, 78, 0.08)";
         const thresholdColor = "#cc3333";                 // dashed low-battery line
+        const actionThresholdColor = "#d98a00";           // dashed action-threshold line (moisture)
 
         // Mirrors the low-battery warning threshold used in measurements.ts.
         const batteryMinVoltage = 3.5;
@@ -25,7 +26,7 @@ namespace tethys {
         // Draw / refresh the two time-series charts from the current sensor readings.
         // Safe to call repeatedly: an existing chart is updated in place (no flicker),
         // and an empty list simply clears both charts.
-        export function render(rows: any[]) {
+        export function render(rows: any[], moistureThreshold: number | null = null) {
 
             // The vendored Chart.js global must be present; if the script failed to
             // load there is nothing to draw.
@@ -43,13 +44,13 @@ namespace tethys {
             const voltageData = ordered.map(row => row.batteryVoltage);
             const thresholdData = ordered.map(() => batteryMinVoltage);
 
-            moistureChart = drawMoisture(labels, moistureData);
+            moistureChart = drawMoisture(labels, moistureData, moistureThreshold);
             voltageChart = drawVoltage(labels, voltageData, thresholdData);
         }
 
 
         // ============================================================================
-        function drawMoisture(labels: string[], data: any[]) {
+        function drawMoisture(labels: string[], data: any[], threshold: number | null) {
 
             const canvas = <HTMLCanvasElement>(
                 (<unknown>document.getElementById("idMoistureChart"))
@@ -58,9 +59,19 @@ namespace tethys {
                 return moistureChart;
             }
 
+            // The per-channel action threshold is drawn as a flat reference line
+            // (one constant value per timestamp). When it is unknown the line is
+            // simply empty and its legend entry drops out (blank label).
+            const hasThreshold =
+                threshold !== null && threshold !== undefined && !isNaN(threshold);
+            const thresholdData = hasThreshold ? labels.map(() => threshold) : [];
+            const thresholdLabel = hasThreshold ? "Action threshold: " + threshold + "%" : "";
+
             if (moistureChart !== null) {
                 moistureChart.data.labels = labels;
                 moistureChart.data.datasets[0].data = data;
+                moistureChart.data.datasets[1].data = thresholdData;
+                moistureChart.data.datasets[1].label = thresholdLabel;
                 moistureChart.update();
                 return moistureChart;
             }
@@ -69,19 +80,33 @@ namespace tethys {
                 type: "line",
                 data: {
                     labels: labels,
-                    datasets: [{
-                        data: data,
-                        borderColor: moistureColor,
-                        backgroundColor: moistureFill,
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        pointHoverRadius: 4,
-                        tension: 0.25,
-                        fill: true,
-                        spanGaps: true
-                    }]
+                    datasets: [
+                        {
+                            data: data,
+                            borderColor: moistureColor,
+                            backgroundColor: moistureFill,
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            tension: 0.25,
+                            fill: true,
+                            spanGaps: true
+                        },
+                        {
+                            // Per-channel action threshold (mirrors the battery line).
+                            label: thresholdLabel,
+                            data: thresholdData,
+                            borderColor: actionThresholdColor,
+                            borderWidth: 1,
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                            fill: false
+                        }
+                    ]
                 },
-                options: baseOptions("Moisture", "%", { min: 0, max: 100 })
+                // Legend (filtered to labeled datasets) explains the threshold line.
+                options: baseOptions("Moisture", "%", { min: 0, max: 100 }, true)
             });
         }
 
@@ -122,6 +147,7 @@ namespace tethys {
                         },
                         {
                             // Low-battery reference line (mirrors the < 3.5 V warning).
+                            label: "Low-battery threshold: " + batteryMinVoltage + " V",
                             data: threshold,
                             borderColor: thresholdColor,
                             borderWidth: 1,
@@ -132,7 +158,8 @@ namespace tethys {
                         }
                     ]
                 },
-                options: baseOptions("Battery", " V", { suggestedMin: 2.8, suggestedMax: 4.3 })
+                // Legend (filtered to labeled datasets) explains the threshold line.
+                options: baseOptions("Battery", " V", { suggestedMin: 2.8, suggestedMax: 4.3 }, true)
             });
         }
 
@@ -140,7 +167,10 @@ namespace tethys {
         // ============================================================================
         // Shared chart options: clean look, thinned x-axis labels for large histories,
         // and tooltips that report only the real data series (not the threshold line).
-        function baseOptions(seriesName: string, unit: string, yScale: any) {
+        // When showThresholdLegend is set, the legend is shown but limited to datasets
+        // that carry a label (i.e. the threshold line), so the user sees what it means.
+        function baseOptions(seriesName: string, unit: string, yScale: any,
+                             showThresholdLegend: boolean = false) {
 
             yScale.ticks = {
                 maxTicksLimit: 6,
@@ -154,7 +184,9 @@ namespace tethys {
                 animation: false,
                 interaction: { mode: "index", intersect: false },
                 plugins: {
-                    legend: { display: false },
+                    legend: showThresholdLegend
+                        ? { display: true, labels: { filter: (item: any) => !!item.text } }
+                        : { display: false },
                     tooltip: {
                         // Only the primary series (index 0); skip the threshold line.
                         filter: (item: any) => item.datasetIndex === 0,

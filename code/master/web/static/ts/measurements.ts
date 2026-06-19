@@ -7,6 +7,7 @@ namespace tethys {
 
         let rows: any[] = [];             // raw SensorData records (sorted in place)
         let channel: number | null = null; // currently selected channel number
+        let channelSummaries: any[] = []; // cached channel summaries (per-channel metadata)
         let sortField = "timestamp";
         let sortAsc = false;              // default: newest first
         let pendingDelete: any = null;    // { kind: "row", id } | { kind: "all" }
@@ -54,6 +55,11 @@ namespace tethys {
             } catch (e) {
                 console.error("Could not load the channel list:", e);
             }
+
+            // Keep the full summaries so the chart can read this channel's action
+            // threshold without a second request (we only render the dropdown's
+            // number / nickName below).
+            channelSummaries = summaries;
 
             let optionsHtml = "";
             summaries.forEach((summary: any) => {
@@ -167,6 +173,17 @@ namespace tethys {
 
 
         // ============================================================================
+        // The action threshold (moisture %) for the selected channel, or null when
+        // the channel has no summary. Drawn as a reference line on the moisture chart.
+        function currentActionThreshold(): number | null {
+
+            const match = channelSummaries.find((s: any) => s.number === channel);
+
+            return match ? match.actionTriggerPercent : null;
+        }
+
+
+        // ============================================================================
         export async function render() {
 
             applySort();
@@ -174,7 +191,7 @@ namespace tethys {
             updateDeleteAllButton();
 
             // Keep the moisture / voltage charts in sync with the current data.
-            tethys.charts.render(rows);
+            tethys.charts.render(rows, currentActionThreshold());
 
             const container = document.getElementById("measurementRows")!;
 
