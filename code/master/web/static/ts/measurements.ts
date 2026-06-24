@@ -6,6 +6,7 @@ namespace tethys {
     export namespace measurements {
 
         let rows: any[] = [];             // raw SensorData records (sorted in place)
+        let actions: any[] = [];          // raw ActionLog records for this channel (chart markers)
         let channel: number | null = null; // currently selected channel number
         let channelSummaries: any[] = []; // cached channel summaries (per-channel metadata)
         let sortField = "timestamp";
@@ -101,6 +102,7 @@ namespace tethys {
 
             if (channel === null) {
                 rows = [];
+                actions = [];
                 render();
                 return;
             }
@@ -110,6 +112,7 @@ namespace tethys {
 
                 if (!response.ok) {
                     rows = [];
+                    actions = [];
                     render();
                     return;
                 }
@@ -121,7 +124,33 @@ namespace tethys {
                 rows = [];
             }
 
+            // The watering history is overlaid on the moisture chart as event
+            // markers; a failure here just leaves the chart without markers.
+            await loadActions();
+
             render();
+        }
+
+
+        // ============================================================================
+        // Fetch this channel's watering history (used only to mark action times on
+        // the moisture chart — mirrors the fetch in actions.ts:load()).
+        async function loadActions() {
+
+            try {
+                const response = await getCall(apiUrl + "actionLog/" + channel);
+
+                if (!response.ok) {
+                    actions = [];
+                    return;
+                }
+
+                const data = await response.json();
+                actions = data.actionLogs || [];
+            } catch (e) {
+                console.error("Could not load channel actions:", e);
+                actions = [];
+            }
         }
 
 
@@ -191,7 +220,8 @@ namespace tethys {
             updateDeleteAllButton();
 
             // Keep the moisture / voltage charts in sync with the current data.
-            tethys.charts.render(rows, currentActionThreshold());
+            // Watering actions are overlaid on the moisture chart as time markers.
+            tethys.charts.render(rows, currentActionThreshold(), actions);
 
             const container = document.getElementById("measurementRows")!;
 
